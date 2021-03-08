@@ -12,7 +12,7 @@ def use_ndarray(operation_fn):
     return _call_function_with_ndarray_args
 
 
-def similar_shape(A, B, operation):
+def valid_shape(A, B, operation):
     if operation in [SUM, SUB]:
         are_similar = A.shape == B.shape
     elif operation == MUL:
