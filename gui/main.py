@@ -1,7 +1,17 @@
 import sys
-from PyQt5.QtWidgets import QFileDialog,QHBoxLayout, QRadioButton, QMainWindow, QApplication, QPushButton, QWidget, QAction, QTabWidget,QVBoxLayout
+from PyQt5.QtWidgets import (
+    QFileDialog, 
+    QHBoxLayout, 
+    QRadioButton, 
+    QMainWindow, 
+    QApplication, 
+    QPushButton, 
+    QWidget, 
+    QAction, 
+    QTabWidget,QVBoxLayout
+)
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QSize
 import cv2
 
 from utils import (
@@ -45,9 +55,17 @@ class MainWindow(QWidget):
 
         # Create first tab
         self.tab1.layout = QVBoxLayout(self)
+
         self.buttonOpen = QPushButton("Upload Image")
+        self.buttonOpen.setFixedSize(QSize(120, 40))
         self.buttonOpen.clicked.connect(self.uploadImage)
         self.tab1.layout.addWidget(self.buttonOpen)
+
+        self.buttonSave = QPushButton("Save Image")
+        self.buttonSave.setFixedSize(QSize(120, 40))
+        self.buttonSave.clicked.connect(self.uploadImage)
+        self.tab1.layout.addWidget(self.buttonSave)
+
         self.tab1.setLayout(self.tab1.layout)
 
         self.radio_sublayout = QVBoxLayout(self)
@@ -58,6 +76,7 @@ class MainWindow(QWidget):
         self.radio_sublayout.addWidget(self.radioButton_2)
 
         self.tab1.layout.addLayout(self.radio_sublayout)
+        
         # Add tabs to widget
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
@@ -73,15 +92,18 @@ class MainWindow(QWidget):
         # Discards file_type since we are checking from extension
         file, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", options=options)
         
-        file_type = get_file_type(file)
-        
-        if file_type in [PGM, PPM]:
-            img = read_pgm_ppm(file)
-        else:
-            pass #TODO: implement
-        
-        if img is not None:
-            img.show()
+        # This validation prevents the program from abortin when 
+        # user cancels file operation
+        if file:
+            file_type = get_file_type(file)
+            
+            if file_type in [PGM, PPM]:
+                img = read_pgm_ppm(file)
+            else:
+                pass #TODO: implement
+            
+            if img is not None:
+                img.show()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
