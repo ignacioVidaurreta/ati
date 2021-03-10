@@ -4,6 +4,8 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 import cv2
 
+from utils import get_file_type, RAW, PGM, PPM
+
 class App(QMainWindow):
 
     def __init__(self):
@@ -61,8 +63,18 @@ class MainWindow(QWidget):
         global img
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file, file_type = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", options=options)
+        file, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", options=options)
+        
+        file_type = get_file_type(file)
         print(file_type)
+
+        if file_type == RAW:
+            pass
+        elif file_type == PGM:
+            pass
+        else:
+            pass
+        
         img = cv2.imread(file)
         if img is not None:
             cv2.imshow("Selected Image", img)
