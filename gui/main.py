@@ -1,13 +1,13 @@
 import sys
 from PyQt5.QtWidgets import (
-    QFileDialog, 
-    QHBoxLayout, 
-    QRadioButton, 
-    QMainWindow, 
-    QApplication, 
-    QPushButton, 
-    QWidget, 
-    QAction, 
+    QFileDialog,
+    QHBoxLayout,
+    QRadioButton,
+    QMainWindow,
+    QApplication,
+    QPushButton,
+    QWidget,
+    QAction,
     QTabWidget,QVBoxLayout
 )
 from PyQt5.QtGui import QIcon
@@ -19,7 +19,8 @@ from utils import (
     PGM,
     PPM,
     get_file_type,
-    read_pgm_ppm
+    read_pgm_ppm,
+    read_raw
 )
 
 class App(QMainWindow):
@@ -76,7 +77,7 @@ class MainWindow(QWidget):
         self.radio_sublayout.addWidget(self.radioButton_2)
 
         self.tab1.layout.addLayout(self.radio_sublayout)
-        
+
         # Add tabs to widget
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
@@ -88,20 +89,20 @@ class MainWindow(QWidget):
         global img
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        
+
         # Discards file_type since we are checking from extension
         file, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", options=options)
-        
-        # This validation prevents the program from abortin when 
+
+        # This validation prevents the program from abortin when
         # user cancels file operation
         if file:
             file_type = get_file_type(file)
-            
+
             if file_type in [PGM, PPM]:
                 img = read_pgm_ppm(file)
             else:
-                pass #TODO: implement
-            
+                img = read_raw(file)
+
             if img is not None:
                 img.show()
 
