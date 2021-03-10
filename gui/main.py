@@ -8,7 +8,13 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QWidget,
     QAction,
-    QTabWidget,QVBoxLayout
+    QTabWidget,
+    QVBoxLayout,
+    QGridLayout,
+    QFormLayout,
+    QLabel,
+    QLineEdit
+
 )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot, QSize
@@ -50,43 +56,56 @@ class MainWindow(QWidget):
         self.tabs = QTabWidget()
         self.tab1 = QWidget()
         self.tab2 = QWidget()
+        self.tab3 = QWidget()
         self.tabs.resize(300,200)
 
         # Add tabs
-        self.tabs.addTab(self.tab1,"Image Uploader")
-        self.tabs.addTab(self.tab2,"WIP")
+        self.tabs.addTab(self.tab1,"Loader")
+        self.tabs.addTab(self.tab2,"Pixel")
+        self.tabs.addTab(self.tab3,"Crop")
 
-        # Create first tab
-        self.tab1.layout = QVBoxLayout(self)
-
-        self.buttonOpen = QPushButton("Upload Image")
-        self.buttonOpen.setFixedSize(QSize(120, 40))
-        self.buttonOpen.clicked.connect(self.uploadImage)
-        self.tab1.layout.addWidget(self.buttonOpen)
-
-        self.buttonSave = QPushButton("Save Image")
-        self.buttonSave.setFixedSize(QSize(120, 40))
-        self.buttonSave.clicked.connect(self.uploadImage)
-        self.tab1.layout.addWidget(self.buttonSave)
-
-        self.tab1.setLayout(self.tab1.layout)
-
-        self.radio_sublayout = QVBoxLayout(self)
-        self.radioButton = QRadioButton("By pixel")
-        self.radioButton_2 = QRadioButton("By square")
-        self.radioButton_2.setChecked(True)
-        self.radio_sublayout.addWidget(self.radioButton)
-        self.radio_sublayout.addWidget(self.radioButton_2)
-
-        self.tab1.layout.addLayout(self.radio_sublayout)
+        self.loaderTab()
+        self.pixelTab()
+        self.cropTab()
 
         # Add tabs to widget
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
 
-    # @pyqtSlot()
-    # def on_click(self):
-    #     print("Hello World\n")
+    def loaderTab(self): 
+        # Create first tab
+        self.tab1.layout = QGridLayout(self)
+
+        self.buttonOpen = QPushButton("Upload Image")
+        self.buttonOpen.clicked.connect(self.uploadImage)
+        self.tab1.layout.addWidget(self.buttonOpen, 0, 0)
+
+        self.buttonSave = QPushButton("Save Image")
+        self.buttonSave.clicked.connect(self.uploadImage)
+        self.tab1.layout.addWidget(self.buttonSave, 0, 1)
+
+        self.tab1.setLayout(self.tab1.layout)
+
+    def pixelTab(self):
+        self.tab2.layout = QGridLayout(self)
+        
+        self.tab2.layout.addWidget(QLabel("X: "), 0, 0)
+        self.tab2.layout.addWidget(QLineEdit(), 0, 1)
+        self.tab2.layout.addWidget(QLabel("Y: "), 0, 2)
+        self.tab2.layout.addWidget(QLineEdit(), 0, 3)
+
+        self.buttonValue = QPushButton("Get pixel value")
+        self.buttonValue.clicked.connect(self.uploadImage)
+        self.tab2.layout.addWidget(self.buttonValue, 1, 0)
+        
+        self.tab2.layout.addWidget(QLabel("Value: "), 2, 0)
+        self.tab2.layout.addWidget(QLineEdit(), 2, 1)
+
+        self.tab2.setLayout(self.tab2.layout)
+
+    def cropTab(self):
+        pass
+
     def uploadImage(self):
         global img
         options = QFileDialog.Options()
@@ -108,6 +127,7 @@ class MainWindow(QWidget):
             if img is not None:
                 #img.show()
                 copy_crop_into_img(img, 10, 10, 100, 100)
+
 
 
 if __name__ == '__main__':
