@@ -32,6 +32,7 @@ def get_metadata(filename):
             if tmp[0].lower() == relative_name.lower():
                 return int(tmp[1]), int(tmp[2])
 
+    raise Exception(f"Missing Metadata information for {filename} in {METADATA_FILE} ")
 
 def read_raw(filename):
     raw_data = open(filename, "rb").read()
