@@ -4,7 +4,13 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 import cv2
 
-from utils import get_file_type, RAW, PGM, PPM
+from utils import (
+    RAW,
+    PGM,
+    PPM,
+    get_file_type,
+    read_pgm_ppm
+)
 
 class App(QMainWindow):
 
@@ -63,21 +69,19 @@ class MainWindow(QWidget):
         global img
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
+        
+        # Discards file_type since we are checking from extension
         file, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", options=options)
         
         file_type = get_file_type(file)
-        print(file_type)
-
-        if file_type == RAW:
-            pass
-        elif file_type == PGM:
-            pass
-        else:
-            pass
         
-        img = cv2.imread(file)
+        if file_type in [PGM, PPM]:
+            img = read_pgm_ppm(file)
+        else:
+            pass #TODO: implement
+        
         if img is not None:
-            cv2.imshow("Selected Image", img)
+            img.show()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
