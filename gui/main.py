@@ -20,7 +20,9 @@ from utils import (
     PPM,
     get_file_type,
     read_pgm_ppm,
-    read_raw
+    read_raw,
+    crop_image,
+    copy_crop_into_img
 )
 
 class App(QMainWindow):
@@ -104,7 +106,9 @@ class MainWindow(QWidget):
                 img = read_raw(file)
 
             if img is not None:
-                img.show()
+                #img.show()
+                copy_crop_into_img(img, 10, 10, 100, 100)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
