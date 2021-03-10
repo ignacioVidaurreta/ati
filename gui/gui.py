@@ -5,22 +5,25 @@
 # Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 import cv2
-from PyQt5.QtWidgets import QFileDialog, QWidget, QPushButton
+from PyQt5.QtWidgets import QFileDialog, QWidget, QPushButton, QTabWidget
+# from tabs import TabWidget
 
 #X Y Width Height
 
 class Ui_Dialog(QWidget):
-    def setupUi(self, Dialog):
+    def __init__(self, Dialog):
+        super().__init__()
         Dialog.setObjectName("Dialog")
         Dialog.resize(600, 500)
         Dialog.setAcceptDrops(True)
+
         self.buttonOpen = QtWidgets.QPushButton(Dialog)
         self.buttonOpen.setText("Upload Image")
         self.buttonOpen.setGeometry(QtCore.QRect(230, 40, 112, 25))
         self.buttonOpen.clicked.connect(self.uploadImage)
+
         self.pushButton = QtWidgets.QPushButton(Dialog)
         self.pushButton.setGeometry(QtCore.QRect(230, 90, 112, 25))
         self.pushButton.setObjectName("pushButton")
@@ -56,13 +59,18 @@ class Ui_Dialog(QWidget):
             cv2.imshow("Selected Image", img)
 
 #from qgis import gui
+class TabWidget(QWidget):
+    def __init__(self, Dialog):
+        super().__init__()
+        tabwidget = QTabWidget()
+        tabwidget.addTab(Ui_Dialog(Dialog), "Imagen")
+        tabwidget.setGeometry(QtCore.QRect(230,0,112,25))
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
-    ui.setupUi(Dialog)
+    ui = TabWidget(Dialog)
     Dialog.show()
     sys.exit(app.exec_())
 
