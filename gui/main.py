@@ -22,6 +22,7 @@ import cv2
 import numpy as np
 
 from pixel import PixelTab
+from crop import CropTab
 
 from utils import (
     RAW,
@@ -31,7 +32,9 @@ from utils import (
     read_pgm_ppm,
     read_raw,
     crop_image,
-    copy_crop_into_img
+    copy_crop_into_img,
+    newButton,
+    newAxisButton
 )
 
 class App(QMainWindow):
@@ -85,8 +88,6 @@ class MainWindow(QWidget):
 
         self.tab1.setLayout(self.tab1.layout)
 
-    def cropTab(self):
-        pass
 
     def uploadImage(self):
         global img
@@ -110,12 +111,11 @@ class MainWindow(QWidget):
                 self.image = img
                 # IMPORTANT: tabs wont appear until image is loaded
                 self.enableTabs()
-                # copy_crop_into_img(img, 10, 10, 100, 100)
 
 
     def enableTabs(self):
         self.tab2 = PixelTab(self)
-        self.tab3 = QWidget()
+        self.tab3 = CropTab(self)
         self.tabs.addTab(self.tab2,"Pixel")
         self.tabs.addTab(self.tab3,"Crop")
 

@@ -12,23 +12,12 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QIcon, QIntValidator
 from PyQt5.QtCore import pyqtSlot, QSize
+from utils import newButton, newAxisButton
 
 # With self.parent variable we can access information about the application
 # - parent.image gives us access to image
 #
 #
-
-# Some helper methods
-def newButton(label, function):
-    button = QPushButton(label)
-    button.clicked.connect(function)
-    return button
-
-def newAxisButton(label, maxValue):
-    axisLabel = QLabel(f'{label}: ')
-    axisInput = QLineEdit()
-    axisInput.setValidator(QIntValidator(0, maxValue))
-    return axisLabel, axisInput
 
 class PixelTab(QWidget):
 

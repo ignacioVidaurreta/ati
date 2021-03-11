@@ -5,6 +5,16 @@ PPM = 'ppm'
 from PIL import Image
 import re
 import numpy as np
+from PyQt5.QtWidgets import (
+    QPushButton,
+    QWidget,
+    QGridLayout,
+    QFormLayout,
+    QLabel,
+    QLineEdit
+)
+from PyQt5.QtGui import QIcon, QIntValidator
+from PyQt5.QtCore import pyqtSlot, QSize
 
 METADATA_FILE="data/info.txt"
 
@@ -40,11 +50,16 @@ def read_raw(filename):
     width, height = get_metadata(filename)
     return Image.frombytes('L', (width, height), raw_data)
 
-def get_pixel(img, x, y):
-    return img.getpixel((x,y))
+def newButton(label, function):
+    button = QPushButton(label)
+    button.clicked.connect(function)
+    return button
 
-def set_pixel(img, x, y, value):
-    return img.putpixel((x, y), value)
+def newAxisButton(label, maxValue):
+    axisLabel = QLabel(f'{label}: ')
+    axisInput = QLineEdit()
+    axisInput.setValidator(QIntValidator(0, maxValue))
+    return axisLabel, axisInput
 
 def crop_image(img, x, y, w, h):
     arr = np.array(img)
