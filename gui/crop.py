@@ -19,7 +19,8 @@ from utils import newButton, newAxisButton
 
 
 class CropTab(QWidget):
-
+    AVG_PIX_TEXT="Average Pixel:"
+    TOT_PIX_TEXT="Total Pixels:"
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
         self.parent = parent
@@ -29,7 +30,13 @@ class CropTab(QWidget):
         self.img = self.image.copy()
         self.imageShape = self.image.shape
         self.inspectImage = newButton("INSPECT", self.onInspectImageClick)
-        self.layout.addWidget(self.inspectImage, 1, 1)
+
+        # Results labels
+        self.averagePixelLabel = QLabel(self.AVG_PIX_TEXT)
+        self.totalPixelsLabel = QLabel(self.TOT_PIX_TEXT)
+        self.layout.addWidget(self.inspectImage, 2, 1)
+        self.layout.addWidget(self.averagePixelLabel, 0,0)
+        self.layout.addWidget(self.totalPixelsLabel, 1,0)
         self.setLayout(self.layout)
 
         # Initial variables
@@ -93,14 +100,14 @@ class CropTab(QWidget):
             average = sample.mean(axis=0).mean(axis=0)
             average = average.astype(int)
             pixels = abs((x - self.x0)*(y - self.y0))
-            print(f"Pixels selected: {pixels}")
+            self.totalPixelsLabel.setText(f"{self.TOT_PIX_TEXT} {pixels}")
             if len(self.imageShape) == 3:
                 RGB = (average[2], average[1], average[0])
-                print(f"Average RGB: {RGB}")
+                self.averagePixelLabel.setText(f"{self.AVG_PIX_TEXT} {RGB}")
                 # Show average color
                 pixel = Image.new(mode = "RGB", size = (100,100), color = RGB)
             else:
-                print(f"Average value: {average}")
+                self.averagePixelLabel.setText(f"{self.AVG_PIX_TEXT} {average}")
                 pixel = Image.new(mode = "L", size =(100, 100), color=int(average))
 
             pixel.show()
