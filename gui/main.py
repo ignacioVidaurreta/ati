@@ -71,7 +71,7 @@ class MainWindow(QWidget):
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
 
-    def loaderTab(self): 
+    def loaderTab(self):
         # Create first tab
         self.tab1.layout = QGridLayout(self)
 
@@ -110,7 +110,7 @@ class MainWindow(QWidget):
                 self.image = img
                 # IMPORTANT: tabs wont appear until image is loaded
                 self.enableTabs()
-                copy_crop_into_img(img, 10, 10, 100, 100)
+                # copy_crop_into_img(img, 10, 10, 100, 100)
 
 
     def enableTabs(self):
