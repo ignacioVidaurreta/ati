@@ -82,9 +82,18 @@ class MainWindow(QWidget):
         self.buttonOpen.clicked.connect(self.uploadImage)
         self.tab1.layout.addWidget(self.buttonOpen, 0, 0)
 
-        self.buttonSave = QPushButton("Save Image")
-        self.buttonSave.clicked.connect(self.uploadImage)
-        self.tab1.layout.addWidget(self.buttonSave, 0, 1)
+        self.fileLabel = QLabel(f'Save with filename: ')
+        self.fileInput = QLineEdit()
+        self.tab1.layout.addWidget(self.fileLabel, 1, 0)
+        self.tab1.layout.addWidget(self.fileInput, 1, 1)
+
+        self.buttonSave = QPushButton("Save")
+        self.buttonSave.clicked.connect(self.saveImage)
+        self.tab1.layout.addWidget(self.buttonSave, 1, 2)
+
+        self.filenameError = QLabel('You must include filename if you want to save')
+        self.tab1.layout.addWidget(self.filenameError, 3, 0)
+        self.filenameError.hide()
 
         self.tab1.setLayout(self.tab1.layout)
 
@@ -109,9 +118,20 @@ class MainWindow(QWidget):
 
             if img is not None:
                 self.image = img
+                self.imageFilename = QLabel(f'{file}')
+                self.tab1.layout.addWidget(self.imageFilename, 0, 1)
                 # IMPORTANT: tabs wont appear until image is loaded
                 self.enableTabs()
-
+    
+    
+    def saveImage(self):
+        if self.fileInput.text() and self.fileInput.text() != '':
+            self.filenameError.hide()
+            file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+            #TODO: image save
+        else:
+            self.filenameError.show()
+            
 
     def enableTabs(self):
         self.tab2 = PixelTab(self)
