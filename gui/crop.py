@@ -82,7 +82,7 @@ class CropTab(QWidget):
                 print(f"Selected pixel X: {self.x0} Y: {self.y0} - Value: {self.img[self.x0, self.y0]}")
                 self.recentClick = False
                 return
-            cv2.rectangle(self.img, pt1 =(self.x0, self.y0),
+            cv2.rectangle(self.img, pt1=(self.x0, self.y0),
                         pt2 =(x, y),
                         color =(0, 255, 0),
                         thickness = 2)

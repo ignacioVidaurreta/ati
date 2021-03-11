@@ -70,10 +70,13 @@ def crop_image(img, x, y, w, h):
     img.show()
 
 def copy_crop_into_img(img, x, y, w, h):
+    # This is the other image
+    # the one you paste the square/rectangle on
+    # (you will get the square/rectangle from self.parent.image)
     a = read_raw("data/GIRL.RAW")
-    arr_from = np.array(img)
-    arr_to  = np.array(a)
-    x1, y1 = x + w, y + w
+    arr_from = np.array(img) # image to matrix
+    arr_to  = np.array(a) # image to matrix
+    x1, y1 = x + w, y + h
     arr_to[y:y1, x:x1] = arr_from[y:y1, x:x1] # This should be the whole image but JIC
     img.show()
     img = Image.fromarray(arr_to)
