@@ -132,3 +132,6 @@ dmypy.json
 **/.vscode/**
 # vscode workspaces
 *.code-workspace
+
+# pycharm folder
+**/.idea/**
