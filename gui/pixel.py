@@ -71,6 +71,8 @@ class PixelTab(QWidget):
 
     # Convention: on[ButtonName]Click
     def onGetValueClick(self):
+        if hasattr(self, 'value'):
+            self.value.hide()
         self.value = QLabel(f'{self.getPixel()}')
         self.layout.addWidget(self.value, 1, 1)
 
