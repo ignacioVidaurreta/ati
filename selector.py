@@ -51,7 +51,7 @@ def drag_rectangle(event, x, y, flags, param):
 		#busca el mean de cada canal cromatico RGB
 		average = sample.mean(axis=0).mean(axis=0)
 		average = average.astype(int)
-		RGB = (average[2], average[1], average[0])
+		RGB = (average[0], average[1], average[2])
 		pixels = abs((x - ix)*(y - iy))
 		print(pixels)
 		print(RGB)

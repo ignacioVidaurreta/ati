@@ -58,7 +58,7 @@ class CropTab(QWidget):
         cv2.namedWindow(winname = "Selected Image")
         cv2.setMouseCallback("Selected Image", self.drag_rectangle)
         while True:
-            cv2.imshow("Selected Image", self.img)
+            cv2.imshow("Selected Image", cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB))
 
             #Sale al apretar esc
             if cv2.waitKey(20) == 27:
@@ -148,6 +148,7 @@ class CropTab(QWidget):
                 aux = x
                 x = self.x0
                 self.x0 = aux
+            self.img = self.image.copy()
             sample = self.img[self.y0:y, self.x0:x]
 
             average = sample.mean(axis=0).mean(axis=0)
@@ -155,7 +156,7 @@ class CropTab(QWidget):
             pixels = abs((x - self.x0)*(y - self.y0))
             self.totalPixelsLabel.setText(f"{self.TOT_PIX_TEXT} {pixels}")
             if len(self.imageShape) == 3:
-                RGB = (average[2], average[1], average[0])
+                RGB = (average[0], average[1], average[2])
                 self.averagePixelLabel.setText(f"{self.AVG_PIX_TEXT} {RGB}")
                 # Show average color
                 pixel = Image.new(mode = "RGB", size = (100,100), color = RGB)
