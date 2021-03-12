@@ -130,15 +130,24 @@ class MainWindow(QWidget):
         if hasattr(self, 'image') and self.fileInput.text() and self.fileInput.text() != '':
             self.filenameError.hide()
             
-            # gets filepath using directory and filename
             directory = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-            filepath = f'{directory}/{self.fileInput.text()}'
+            filename = self.fileInput.text()
+            filepath = f'{directory}/{filename}'
             
+            # Actual saving image
             if self.file_type in [PGM, PPM]:
-                # saves image
+                # gets filepath using directory and filename
                 save_pgm_ppm(self.image, filepath)
             else:
-                save_raw(self.image, filepath)
+                shape = np.asarray(self.image).shape
+
+                save_raw(
+                    self.image, 
+                    filename, 
+                    directory,
+                    shape[0],
+                    shape[1]
+                )
             
             # displays success message
             self.filepath = QLabel(f'Image saved at {filepath}')

@@ -29,8 +29,8 @@ def read_pgm_ppm(filename):
     return Image.open(filename)
 
 # img must be PIL Image
-def save_pgm_ppm(img: Image, filename):
-    return img.save(filename)
+def save_pgm_ppm(img: Image, filepath):
+    return img.save(filepath)
 
 def get_metadata(filename):
     relative_name = filename.split("/")[-1]
@@ -51,11 +51,17 @@ def read_raw(filename):
     width, height = get_metadata(filename)
     return Image.frombytes('L', (width, height), raw_data)
 
-def save_raw(img: Image, filename):
-    imagefile = open(filename, "wb")
-    bytesArray = bytearray(img) #TODO: fix this
+def save_raw(img: Image, filename, folder, height, width):
+    # Process of saving image
+    filepath = f'{folder}/{filename}'
+    imagefile = open(filepath, "wb")
+    bytesArray = bytearray(np.asarray(img))
     imagefile.write(bytesArray)
     imagefile.close()
+
+    # Process of appending dimensios to info.txt
+    with open('./data/info.txt', 'a') as f:
+        f.write(f'{filename}\n{width}\t{height}\n')
 
 def newButton(label, function):
     button = QPushButton(label)
