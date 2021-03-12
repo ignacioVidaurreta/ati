@@ -120,7 +120,7 @@ class CropTab(QWidget):
                 cv2.rectangle(self.img, pt1 =(self.x0, self.y0),
                             pt2 =(x, y),
                             color =(0, 255, 0),
-                            thickness = 2)
+                            thickness=0)
 
         # Give the information when the user stops drawing
         elif event == cv2.EVENT_LBUTTONUP:
@@ -132,7 +132,7 @@ class CropTab(QWidget):
             cv2.rectangle(self.img, pt1=(self.x0, self.y0),
                         pt2 =(x, y),
                         color =(0, 255, 0),
-                        thickness = 2)
+                        thickness=0)
             
             # Second point to make the rectangle
             # The other one is (x0, y0)
