@@ -30,7 +30,9 @@ from utils import (
     PPM,
     get_file_type,
     read_pgm_ppm,
+    save_pgm_ppm,
     read_raw,
+    save_raw,
     crop_image,
     copy_crop_into_img,
     newButton,
@@ -91,7 +93,7 @@ class MainWindow(QWidget):
         self.buttonSave.clicked.connect(self.saveImage)
         self.tab1.layout.addWidget(self.buttonSave, 1, 2)
 
-        self.filenameError = QLabel('You must include filename if you want to save')
+        self.filenameError = QLabel('Make sure you have loaded and image and set a filename')
         self.tab1.layout.addWidget(self.filenameError, 3, 0)
         self.filenameError.hide()
 
@@ -109,9 +111,9 @@ class MainWindow(QWidget):
         # This validation prevents the program from abortin when
         # user cancels file operation
         if file:
-            file_type = get_file_type(file)
+            self.file_type = get_file_type(file)
 
-            if file_type in [PGM, PPM]:
+            if self.file_type in [PGM, PPM]:
                 img = read_pgm_ppm(file)
             else:
                 img = read_raw(file)
@@ -123,21 +125,34 @@ class MainWindow(QWidget):
                 # IMPORTANT: tabs wont appear until image is loaded
                 self.enableTabs()
     
-    
+
     def saveImage(self):
-        if self.fileInput.text() and self.fileInput.text() != '':
+        if hasattr(self, 'image') and self.fileInput.text() and self.fileInput.text() != '':
             self.filenameError.hide()
-            file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-            #TODO: image save
+            
+            # gets filepath using directory and filename
+            directory = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+            filepath = f'{directory}/{self.fileInput.text()}'
+            
+            if self.file_type in [PGM, PPM]:
+                # saves image
+                save_pgm_ppm(self.image, filepath)
+            else:
+                save_raw(self.image, filepath)
+            
+            # displays success message
+            self.filepath = QLabel(f'Image saved at {filepath}')
+            self.tab1.layout.addWidget(self.filepath, 3, 0)
         else:
             self.filenameError.show()
-            
+
 
     def enableTabs(self):
         self.tab2 = PixelTab(self)
         self.tab3 = CropTab(self)
         self.tabs.addTab(self.tab2,"Pixel")
         self.tabs.addTab(self.tab3,"Crop")
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

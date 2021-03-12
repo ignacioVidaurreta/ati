@@ -28,8 +28,9 @@ def get_file_type(file):
 def read_pgm_ppm(filename):
     return Image.open(filename)
 
-def save_pgm(file):
-    pass
+# img must be PIL Image
+def save_pgm_ppm(img: Image, filename):
+    return img.save(filename)
 
 def get_metadata(filename):
     relative_name = filename.split("/")[-1]
@@ -49,6 +50,12 @@ def read_raw(filename):
     raw_data = open(filename, "rb").read()
     width, height = get_metadata(filename)
     return Image.frombytes('L', (width, height), raw_data)
+
+def save_raw(img: Image, filename):
+    imagefile = open(filename, "wb")
+    bytesArray = bytearray(img) #TODO: fix this
+    imagefile.write(bytesArray)
+    imagefile.close()
 
 def newButton(label, function):
     button = QPushButton(label)
