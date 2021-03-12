@@ -23,6 +23,7 @@ import numpy as np
 
 from pixel import PixelTab
 from crop import CropTab
+from operations import OperationsTab
 
 from utils import (
     RAW,
@@ -124,6 +125,8 @@ class MainWindow(QWidget):
                 self.tab1.layout.addWidget(self.imageFilename, 0, 1)
                 # IMPORTANT: tabs wont appear until image is loaded
                 self.enableTabs()
+                # TODO: missing original image title
+                img.show()
     
 
     def saveImage(self):
@@ -159,8 +162,10 @@ class MainWindow(QWidget):
     def enableTabs(self):
         self.tab2 = PixelTab(self)
         self.tab3 = CropTab(self)
+        self.tab4 = OperationsTab(self)
         self.tabs.addTab(self.tab2,"Pixel")
         self.tabs.addTab(self.tab3,"Crop")
+        self.tabs.addTab(self.tab4,"Operations")
 
 
 if __name__ == '__main__':
