@@ -34,13 +34,16 @@ def save_pgm_ppm(img: Image, filepath):
 
 def get_metadata(filename):
     relative_name = filename.split("/")[-1]
+    print(relative_name)
     with open(METADATA_FILE, "r") as fd:
         lines = fd.readlines()[2:] # We don't care about the header or the blank line
         for line in lines:
+            print(line)
             # A bit overloaded line: this removes repeated whitespaces,
             # removes the trailing newline and finally creates the array
             # with words separated by " "
             tmp = re.sub(" +", " ", line.rstrip()).split(" ")
+            print(tmp)
             if tmp[0].lower() == relative_name.lower():
                 return int(tmp[1]), int(tmp[2])
 
@@ -61,7 +64,7 @@ def save_raw(img: Image, filename, folder, height, width):
 
     # Process of appending dimensios to info.txt
     with open('./data/info.txt', 'a') as f:
-        f.write(f'{filename}\n{width}\t{height}\n')
+        f.write(f'{filename}   {width}   {height}\n')
 
 def newButton(label, function):
     button = QPushButton(label)
