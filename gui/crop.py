@@ -10,12 +10,13 @@ from PyQt5.QtWidgets import (
     QGridLayout,
     QFormLayout,
     QLabel,
-    QLineEdit
+    QLineEdit,
+    QFileDialog
 
 )
 from PyQt5.QtGui import QIcon, QIntValidator
 from PyQt5.QtCore import pyqtSlot, QSize
-from utils import newButton, newAxisButton
+from utils import *
 
 
 class CropTab(QWidget):
@@ -29,14 +30,20 @@ class CropTab(QWidget):
         self.image = np.asarray(self.parent.image)
         self.img = self.image.copy()
         self.imageShape = self.image.shape
+        
+        # Buttons 
         self.inspectImage = newButton("INSPECT", self.onInspectImageClick)
+        self.copyButton = newButton("COPY", self.onCopyClick)
 
         # Results labels
         self.averagePixelLabel = QLabel(self.AVG_PIX_TEXT)
         self.totalPixelsLabel = QLabel(self.TOT_PIX_TEXT)
-        self.layout.addWidget(self.inspectImage, 2, 1)
+        
         self.layout.addWidget(self.averagePixelLabel, 0,0)
         self.layout.addWidget(self.totalPixelsLabel, 1,0)
+        self.layout.addWidget(self.inspectImage, 2, 0)
+        self.layout.addWidget(self.copyButton, 3, 0)
+        
         self.setLayout(self.layout)
 
         # Initial variables
@@ -57,6 +64,46 @@ class CropTab(QWidget):
             if cv2.waitKey(20) == 27:
                 break
         cv2.destroyAllWindows()
+    
+    def onCopyClick(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+
+        # Discards file_type since we are checking from extension
+        file, _ = QFileDialog.getOpenFileName(
+            self,
+            "QFileDialog.getOpenFileName()", 
+            "",
+            "All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", 
+            options=options
+        )
+
+        # This validation prevents the program from abortin when
+        # user cancels file operation
+        if file:
+            self.file_type = get_file_type(file)
+
+            if self.file_type in [PGM, PPM]:
+                img = read_pgm_ppm(file)
+            else:
+                img = read_raw(file)
+
+            if img is not None:
+                self.target_image = img
+                modified_image = self.copy_crop_into_img()
+                modified_image.show()
+                # TODO: should we generalise this??
+                modified_image.save('./data/with_crop.jpg')
+
+
+    # This method will copy and save a new image
+    def copy_crop_into_img(self):
+        arr_from = np.array(self.image) # image to matrix
+        arr_to  = np.array(self.target_image) # image to matrix
+        arr_to[self.y0:self.y, self.x0:self.x] = arr_from[self.y0:self.y, self.x0:self.x]
+        modified_image = Image.fromarray(arr_to)
+        return modified_image
+
 
     def drag_rectangle(self, event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -86,6 +133,12 @@ class CropTab(QWidget):
                         pt2 =(x, y),
                         color =(0, 255, 0),
                         thickness = 2)
+            
+            # Second point to make the rectangle
+            # The other one is (x0, y0)
+            self.x = x
+            self.y = y
+
             #obtengo el sample, me fijo de que lado vino la seleccion
             if(y<self.y0):
                 aux = y
