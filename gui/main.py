@@ -103,11 +103,19 @@ class MainWindow(QWidget):
 
     def uploadImage(self):
         global img
+        
+        self.filenameError.hide()
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
         # Discards file_type since we are checking from extension
-        file, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", options=options)
+        file, _ = QFileDialog.getOpenFileName(
+            self,
+            "QFileDialog.getOpenFileName()", 
+            "",
+            "All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", 
+            options=options
+        )
 
         # This validation prevents the program from abortin when
         # user cancels file operation
