@@ -23,6 +23,7 @@ import numpy as np
 
 from pixel import PixelTab
 from crop import CropTab
+from image_trans import ImageTransformTab
 
 from utils import (
     RAW,
@@ -116,8 +117,10 @@ class MainWindow(QWidget):
     def enableTabs(self):
         self.tab2 = PixelTab(self)
         self.tab3 = CropTab(self)
+        self.tab4 = ImageTransformTab(self)
         self.tabs.addTab(self.tab2,"Pixel")
         self.tabs.addTab(self.tab3,"Crop")
+        self.tabs.addTab(self.tab4,"Transform")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
