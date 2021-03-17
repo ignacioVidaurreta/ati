@@ -23,6 +23,7 @@ import numpy as np
 
 from pixel import PixelTab
 from crop import CropTab
+from image_trans import ImageTransformTab
 from operations import OperationsTab
 
 from utils import (
@@ -103,7 +104,7 @@ class MainWindow(QWidget):
 
     def uploadImage(self):
         global img
-        
+
         self.filenameError.hide()
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -111,9 +112,9 @@ class MainWindow(QWidget):
         # Discards file_type since we are checking from extension
         file, _ = QFileDialog.getOpenFileName(
             self,
-            "QFileDialog.getOpenFileName()", 
+            "QFileDialog.getOpenFileName()",
             "",
-            "All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", 
+            "All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)",
             options=options
         )
 
@@ -135,16 +136,16 @@ class MainWindow(QWidget):
                 self.enableTabs()
                 # TODO: missing original image title
                 img.show()
-    
+
 
     def saveImage(self):
         if hasattr(self, 'image') and self.fileInput.text() and self.fileInput.text() != '':
             self.filenameError.hide()
-            
+
             directory = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
             filename = self.fileInput.text()
             filepath = f'{directory}/{filename}'
-            
+
             # Actual saving image
             if self.file_type in [PGM, PPM]:
                 # gets filepath using directory and filename
@@ -153,13 +154,13 @@ class MainWindow(QWidget):
                 shape = np.asarray(self.image).shape
 
                 save_raw(
-                    self.image, 
-                    filename, 
+                    self.image,
+                    filename,
                     directory,
                     shape[0],
                     shape[1]
                 )
-            
+
             # displays success message
             self.filepath = QLabel(f'Image saved at {filepath}')
             self.tab1.layout.addWidget(self.filepath, 3, 0)
@@ -171,9 +172,11 @@ class MainWindow(QWidget):
         self.tab2 = PixelTab(self)
         self.tab3 = CropTab(self)
         self.tab4 = OperationsTab(self)
+        self.tab5 = ImageTransformTab(self)
         self.tabs.addTab(self.tab2,"Pixel")
         self.tabs.addTab(self.tab3,"Crop")
         self.tabs.addTab(self.tab4,"Operations")
+        self.tabs.addTab(self.tab5,"Transform")
 
 
 if __name__ == '__main__':
