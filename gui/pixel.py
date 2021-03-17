@@ -35,7 +35,10 @@ class PixelTab(QWidget):
         self.yLabel, self.yInput = newAxisButton('Y', self.imageShape[1])
         self.valueLabel = QLabel(f'Value: ')
         self.valueInput = QLineEdit()
-
+        self.valueInput.setValidator(QIntValidator(0, 255))
+        
+        self.pixelSetError = QLabel('You need to select coordinates first')
+        
         # Buttons definitions
         self.setValue = newButton("SET", self.onSetValueClick)
         self.getValue = newButton("GET", self.onGetValueClick)
@@ -49,18 +52,29 @@ class PixelTab(QWidget):
         if len(self.imageShape) == 3:
             self.layout.addWidget(self.yLabel, 0, 4)
             self.layout.addWidget(self.yInput, 0, 5)
-        self.layout.addWidget(self.getValue, 1, 1)
-        self.layout.addWidget(self.restart, 1, 3)
+
+        self.layout.addWidget(self.getValue, 1, 0)
+
+        #self.layout.addWidget(self.placholder, 2, 0)
+        
         self.layout.addWidget(self.valueLabel, 3,0)
         self.layout.addWidget(self.valueInput, 3,1)
         self.layout.addWidget(self.setValue, 3, 2)
+        
+        self.layout.addWidget(self.pixelSetError, 4, 0)
+
+        self.layout.addWidget(self.restart, 5, 0)
+        
+        self.pixelSetError.hide()
 
         self.setLayout(self.layout)
 
     # Convention: on[ButtonName]Click
     def onGetValueClick(self):
+        if hasattr(self, 'value'):
+            self.value.hide()
         self.value = QLabel(f'{self.getPixel()}')
-        self.layout.addWidget(self.value, 2, 0)
+        self.layout.addWidget(self.value, 1, 1)
 
     def _parse_set_value(self):
         value_arr = self.valueInput.text().strip().split(" ")
@@ -70,17 +84,30 @@ class PixelTab(QWidget):
             return int(value_arr[0]), int(value_arr[1]), int(value_arr[2])
 
     def onSetValueClick(self):
+        self.pixelSetError.hide()
         img = self.parent.image
-        value = self._parse_set_value()
-        x,y = self._get_xy_coords()
-        print(f"Setting pixel value to {value}")
+        try:
+            value = self._parse_set_value()
+            x,y = self._get_xy_coords()
+            print(f"Setting pixel value to {value}")
+            
+            return img.putpixel((x,y), value)
+    
+        except:
+            self.pixelSetError.show()
+            print('Pixel cannot be set.')
 
-        return img.putpixel((x,y), value)
 
     def onRestartClick(self):
+        self.pixelSetError.hide()
+        self.valueInput.setText(None)
         if hasattr(self, 'value'):
             self.layout.removeWidget(self.value)
             self.value.deleteLater()
+            self.xInput.setText(None)
+            self.yInput.setText(None)
+            if self.imageShape == 3:
+                self.zInput.setText(None)
 
     def _get_xy_coords(self):
         x = int(self.xInput.text())

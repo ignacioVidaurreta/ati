@@ -28,8 +28,9 @@ def get_file_type(file):
 def read_pgm_ppm(filename):
     return Image.open(filename)
 
-def save_pgm(file):
-    pass
+# img must be PIL Image
+def save_pgm_ppm(img: Image, filepath):
+    return img.save(filepath)
 
 def get_metadata(filename):
     relative_name = filename.split("/")[-1]
@@ -50,6 +51,18 @@ def read_raw(filename):
     width, height = get_metadata(filename)
     return Image.frombytes('L', (width, height), raw_data)
 
+def save_raw(img: Image, filename, folder, height, width):
+    # Process of saving image
+    filepath = f'{folder}/{filename}'
+    imagefile = open(filepath, "wb")
+    bytesArray = bytearray(np.asarray(img))
+    imagefile.write(bytesArray)
+    imagefile.close()
+
+    # Process of appending dimensios to info.txt
+    with open('./data/info.txt', 'a') as f:
+        f.write(f'{filename}   {width}   {height}\n')
+
 def newButton(label, function):
     button = QPushButton(label)
     button.clicked.connect(function)
@@ -66,14 +79,16 @@ def crop_image(img, x, y, w, h):
     img.show()
     x1, y1 = x + w, y + h
     img = Image.fromarray(arr[y:y1, x:x1])
-    print(arr[y:y1, x:x1].shape)
     img.show()
 
 def copy_crop_into_img(img, x, y, w, h):
+    # This is the other image
+    # the one you paste the square/rectangle on
+    # (you will get the square/rectangle from self.parent.image)
     a = read_raw("data/GIRL.RAW")
-    arr_from = np.array(img)
-    arr_to  = np.array(a)
-    x1, y1 = x + w, y + w
+    arr_from = np.array(img) # image to matrix
+    arr_to  = np.array(a) # image to matrix
+    x1, y1 = x + w, y + h
     arr_to[y:y1, x:x1] = arr_from[y:y1, x:x1] # This should be the whole image but JIC
     img.show()
     img = Image.fromarray(arr_to)

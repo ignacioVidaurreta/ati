@@ -25,21 +25,21 @@ def valid_shape(A, B, operation):
 
 @use_ndarray
 def matrix_sum(A, B):
-    if not similar_shape(A, B, SUM):
+    if not valid_shape(A, B, SUM):
         return None
 
     return np.add(A, B)
 
 @use_ndarray
 def matrix_mult(A, B):
-    if not similar_shape(A, B, MUL):
+    if not valid_shape(A, B, MUL):
         return None
 
     return np.matmul(A, B)
 
 @use_ndarray
 def matrix_subst(A, B):
-    if not similar_shape(A, B, SUB):
+    if not valid_shape(A, B, SUB):
         return None
 
     return np.subtract(A, B)

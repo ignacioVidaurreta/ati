@@ -24,6 +24,7 @@ import numpy as np
 from pixel import PixelTab
 from crop import CropTab
 from image_trans import ImageTransformTab
+from operations import OperationsTab
 
 from utils import (
     RAW,
@@ -31,7 +32,9 @@ from utils import (
     PPM,
     get_file_type,
     read_pgm_ppm,
+    save_pgm_ppm,
     read_raw,
+    save_raw,
     crop_image,
     copy_crop_into_img,
     newButton,
@@ -83,44 +86,98 @@ class MainWindow(QWidget):
         self.buttonOpen.clicked.connect(self.uploadImage)
         self.tab1.layout.addWidget(self.buttonOpen, 0, 0)
 
-        self.buttonSave = QPushButton("Save Image")
-        self.buttonSave.clicked.connect(self.uploadImage)
-        self.tab1.layout.addWidget(self.buttonSave, 0, 1)
+        self.fileLabel = QLabel(f'Save with filename: ')
+        self.fileInput = QLineEdit()
+        self.tab1.layout.addWidget(self.fileLabel, 1, 0)
+        self.tab1.layout.addWidget(self.fileInput, 1, 1)
+
+        self.buttonSave = QPushButton("Save")
+        self.buttonSave.clicked.connect(self.saveImage)
+        self.tab1.layout.addWidget(self.buttonSave, 1, 2)
+
+        self.filenameError = QLabel('Make sure you have loaded and image and set a filename')
+        self.tab1.layout.addWidget(self.filenameError, 3, 0)
+        self.filenameError.hide()
 
         self.tab1.setLayout(self.tab1.layout)
 
 
     def uploadImage(self):
         global img
+
+        self.filenameError.hide()
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
 
         # Discards file_type since we are checking from extension
-        file, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", options=options)
+        file, _ = QFileDialog.getOpenFileName(
+            self,
+            "QFileDialog.getOpenFileName()",
+            "",
+            "All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)",
+            options=options
+        )
 
         # This validation prevents the program from abortin when
         # user cancels file operation
         if file:
-            file_type = get_file_type(file)
+            self.file_type = get_file_type(file)
 
-            if file_type in [PGM, PPM]:
+            if self.file_type in [PGM, PPM]:
                 img = read_pgm_ppm(file)
             else:
                 img = read_raw(file)
 
             if img is not None:
                 self.image = img
+                self.imageFilename = QLabel(f'{file}')
+                self.tab1.layout.addWidget(self.imageFilename, 0, 1)
                 # IMPORTANT: tabs wont appear until image is loaded
                 self.enableTabs()
+                # TODO: missing original image title
+                img.show()
+
+
+    def saveImage(self):
+        if hasattr(self, 'image') and self.fileInput.text() and self.fileInput.text() != '':
+            self.filenameError.hide()
+
+            directory = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+            filename = self.fileInput.text()
+            filepath = f'{directory}/{filename}'
+
+            # Actual saving image
+            if self.file_type in [PGM, PPM]:
+                # gets filepath using directory and filename
+                save_pgm_ppm(self.image, filepath)
+            else:
+                shape = np.asarray(self.image).shape
+
+                save_raw(
+                    self.image,
+                    filename,
+                    directory,
+                    shape[0],
+                    shape[1]
+                )
+
+            # displays success message
+            self.filepath = QLabel(f'Image saved at {filepath}')
+            self.tab1.layout.addWidget(self.filepath, 3, 0)
+        else:
+            self.filenameError.show()
 
 
     def enableTabs(self):
         self.tab2 = PixelTab(self)
         self.tab3 = CropTab(self)
-        self.tab4 = ImageTransformTab(self)
+        self.tab4 = OperationsTab(self)
+        self.tab5 = ImageTransformTab(self)
         self.tabs.addTab(self.tab2,"Pixel")
         self.tabs.addTab(self.tab3,"Crop")
-        self.tabs.addTab(self.tab4,"Transform")
+        self.tabs.addTab(self.tab4,"Operations")
+        self.tabs.addTab(self.tab5,"Transform")
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
