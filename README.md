@@ -21,6 +21,6 @@ pip install -r requirements.txt
 ```
 After that, you are ready to go! Run the GUI
 ```bash
-python gui.py
+python gui/main.py
 ```
 
