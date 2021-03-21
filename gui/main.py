@@ -21,10 +21,11 @@ from PyQt5.QtCore import pyqtSlot, QSize
 import cv2
 import numpy as np
 
-from pixel import PixelTab
 from crop import CropTab
+from histogram import HistogramTab
 from image_trans import ImageTransformTab
 from operations import OperationsTab
+from pixel import PixelTab
 
 from utils import (
     RAW,
@@ -130,6 +131,7 @@ class MainWindow(QWidget):
 
             if img is not None:
                 self.image = img
+                self.filename = file
                 self.imageFilename = QLabel(f'{file}')
                 self.tab1.layout.addWidget(self.imageFilename, 0, 1)
                 # IMPORTANT: tabs wont appear until image is loaded
@@ -173,10 +175,15 @@ class MainWindow(QWidget):
         self.tab3 = CropTab(self)
         self.tab4 = OperationsTab(self)
         self.tab5 = ImageTransformTab(self)
-        self.tabs.addTab(self.tab2,"Pixel")
-        self.tabs.addTab(self.tab3,"Crop")
-        self.tabs.addTab(self.tab4,"Operations")
-        self.tabs.addTab(self.tab5,"Transform")
+
+        self.tabs.addTab(self.tab2, "Pixel")
+        self.tabs.addTab(self.tab3, "Crop")
+        self.tabs.addTab(self.tab4, "Operations")
+        self.tabs.addTab(self.tab5, "Transform")
+
+        if len(np.asarray(self.image).shape) != 3:
+            self.tab6 = HistogramTab(self)
+            self.tabs.addTab(self.tab6, "Histogram")
 
 
 if __name__ == '__main__':
