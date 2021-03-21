@@ -1,4 +1,5 @@
 import sys
+from PyQt5 import sip
 from PyQt5.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
@@ -62,7 +63,9 @@ class MainWindow(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
         self.layout = QVBoxLayout(self)
+        self.setBasicLayout()
 
+    def setBasicLayout(self):
         # Initialize tab screen
         self.tabs = QTabWidget()
         self.tab1 = QWidget()
@@ -97,6 +100,10 @@ class MainWindow(QWidget):
         self.filenameError = QLabel('Make sure you have loaded and image and set a filename')
         self.tab1.layout.addWidget(self.filenameError, 3, 0)
         self.filenameError.hide()
+
+        self.buttonRestart = QPushButton("Restart")
+        self.buttonRestart.clicked.connect(self.onRestartClick)
+        self.tab1.layout.addWidget(self.buttonRestart, 4, 0)
 
         self.tab1.setLayout(self.tab1.layout)
 
@@ -182,6 +189,12 @@ class MainWindow(QWidget):
         if len(np.asarray(self.image).shape) != 3:
             self.tab6 = HistogramTab(self)
             self.tabs.addTab(self.tab6, "Histogram")
+    
+    def onRestartClick(self):
+        self.layout.removeWidget(self.tabs)
+        sip.delete(self.tabs)
+        self.tabs = None
+        self.setBasicLayout()
 
 
 if __name__ == '__main__':
