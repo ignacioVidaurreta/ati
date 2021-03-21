@@ -83,8 +83,8 @@ class CropTab(QWidget):
         if file:
             self.file_type = get_file_type(file)
 
-            if self.file_type in [PGM, PPM]:
-                img = read_pgm_ppm(file)
+            if self.file_type != RAW:
+                img = read_image(file)
             else:
                 img = read_raw(file)
 

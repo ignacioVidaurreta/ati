@@ -95,6 +95,9 @@ class HistogramTab(QWidget):
             index = pixels[x,y]
             pixels[x,y] = new_colors[index]
         
+        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        img.save(f'{filename}_equalized.png')
+        
         hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
             "Original Image",
             f"Equalized Image"

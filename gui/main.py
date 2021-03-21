@@ -29,11 +29,9 @@ from pixel import PixelTab
 
 from utils import (
     RAW,
-    PGM,
-    PPM,
     get_file_type,
-    read_pgm_ppm,
-    save_pgm_ppm,
+    read_image,
+    save_image,
     read_raw,
     save_raw,
     crop_image,
@@ -124,10 +122,10 @@ class MainWindow(QWidget):
         if file:
             self.file_type = get_file_type(file)
 
-            if self.file_type in [PGM, PPM]:
-                img = read_pgm_ppm(file)
-            else:
+            if self.file_type == RAW:
                 img = read_raw(file)
+            else:
+                img = read_image(file)
 
             if img is not None:
                 self.image = img
@@ -149,9 +147,9 @@ class MainWindow(QWidget):
             filepath = f'{directory}/{filename}'
 
             # Actual saving image
-            if self.file_type in [PGM, PPM]:
+            if self.file_type != RAW:
                 # gets filepath using directory and filename
-                save_pgm_ppm(self.image, filepath)
+                save_image(self.image, filepath)
             else:
                 shape = np.asarray(self.image).shape
 

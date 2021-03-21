@@ -102,7 +102,7 @@ class OperationsTab(QWidget):
             self.file_type = get_file_type(file)
 
             if self.file_type in [PGM, PPM]:
-                img = read_pgm_ppm(file)
+                img = read_image(file)
             else:
                 img = read_raw(file)
 

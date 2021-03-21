@@ -1,6 +1,4 @@
 RAW = 'raw'
-PGM = 'pgm'
-PPM = 'ppm'
 
 from PIL import Image
 import re
@@ -20,16 +18,13 @@ METADATA_FILE="data/info.txt"
 
 def get_file_type(file):
     ext = file.split('.')[-1].lower()
-    if ext not in [RAW, PGM, PPM]:
-        #TODO: this should be nicer
-        raise Exception('Wrong file extension. Must be .raw, .pgm or .ppm')
     return ext
 
-def read_pgm_ppm(filename):
+def read_image(filename):
     return Image.open(filename)
 
 # img must be PIL Image
-def save_pgm_ppm(img: Image, filepath):
+def save_image(img: Image, filepath):
     return img.save(filepath)
 
 def get_metadata(filename):
