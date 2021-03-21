@@ -136,4 +136,4 @@ dmypy.json
 # pycharm folder
 **/.idea/**
 
-*equalized/*.png
+*transformations/*.png
