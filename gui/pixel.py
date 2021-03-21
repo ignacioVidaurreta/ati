@@ -36,9 +36,9 @@ class PixelTab(QWidget):
         self.valueLabel = QLabel(f'Value: ')
         self.valueInput = QLineEdit()
         self.valueInput.setValidator(QIntValidator(0, 255))
-        
+
         self.pixelSetError = QLabel('You need to select coordinates first')
-        
+
         # Buttons definitions
         self.setValue = newButton("SET", self.onSetValueClick)
         self.getValue = newButton("GET", self.onGetValueClick)
@@ -56,15 +56,15 @@ class PixelTab(QWidget):
         self.layout.addWidget(self.getValue, 1, 0)
 
         #self.layout.addWidget(self.placholder, 2, 0)
-        
+
         self.layout.addWidget(self.valueLabel, 3,0)
         self.layout.addWidget(self.valueInput, 3,1)
         self.layout.addWidget(self.setValue, 3, 2)
-        
+
         self.layout.addWidget(self.pixelSetError, 4, 0)
 
         self.layout.addWidget(self.restart, 5, 0)
-        
+
         self.pixelSetError.hide()
 
         self.setLayout(self.layout)
@@ -90,9 +90,9 @@ class PixelTab(QWidget):
             value = self._parse_set_value()
             x,y = self._get_xy_coords()
             print(f"Setting pixel value to {value}")
-            
+
             return img.putpixel((x,y), value)
-    
+
         except:
             self.pixelSetError.show()
             print('Pixel cannot be set.')

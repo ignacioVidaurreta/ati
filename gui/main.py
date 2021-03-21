@@ -27,6 +27,7 @@ from histogram import HistogramTab
 from image_trans import ImageTransformTab
 from operations import OperationsTab
 from pixel import PixelTab
+from noise import NoiseTab
 
 from utils import (
     RAW,
@@ -180,16 +181,19 @@ class MainWindow(QWidget):
         self.tab3 = CropTab(self)
         self.tab4 = OperationsTab(self)
         self.tab5 = ImageTransformTab(self)
+        # Tab 6 is the histogram
+        self.tab7 = NoiseTab(self)
 
         self.tabs.addTab(self.tab2, "Pixel")
         self.tabs.addTab(self.tab3, "Crop")
         self.tabs.addTab(self.tab4, "Operations")
         self.tabs.addTab(self.tab5, "Transform")
+        self.tabs.addTab(self.tab7, "Noise")
 
         if len(np.asarray(self.image).shape) != 3:
             self.tab6 = HistogramTab(self)
             self.tabs.addTab(self.tab6, "Histogram")
-    
+
     def onRestartClick(self):
         self.layout.removeWidget(self.tabs)
         sip.delete(self.tabs)
