@@ -1,4 +1,5 @@
 import sys
+import math
 import numpy as np
 
 from PyQt5.QtWidgets import (
@@ -11,7 +12,7 @@ from PyQt5.QtWidgets import (
 
 )
 from PyQt5.QtGui import QIcon, QIntValidator
-from PyQt5.QtCore import pyqtSlot, QSize
+from PyQt5.QtCore import pyqtSlot, QSize, Qt
 from utils import newButton, newAxisButton
 from PIL import Image
 import cv2
@@ -31,17 +32,28 @@ class ImageTransformTab(QWidget):
         # Buttons definitions
         self.negative = newButton("Negative", self.onNegativeClick)
         self.umbralization = newButton("Umbralization", self.onUmbralizationClick)
+        self.gamma = newButton("Apply Gamma", self.onGammaClick)
         
         # Labels for umbral input
         self.umbralLabel = QLabel("Umbral")
         self.umbralInput = QLineEdit()
         self.umbralInput.setText('255')
 
+        # Labels for umbral input
+        self.gammaLabel = QLabel("Gamma")
+        self.gammaInput = QLineEdit()
+        self.gammaInfo = QLabel("0 < \u03B3 < 2, \u03B3 != 1")
+        self.gammaInput.setText('0.1')
+
         # We add widgets to layout
         self.layout.addWidget(self.negative, 1, 0)
         self.layout.addWidget(self.umbralLabel, 2, 0)
         self.layout.addWidget(self.umbralInput, 2, 1)
         self.layout.addWidget(self.umbralization, 3, 0)
+        self.layout.addWidget(self.gammaLabel, 4, 0)
+        self.layout.addWidget(self.gammaInput, 4, 1)
+        self.layout.addWidget(self.gammaInfo, 4, 2)
+        self.layout.addWidget(self.gamma, 5, 0)
 
         self.setLayout(self.layout)
 
@@ -79,7 +91,6 @@ class ImageTransformTab(QWidget):
     
     def onUmbralizationClick(self):
         self.umbralValue = int(self.umbralInput.text())
-        print(f"About to apply umbralization with umbral {self.umbralValue}")
 
         # We do not want to loose original image
         img = self.parent.image.copy()
@@ -111,3 +122,27 @@ class ImageTransformTab(QWidget):
                 pixels[x,y] = 0
             else:
                 pixels[x,y] = 255
+
+    def onGammaClick(self):
+        gamma = float(self.gammaInput.text())
+
+        # We do not want to loose original image
+        img = self.parent.image.copy()
+
+        # We want to apply T(r) = c * r ^ gamma
+        # where c = (L-1)^(1-gamma)
+        c = 255 ** (1-gamma)
+
+        pixels = img.load()
+        for x,y in np.ndindex(img.size):
+            pixel = pixels[x,y]
+            pixels[x,y] = int(
+                math.ceil(
+                    c*(pixel ** gamma)
+                )
+            )
+        
+        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
+                "Original Image",
+                f"Power function with \u03B3={gamma}"
+            ], cmap="gray")
