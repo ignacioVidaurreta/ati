@@ -17,9 +17,9 @@ from PyQt5.QtCore import pyqtSlot, QSize, Qt
 from utils import newButton, newAxisButton
 from PIL import Image
 from display import hdisplay
-from utils import compute_histogram
+from utils import compute_histogram, TRANSFORMATION_FOLDER
 
-TRANSFORMATION_FOLDER = 'transformations'
+
 
 class ImageTransformTab(QWidget):
 
@@ -37,7 +37,7 @@ class ImageTransformTab(QWidget):
         self.umbralization = newButton("Umbralization", self.onUmbralizationClick)
         self.gamma = newButton("Apply Gamma", self.onGammaClick)
         self.equalize = newButton("Equalize", self.onEqualizeClick)
-        
+
         # Labels for umbral input
         self.umbralLabel = QLabel("Umbral")
         self.umbralInput = QLineEdit()
@@ -50,9 +50,9 @@ class ImageTransformTab(QWidget):
         self.gammaInput.setText('0.1')
 
         # We add widgets to layout for each transformation
-        
+
         self.layout.addWidget(self.negative, 1, 0)
-        
+
         self.layout.addWidget(self.umbralLabel, 2, 0)
         self.layout.addWidget(self.umbralInput, 2, 1)
         self.layout.addWidget(self.umbralization, 3, 0)
@@ -92,7 +92,7 @@ class ImageTransformTab(QWidget):
                 "Original Image",
                 "Negative Transformation of Image"
             ], cmap="gray")
-        
+
         filename = (self.parent.filename.split("/")[-1]).split(".")[0]
         img.save(f'{TRANSFORMATION_FOLDER}/{filename}_negative.png')
 
@@ -102,7 +102,7 @@ class ImageTransformTab(QWidget):
         pixels = img.load()
         for x,y in np.ndindex(img.size):
             pixels[x,y] = 255 - pixels[x,y]
-    
+
     def onUmbralizationClick(self):
         self.umbralValue = int(self.umbralInput.text())
 
@@ -128,10 +128,10 @@ class ImageTransformTab(QWidget):
                 "Original Image",
                 f"Umbralization with Umbral={self.umbralValue}"
             ], cmap="gray")
-        
+
         filename = (self.parent.filename.split("/")[-1]).split(".")[0]
         img.save(f'{TRANSFORMATION_FOLDER}/{filename}_umbral_{str(self.umbralValue)}.png')
-    
+
     def umbralizationTransform(self, img):
         pixels = img.load()
         for x,y in np.ndindex(img.size):
@@ -158,10 +158,10 @@ class ImageTransformTab(QWidget):
                     c*(pixel ** gamma)
                 )
             )
-        
+
         filename = (self.parent.filename.split("/")[-1]).split(".")[0]
         img.save(f'{TRANSFORMATION_FOLDER}/{filename}_power_{str(gamma)}.png')
-        
+
         hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
                 "Original Image",
                 f"Power function with \u03B3={gamma}"
@@ -190,17 +190,17 @@ class ImageTransformTab(QWidget):
             new_colors[i] = math.ceil(
                 ((accumulated_frequencies[i]-s_min)*255)/(1-s_min)
             )
-        
+
         new_colors = [int(x) for x in new_colors]
-        
+
         pixels = img.load()
         for x,y in np.ndindex(img.size):
             index = pixels[x,y]
             pixels[x,y] = new_colors[index]
-        
+
         filename = (self.parent.filename.split("/")[-1]).split(".")[0]
         img.save(f'{TRANSFORMATION_FOLDER}/{filename}_equalized.png')
-        
+
         hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
             "Original Image",
             f"Equalized Image"

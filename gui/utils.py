@@ -15,6 +15,8 @@ from PyQt5.QtGui import QIcon, QIntValidator
 from PyQt5.QtCore import pyqtSlot, QSize
 
 METADATA_FILE="data/info.txt"
+TRANSFORMATION_FOLDER = 'transformations'
+
 
 def get_file_type(file):
     ext = file.split('.')[-1].lower()
@@ -100,8 +102,8 @@ def compute_histogram(img, imageShape):
     for x,y in np.ndindex(img.size):
         current = histogram[pixels[x,y]]
         histogram[pixels[x,y]] = current + 1
-    
+
     total = imageShape[0]*imageShape[1]
     histogram = histogram/total
-    
+
     return histogram

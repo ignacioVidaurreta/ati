@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 
 )
 from display import hdisplay
-from utils import newButton, compute_histogram
+from utils import newButton, compute_histogram, TRANSFORMATION_FOLDER
 from PIL import Image
 import numpy as np
 
@@ -75,15 +75,39 @@ class NoiseTab(QWidget):
                 f"Image with added noise (σ: {self.sigma_input.text()} µ: {self.mu_input.text()})"
             ], cmap=cmap)
 
+        # filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        # img.save(f'{TRANSFORMATION_FOLDER}/{filename}_gaussNoise_mu{mu}_sigma{sigma}.png')
 
 
     def onRayleighClick(self):
         rng = np.random.default_rng()
         psi = float(self.psi_input.text())
         print(f"RAYLEIGH {rng.rayleigh(psi)}")
+        shape = self.image.shape
+        noise = rng.rayleigh(psi, shape)
+        img = Image.fromarray(np.multiply(self.image, noise))
+
+        cmap = "gray" if len(shape) == 2 else None
+
+        print(f"CMAP: {cmap}\n LEN: {len(shape)}")
+        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
+                "Original Image",
+                f"Image with added noise (ψ: {psi})"
+            ], cmap=cmap)
 
     def onExponentialClick(self):
         rng = np.random.default_rng()
         lambda_param = float(self.lambda_input.text())
         # Exponential receives Beta which is 1/lambda
         print(f"EXPONENTIAL: {rng.exponential(1/lambda_param)}")
+        shape = self.image.shape
+        noise = 1 - rng.exponential(1/lambda_param, shape)
+        img = Image.fromarray(np.multiply(self.image, noise))
+
+        cmap = "gray" if len(shape) == 2 else None
+
+        print(f"CMAP: {cmap}\n LEN: {len(shape)}")
+        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
+                "Original Image",
+                f"Image with added noise (λ: {lambda_param})"
+            ], cmap=cmap)
