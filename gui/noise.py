@@ -62,7 +62,20 @@ class NoiseTab(QWidget):
         rng = np.random.default_rng()
         sigma = float(self.sigma_input.text())
         mu = float(self.mu_input.text())
-        print(f"GAUSSIAN RAND: {rng.normal(sigma, mu)}")
+
+        shape = self.image.shape
+        noise = rng.normal(sigma, mu, shape)
+        img = Image.fromarray(self.image + noise)
+
+        cmap = "gray" if len(shape) == 2 else None
+
+        print(f"CMAP: {cmap}\n LEN: {len(shape)}")
+        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
+                "Original Image",
+                f"Image with added noise (σ: {self.sigma_input.text()} µ: {self.mu_input.text()})"
+            ], cmap=cmap)
+
+
 
     def onRayleighClick(self):
         rng = np.random.default_rng()
