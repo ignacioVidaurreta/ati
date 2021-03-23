@@ -28,6 +28,8 @@ from image_trans import ImageTransformTab
 from operations import OperationsTab
 from pixel import PixelTab
 from noise import NoiseTab
+from saltpepper import SaltPepperTab
+
 
 from utils import (
     RAW,
@@ -183,12 +185,15 @@ class MainWindow(QWidget):
         self.tab5 = ImageTransformTab(self)
         # Tab 6 is the histogram
         self.tab7 = NoiseTab(self)
+        self.tab8 = SaltPepperTab(self)
 
         self.tabs.addTab(self.tab2, "Pixel")
         self.tabs.addTab(self.tab3, "Crop")
         self.tabs.addTab(self.tab4, "Operations")
         self.tabs.addTab(self.tab5, "Transform")
         self.tabs.addTab(self.tab7, "Noise")
+        self.tabs.addTab(self.tab8, "S and P")
+
 
         if len(np.asarray(self.image).shape) != 3:
             self.tab6 = HistogramTab(self)

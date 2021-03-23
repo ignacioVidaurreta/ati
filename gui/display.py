@@ -14,7 +14,7 @@ def hdisplay(images,rows, cols, titles, cmap=None):
         axes.append(fig.add_subplot(rows, cols, counter))
         subplot_title=(title)
         axes[-1].set_title(subplot_title)
-        plt.imshow(arr) if cmap is None else plt.imshow(arr, cmap=cmap)
+        plt.imshow(arr) if cmap is None else plt.imshow(arr, cmap=cmap, vmin=0, vmax=255)
         counter+=1
 
     plt.show()
