@@ -1,4 +1,6 @@
 RAW = 'raw'
+PGM = 'pgm'
+PPM = 'ppm'
 
 from PIL import Image
 import re
