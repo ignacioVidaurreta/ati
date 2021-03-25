@@ -30,6 +30,8 @@ class Filter():
         img = self.image.copy()
         pixels = img.load()
 
+        original_pixels = self.image.copy().load()
+
         h = math.floor(self.L/2)
         self.mid = h
 
@@ -43,7 +45,7 @@ class Filter():
                 # We wont do anything at borders
                 pass
             else:
-                pixels[x,y] = self.compute(pixels, x, y)
+                pixels[x,y] = self.compute(original_pixels, x, y)
         
         return img
 
@@ -157,7 +159,7 @@ class EnhancementFilter(Filter):
         val = val/(self.L ** 2)
 
         # TODO: check if taking the ceil is ok
-        return int(math.ceil(val))
+        return int(math.ceil(abs(val)))
 
 
 class FilterTab(QWidget):

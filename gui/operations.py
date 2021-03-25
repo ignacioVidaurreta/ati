@@ -45,7 +45,7 @@ class OperationsTab(QWidget):
             if result is not None:
                 sumImage = Image.fromarray(result)
                 sumImage.show()
-                sumImage.save('./data/sum.jpg')
+                sumImage.save('./data/sum.png')
                 return
 
         # all errors will be here
@@ -59,7 +59,7 @@ class OperationsTab(QWidget):
             if result is not None:
                 substImage = Image.fromarray(result)
                 substImage.show()
-                substImage.save('./data/subst.jpg')
+                substImage.save('./data/subst.png')
                 return
         
         # all errors will be here
@@ -74,7 +74,7 @@ class OperationsTab(QWidget):
             if result is not None:
                 mulImage = Image.fromarray(result)
                 mulImage.show()
-                mulImage.save('./data/mul.jpg')
+                mulImage.save('./data/mul.png')
                 return
         
         # all errors will be here
