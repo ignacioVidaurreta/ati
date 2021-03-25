@@ -60,10 +60,10 @@ def matrix_mult(A, B):
     RGB = type(A[0][0]) is np.ndarray
 
     if RGB:
-        return normalizeOperation(A, B, lambda x, y: np.multiply(x,y))
+        return normalizeOperation(A, B, lambda x, y: x * y)
 
     else:
-        return normalizeOperationOneChannel(A, B, lambda x, y: np.multiply(x,y))
+        return normalizeOperationOneChannel(A, B, lambda x, y: x * y)
 
 @use_ndarray
 def matrix_subst(A, B):
