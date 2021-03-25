@@ -23,7 +23,7 @@ def valid_shape(A, B, operation):
 
 def valid_bands(A, B, op):
     A_RGB = type(A[0][0]) is np.ndarray or tuple
-    B_RGB = type(A[0][0]) is np.ndarray or tuple
+    B_RGB = type(B[0][0]) is np.ndarray or tuple
 
     if (A_RGB and B_RGB):
         return True
@@ -60,10 +60,10 @@ def matrix_mult(A, B):
     RGB = type(A[0][0]) is np.ndarray
 
     if RGB:
-        return normalizeOperation(A, B, lambda x, y: x*y )
+        return normalizeOperation(A, B, lambda x, y: np.multiply(x,y))
 
     else:
-        return normalizeOperationOneChannel(A, B, lambda x, y: x*y )
+        return normalizeOperationOneChannel(A, B, lambda x, y: np.multiply(x,y))
 
 @use_ndarray
 def matrix_subst(A, B):
@@ -88,7 +88,7 @@ def normalizeOperationOneChannel(A, B, op):
     minval = 255
     maxval = 0
     for x in range(A.shape[0]):
-        for y in range(A.shape[1]): 
+        for y in range(A.shape[1]):
             aux = op(A[x][y], B[x][y])
             if aux < minval:
                 minval = aux
@@ -100,9 +100,9 @@ def normalizeOperationOneChannel(A, B, op):
         for y in range(A.shape[1]):
             aux = op(A[x][y], B[x][y])
             if(minval == 0 and maxval == 0):
-                C[x][y] = 0  
+                C[x][y] = 0
             else:
-                C[x][y] = round((aux - minval)*255 / (maxval-minval))    
+                C[x][y] = round((aux - minval)*255 / (maxval-minval))
     return C
 
 def normalizeOperation(A, B, op):
