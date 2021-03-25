@@ -157,7 +157,7 @@ class EnhancementFilter(Filter):
         val = val/(self.L ** 2)
 
         # TODO: check if taking the ceil is ok
-        return int(math.ceil(val))
+        return int(math.ceil(abs(val)))
 
 
 class FilterTab(QWidget):
