@@ -14,6 +14,7 @@ from display import hdisplay
 from utils import newButton, compute_histogram, TRANSFORMATION_FOLDER
 from PIL import Image
 import numpy as np
+from matrix_util import matrix_mult, matrix_sum
 
 class NoiseTab(QWidget):
 
@@ -65,7 +66,7 @@ class NoiseTab(QWidget):
 
         shape = self.image.shape
         noise = rng.normal(sigma, mu, shape)
-        img = Image.fromarray(self.image + noise)
+        img = Image.fromarray(matrix_sum(self.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
 
@@ -85,7 +86,7 @@ class NoiseTab(QWidget):
         print(f"RAYLEIGH {rng.rayleigh(psi)}")
         shape = self.image.shape
         noise = rng.rayleigh(psi, shape)
-        img = Image.fromarray(np.multiply(self.image, noise))
+        img = Image.fromarray(matrix_mult(self.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
 
@@ -102,7 +103,7 @@ class NoiseTab(QWidget):
         print(f"EXPONENTIAL: {rng.exponential(1/lambda_param)}")
         shape = self.image.shape
         noise = 1 - rng.exponential(1/lambda_param, shape)
-        img = Image.fromarray(np.multiply(self.image, noise))
+        img = Image.fromarray(matrix_mult(self.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
 
