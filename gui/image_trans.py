@@ -20,7 +20,6 @@ from display import hdisplay
 from utils import compute_histogram, TRANSFORMATION_FOLDER
 
 
-
 class ImageTransformTab(QWidget):
 
     def __init__(self, parent):
@@ -57,13 +56,13 @@ class ImageTransformTab(QWidget):
         self.layout.addWidget(self.umbralInput, 2, 1)
         self.layout.addWidget(self.umbralization, 3, 0)
 
+        self.layout.addWidget(self.gammaLabel, 4, 0)
+        self.layout.addWidget(self.gammaInput, 4, 1)
+        self.layout.addWidget(self.gammaInfo, 4, 2)
+        self.layout.addWidget(self.gamma, 5, 0)
+        
         # Just for B&w images
         if len(self.imageShape) != 3:
-            self.layout.addWidget(self.gammaLabel, 4, 0)
-            self.layout.addWidget(self.gammaInput, 4, 1)
-            self.layout.addWidget(self.gammaInfo, 4, 2)
-            self.layout.addWidget(self.gamma, 5, 0)
-
             self.layout.addWidget(self.equalize, 6, 0)
 
         self.setLayout(self.layout)
@@ -141,31 +140,50 @@ class ImageTransformTab(QWidget):
                 pixels[x,y] = 255
 
     def onGammaClick(self):
-        gamma = float(self.gammaInput.text())
+        self.gamma = float(self.gammaInput.text())
 
         # We do not want to loose original image
         img = self.parent.image.copy()
 
         # We want to apply T(r) = c * r ^ gamma
         # where c = (L-1)^(1-gamma)
-        c = 255 ** (1-gamma)
+        self.c = 255 ** (1-self.gamma)
 
+        if len(self.imageShape) == 3:
+            # if image has r,g,b channels, apply the transform
+            # to every channel
+            r,g,b = img.split()
+            self.gammaTransform(r)
+            self.gammaTransform(g)
+            self.gammaTransform(b)
+
+            img = Image.merge("RGB", (r,g,b))
+
+            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
+                "Original Image",
+                f"Power function with \u03B3={self.gamma}"
+            ])
+        
+        else:
+            self.gammaTransform(img)
+
+            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
+                "Original Image",
+                f"Power function with \u03B3={self.gamma}"
+            ], cmap="gray")
+
+        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_power_{str(self.gamma)}.png')
+    
+    def gammaTransform(self, img):
         pixels = img.load()
         for x,y in np.ndindex(img.size):
             pixel = pixels[x,y]
             pixels[x,y] = int(
                 math.ceil(
-                    c*(pixel ** gamma)
+                    self.c*(pixel ** self.gamma)
                 )
             )
-
-        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_power_{str(gamma)}.png')
-
-        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"Power function with \u03B3={gamma}"
-            ], cmap="gray")
 
     def onEqualizeClick(self):
         # We do not want to loose original image
