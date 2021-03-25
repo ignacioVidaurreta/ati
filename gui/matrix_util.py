@@ -59,6 +59,10 @@ def matrix_mult(A, B):
 
     RGB = type(A[0][0]) is np.ndarray
 
+    tmp = np.multiply(A,B)
+    # If every element is valid we shouldnt normalize
+    if (tmp > 0).all() & (tmp < 255).all():
+        return tmp
     if RGB:
         return normalizeOperation(A, B, lambda x, y: x * y)
 
@@ -74,6 +78,11 @@ def matrix_subst(A, B):
         return None
 
     RGB = type(A[0][0]) is np.ndarray
+
+    tmp = A + B
+    # If every element is valid we shouldnt normalize
+    if (tmp > 0).all() & (tmp < 255).all():
+        return tmp
 
     if RGB:
         return normalizeOperation(A, B, lambda x, y: x-y)

@@ -63,11 +63,11 @@ class NoiseTab(QWidget):
         self.setLayout(self.layout)
 
     def generate_noise_mat(self, rng, full_noise, is_mult):
-        replace_rate = float(self.noise_ptg_input.text()) / 100
-        if replace_rate == 1:
+        self.replace_rate = float(self.noise_ptg_input.text()) / 100
+        if self.replace_rate == 1:
             return full_noise
 
-        mask = np.random.choice([0,1], size=full_noise.shape, p=((1-replace_rate), replace_rate)).astype(np.bool)
+        mask = np.random.choice([0,1], size=full_noise.shape, p=(1-self.replace_rate, self.replace_rate)).astype(np.bool)
         if is_mult:
             neut = np.ones(full_noise.shape)
         else:
@@ -96,8 +96,8 @@ class NoiseTab(QWidget):
                 f"Image with added noise (σ: {self.sigma_input.text()} µ: {self.mu_input.text()})"
             ], cmap=cmap)
 
-        # filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        # img.save(f'{TRANSFORMATION_FOLDER}/{filename}_gaussNoise_mu{mu}_sigma{sigma}.png')
+        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_gaussNoise_mu{mu}_sigma{sigma}_ptg{self.replace_rate}.png')
 
 
     def onRayleighClick(self):
@@ -105,19 +105,22 @@ class NoiseTab(QWidget):
         psi = float(self.psi_input.text()) # Hay que ponerle un psi grande, tipo 30 para ver el ruido
         print(f"RAYLEIGH {rng.rayleigh(psi)}")
         shape = self.image.shape
-        # import ipdb; ipdb.set_trace()
-        ray = np.random.rayleigh(psi, shape).astype(int)
-        # We want to replace zeros to 1
+
+        ray = rng.rayleigh(psi, shape).astype(int)
         noise = self.generate_noise_mat(rng, np.where(ray == 0, 1, ray), True)
+
         img = Image.fromarray(matrix_mult(self.image, noise))
+        # img = Image.fromarray(np.multiply(self.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
 
-        print(f"CMAP: {cmap}\n LEN: {len(shape)}")
         hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
                 "Original Image",
                 f"Image with added noise (ψ: {psi})"
             ], cmap=cmap)
+
+        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_rayleigh_psi{psi}_ptg{self.replace_rate}.png')
 
     def onExponentialClick(self):
         rng = np.random.default_rng()
@@ -127,13 +130,15 @@ class NoiseTab(QWidget):
         shape = self.image.shape
         exp = rng.exponential(1/lambda_param, shape).astype(int)
         noise = self.generate_noise_mat(rng, np.where(exp == 0, 1, exp) , True)
-        # img = Image.fromarray(matrix_mult(self.image, noise))
-        img = Image.fromarray(np.multiply(self.image, noise))
+        img = Image.fromarray(matrix_mult(self.image, noise))
+        # img = Image.fromarray(np.multiply(self.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
 
-        print(f"CMAP: {cmap}\n LEN: {len(shape)}")
         hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
                 "Original Image",
                 f"Image with added noise (λ: {lambda_param})"
             ], cmap=cmap)
+
+        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_exponential_lambda{lambda_param}_ptg{self.replace_rate}.png')
