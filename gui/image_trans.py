@@ -140,14 +140,14 @@ class ImageTransformTab(QWidget):
                 pixels[x,y] = 255
 
     def onGammaClick(self):
-        self.gamma = float(self.gammaInput.text())
+        self.gammaValue = float(self.gammaInput.text())
 
         # We do not want to loose original image
         img = self.parent.image.copy()
 
         # We want to apply T(r) = c * r ^ gamma
         # where c = (L-1)^(1-gamma)
-        self.c = 255 ** (1-self.gamma)
+        self.c = 255 ** (1-self.gammaValue)
 
         if len(self.imageShape) == 3:
             # if image has r,g,b channels, apply the transform
@@ -161,7 +161,7 @@ class ImageTransformTab(QWidget):
 
             hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
                 "Original Image",
-                f"Power function with \u03B3={self.gamma}"
+                f"Power function with \u03B3={self.gammaValue}"
             ])
         
         else:
@@ -169,11 +169,11 @@ class ImageTransformTab(QWidget):
 
             hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
                 "Original Image",
-                f"Power function with \u03B3={self.gamma}"
+                f"Power function with \u03B3={self.gammaValue}"
             ], cmap="gray")
 
         filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_power_{str(self.gamma)}.png')
+        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_power_{str(self.gammaValue)}.png')
     
     def gammaTransform(self, img):
         pixels = img.load()
@@ -181,7 +181,7 @@ class ImageTransformTab(QWidget):
             pixel = pixels[x,y]
             pixels[x,y] = int(
                 math.ceil(
-                    self.c*(pixel ** self.gamma)
+                    self.c*(pixel ** self.gammaValue)
                 )
             )
 

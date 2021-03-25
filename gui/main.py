@@ -29,7 +29,7 @@ from operations import OperationsTab
 from pixel import PixelTab
 from noise import NoiseTab
 from saltpepper import SaltPepperTab
-
+from filters import FilterTab
 
 from utils import (
     RAW,
@@ -50,7 +50,7 @@ class App(QMainWindow):
         super().__init__()
         self.title = 'ATI Project'
         self.left, self.top = 0, 0
-        self.width, self.height = 600, 400
+        self.width, self.height = 1000, 400
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -184,15 +184,17 @@ class MainWindow(QWidget):
         self.tab4 = OperationsTab(self)
         self.tab5 = ImageTransformTab(self)
         # Tab 6 is the histogram
-        self.tab7 = NoiseTab(self)
-        self.tab8 = SaltPepperTab(self)
+        self.tab7 = FilterTab(self)
+        self.tab8 = NoiseTab(self)
+        self.tab9 = SaltPepperTab(self)
 
         self.tabs.addTab(self.tab2, "Pixel")
         self.tabs.addTab(self.tab3, "Crop")
         self.tabs.addTab(self.tab4, "Operations")
         self.tabs.addTab(self.tab5, "Transform")
-        self.tabs.addTab(self.tab7, "Noise")
-        self.tabs.addTab(self.tab8, "S and P")
+        self.tabs.addTab(self.tab7, "Filter")
+        self.tabs.addTab(self.tab8, "Noise")
+        self.tabs.addTab(self.tab9, "S and P")
 
 
         if len(np.asarray(self.image).shape) != 3:
