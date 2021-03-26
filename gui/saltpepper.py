@@ -28,16 +28,18 @@ class SaltPepperTab(QWidget):
         self.imageShape = self.image.shape
 
         # Buttons definitions
-        self.saltpepper_noise = newButton("Salt and Pepper Noise", self.onSaltPepperClick)
+        self.saltpepper_title = QLabel('Salt and Pepper Noise')
+        self.saltpepper_title.setStyleSheet("background-color: #FDDABB")
+        self.saltpepper_noise = newButton("Apply", self.onSaltPepperClick)
         self.p0_label, self.p0_input = QLabel("p0:"), QLineEdit()
         self.p1_label, self.p1_input = QLabel("p1:"), QLineEdit()
-
         # We add widgets to layout
-        self.layout.addWidget(self.p0_label, 1, 0)
-        self.layout.addWidget(self.p0_input, 1, 1)
+        self.layout.addWidget(self.saltpepper_title, 1, 0)
+        self.layout.addWidget(self.p0_label, 1, 1)
+        self.layout.addWidget(self.p0_input, 1, 2)
         self.layout.addWidget(self.p1_label, 1, 3)
         self.layout.addWidget(self.p1_input, 1, 4)
-        self.layout.addWidget(self.saltpepper_noise, 2, 2)
+        self.layout.addWidget(self.saltpepper_noise, 2, 0)
 
 
         self.setLayout(self.layout)
