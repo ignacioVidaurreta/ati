@@ -3,6 +3,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import (
     QWidget,
     QGridLayout,
@@ -27,38 +28,50 @@ class NoiseTab(QWidget):
         self.image = np.asarray(self.parent.image)
         self.imageShape = self.image.shape
 
-        self.noise_ptg_label, self.noise_ptg_input = QLabel("Noice Percentage"), QLineEdit()
+        self.noise_ptg_label, self.noise_ptg_input = QLabel("Noise Percentage"), QLineEdit()
+        self.noise_ptg_input.setFixedWidth(100)
+        self.nooise_message = QLabel("Must be between 0 and 100 (%)")
 
         # Buttons definitions
-        self.gaussian_noise = newButton("Gaussian Noise", self.onGaussianClick)
-        self.mu_label, self.mu_input = QLabel("Gaussian Mu"), QLineEdit()
+        self.gaussian_title = QLabel("Gaussian Noise")
+        self.gaussian_title.setStyleSheet("background-color: #d4ebf2")
+        self.gaussian_noise = newButton("Apply", self.onGaussianClick)
+        self.mu_label, self.mu_input = QLabel("Mu"), QLineEdit()
         self.mu_input.setText('0')
-        self.sigma_label, self.sigma_input = QLabel("Gaussian Sigma"), QLineEdit()
+        self.sigma_label, self.sigma_input = QLabel("Sigma"), QLineEdit()
 
-        self.rayleigh_btn = newButton("Rayleigh Noise", self.onRayleighClick)
-        self.psi_label, self.psi_input = QLabel("Rayleigh Param"), QLineEdit()
+        self.rayleigh_title = QLabel("Rayleigh Noise")
+        self.rayleigh_title.setStyleSheet("background-color: #d4ebf2")
+        self.psi_label, self.psi_input = QLabel("Psi"), QLineEdit()
+        self.rayleigh_btn = newButton("Apply", self.onRayleighClick)
 
-        self.exponential = newButton("Exponential Noise", self.onExponentialClick)
-        self.lambda_label, self.lambda_input = QLabel("Lambda Param"), QLineEdit()
+        self.exponential_title = QLabel("Exponential Noise")
+        self.exponential_title.setStyleSheet("background-color: #d4ebf2")
+        self.exponential = newButton("Apply", self.onExponentialClick)
+        self.lambda_label, self.lambda_input = QLabel("Lambda"), QLineEdit()
 
 
         # We add widgets to layout
-        self.layout.addWidget(self.noise_ptg_label, 1, 0)
-        self.layout.addWidget(self.noise_ptg_input, 1, 1)
+        self.layout.addWidget(self.noise_ptg_label, 0, 0)
+        self.layout.addWidget(self.noise_ptg_input, 0, 1)
+        self.layout.addWidget(self.nooise_message, 0, 2)
 
-        self.layout.addWidget(self.mu_label, 2, 0)
-        self.layout.addWidget(self.mu_input, 2, 1)
-        self.layout.addWidget(self.sigma_label, 2, 2)
-        self.layout.addWidget(self.sigma_input, 2, 3)
-        self.layout.addWidget(self.gaussian_noise, 3, 0)
+        self.layout.addWidget(self.gaussian_title, 1, 0)
+        self.layout.addWidget(self.mu_label, 1, 1)
+        self.layout.addWidget(self.mu_input, 1, 2)
+        self.layout.addWidget(self.sigma_label, 1, 3)
+        self.layout.addWidget(self.sigma_input, 1, 4)
+        self.layout.addWidget(self.gaussian_noise, 1, 5)
 
-        self.layout.addWidget(self.psi_label, 4, 0)
-        self.layout.addWidget(self.psi_input, 4, 1)
-        self.layout.addWidget(self.rayleigh_btn, 4, 2)
+        self.layout.addWidget(self.rayleigh_title, 2, 0)
+        self.layout.addWidget(self.psi_label, 2, 1)
+        self.layout.addWidget(self.psi_input, 2, 2)
+        self.layout.addWidget(self.rayleigh_btn, 2, 3)
 
-        self.layout.addWidget(self.lambda_label, 5, 0)
-        self.layout.addWidget(self.lambda_input, 5, 1)
-        self.layout.addWidget(self.exponential, 5, 2)
+        self.layout.addWidget(self.exponential_title, 3, 0)
+        self.layout.addWidget(self.lambda_label, 3, 1)
+        self.layout.addWidget(self.lambda_input, 3, 2)
+        self.layout.addWidget(self.exponential, 3, 3)
 
 
         self.setLayout(self.layout)
