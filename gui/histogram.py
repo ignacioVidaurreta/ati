@@ -3,10 +3,11 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import (
     QWidget,
     QGridLayout,
-
+    QLabel
 )
 from display import hdisplay
 from utils import newButton, compute_histogram
@@ -26,10 +27,20 @@ class HistogramTab(QWidget):
         self.imageShape = self.image.shape
 
         # Buttons definitions
-        self.histogram = newButton("Histogram", self.onHistogramClick)
+        self.histogram_title = QLabel('')
+        self.histogram_title.setAlignment(QtCore.Qt.AlignCenter)
+        self.histogram_description = QLabel("Computes relative frequencies for image\'s greys")
+        self.histogram_description.setAlignment(QtCore.Qt.AlignCenter)
+        self.histogram = newButton("Plot", self.onHistogramClick)
+        self.histogram.setFixedWidth(300)
+        self.dummy = QLabel("")
 
         # We add widgets to layout
-        self.layout.addWidget(self.histogram, 1, 0)
+        self.layout.addWidget(self.histogram_title, 0, 0)
+        self.layout.addWidget(self.histogram_description, 1, 0)
+        self.layout.addWidget(self.histogram, 2, 0)
+        self.layout.addWidget(self.dummy, 3, 0)
+        
 
         self.setLayout(self.layout)
 
