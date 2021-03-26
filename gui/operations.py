@@ -101,11 +101,11 @@ class OperationsTab(QWidget):
         if file:
             self.file_type = get_file_type(file)
 
-            if self.file_type in [PGM, PPM]:
-                img = read_image(file)
-            else:
+            if self.file_type in RAW:
                 img = read_raw(file)
-
+            else:
+                img = read_image(file)
+    
             if img is not None:
                 return np.asarray(img)
         
