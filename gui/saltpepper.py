@@ -15,6 +15,7 @@ from utils import newButton, compute_histogram
 from PIL import Image
 import numpy as np
 
+from utils import TRANSFORMATION_FOLDER
 class SaltPepperTab(QWidget):
 
     def __init__(self, parent):
@@ -73,4 +74,7 @@ class SaltPepperTab(QWidget):
                 self.p1_input.text()
 
             ], cmap=cmap)
+        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        img_save = Image.fromarray(img2)
+        img_save.save(f'{TRANSFORMATION_FOLDER}/{filename}_salt_peper_p0{p0}_p1{p1}.png')
 

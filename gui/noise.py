@@ -32,6 +32,7 @@ class NoiseTab(QWidget):
         # Buttons definitions
         self.gaussian_noise = newButton("Gaussian Noise", self.onGaussianClick)
         self.mu_label, self.mu_input = QLabel("Gaussian Mu"), QLineEdit()
+        self.mu_input.setText('0')
         self.sigma_label, self.sigma_input = QLabel("Gaussian Sigma"), QLineEdit()
 
         self.rayleigh_btn = newButton("Rayleigh Noise", self.onRayleighClick)
@@ -85,7 +86,7 @@ class NoiseTab(QWidget):
         mu = float(self.mu_input.text()) # Should usually be zero
 
         shape = self.image.shape
-        noise = self.generate_noise_mat(rng, rng.normal(sigma, mu, shape), False)
+        noise = self.generate_noise_mat(rng, rng.normal(mu, sigma, shape), False)
         img = Image.fromarray(matrix_sum(self.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
@@ -96,6 +97,13 @@ class NoiseTab(QWidget):
                 f"Image with added noise (σ: {self.sigma_input.text()} µ: {self.mu_input.text()})"
             ], cmap=cmap)
 
+        plt.figure()
+        count, bins, ignored = plt.hist(rng.normal(mu, sigma, 1000), 30, density=True)
+        plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
+               np.exp( - (bins - mu)**2 / (2 * sigma**2) ),
+         linewidth=2, color='r')
+        plt.title(f"Gaussian Distribution plot mu={mu}, sigma={sigma}")
+        plt.show()
         filename = (self.parent.filename.split("/")[-1]).split(".")[0]
         img.save(f'{TRANSFORMATION_FOLDER}/{filename}_gaussNoise_mu{mu}_sigma{sigma}_ptg{self.replace_rate}.png')
 
@@ -117,6 +125,11 @@ class NoiseTab(QWidget):
                 f"Image with added noise (ψ: {psi})"
             ], cmap=cmap)
 
+        plt.figure()
+        count, bins, ignored = plt.hist(rng.rayleigh(psi, 10000), bins=200, density=True)
+        plt.plot(bins, (bins/(psi**2))* np.exp((-bins**2)/(2*(psi**2))), linewidth=2, color='r')
+        plt.title(f"Rayleigh Distribution plot psi={psi}")
+        plt.show()
         filename = (self.parent.filename.split("/")[-1]).split(".")[0]
         img.save(f'{TRANSFORMATION_FOLDER}/{filename}_rayleigh_psi{psi}_ptg{self.replace_rate}.png')
 
@@ -137,5 +150,9 @@ class NoiseTab(QWidget):
                 f"Image with added noise (λ: {lambda_param})"
             ], cmap=cmap)
 
+        plt.figure()
+        count, bins, ignored = plt.hist(rng.exponential(1/lambda_param, 1000), 30, density=True)
+        plt.plot(bins, lambda_param * np.exp(-bins*lambda_param), linewidth=2, color='r')
+        plt.show()
         filename = (self.parent.filename.split("/")[-1]).split(".")[0]
         img.save(f'{TRANSFORMATION_FOLDER}/{filename}_exponential_lambda{lambda_param}_ptg{self.replace_rate}.png')
