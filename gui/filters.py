@@ -25,7 +25,7 @@ class Filter():
     def compute(self, pixels, x, y):
         return pixels[x,y]
 
-    def apply(self):
+    def apply(self, normalize=False):
         # Just in case we keep the original
         img = self.image.copy()
         pixels = img.load()
@@ -37,6 +37,9 @@ class Filter():
 
         max_idx_width = self.imageShape[1]-1
         max_idx_height = self.imageShape[0]-1
+
+        new_pixels = np.zeros(shape=img.size)
+
         for x,y in np.ndindex(img.size):
             if x-h < 0 or \
                y-h < 0 or \
@@ -45,9 +48,21 @@ class Filter():
                 # We wont do anything at borders
                 pass
             else:
-                pixels[x,y] = self.compute(original_pixels, x, y)
+                pixel = self.compute(original_pixels, x, y)
+                new_pixels[x,y] = self.compute(original_pixels, x, y)
         
-        return img
+        if normalize:
+            max_value = new_pixels.max()
+            min_value = new_pixels.min()
+            
+            for x,y in np.ndindex(img.size):                
+                new_pixels[x,y] = int(round(
+                    ((new_pixels[x,y] - min_value) * 255)/(max_value-min_value)
+                ))
+            
+            return Image.fromarray(new_pixels.astype(np.uint8).T)
+        
+        return Image.fromarray(new_pixels.astype(np.uint8).T)
 
 
 class MeanFilter(Filter):
@@ -159,7 +174,7 @@ class EnhancementFilter(Filter):
         val = val/(self.L ** 2)
 
         # TODO: check if taking the ceil is ok
-        return int(math.ceil(abs(val)))
+        return int(math.ceil(val))
 
 
 class FilterTab(QWidget):
@@ -347,14 +362,14 @@ class FilterTab(QWidget):
             filter_g = EnhancementFilter(g, L=self.enhancement_L)
             filter_b = EnhancementFilter(b, L=self.enhancement_L)
 
-            r = filter_r.apply()
-            g = filter_g.apply()
-            b = filter_b.apply()
+            r = filter_r.apply(normalize=True)
+            g = filter_g.apply(normalize=True)
+            b = filter_b.apply(normalize=True)
 
             img = Image.merge("RGB", (r,g,b))
         else:
             enhancement_filter = EnhancementFilter(img, L=self.enhancement_L)
-            img = enhancement_filter.apply()
+            img = enhancement_filter.apply(normalize=True)
         
         self.display_and_save(
             img, 
