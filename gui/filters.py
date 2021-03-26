@@ -48,7 +48,6 @@ class Filter():
                 # We wont do anything at borders
                 pass
             else:
-                pixel = self.compute(original_pixels, x, y)
                 new_pixels[x,y] = self.compute(original_pixels, x, y)
         
         if normalize:
