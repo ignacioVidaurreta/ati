@@ -41,6 +41,7 @@ class HistogramTab(QWidget):
         histogram = compute_histogram(img, self.imageShape)
 
         # Plots histogram
+        plt.figure()
         plt.bar(np.arange(len(histogram)), histogram)
         filename = self.parent.filename.split("/")[-1]
         plt.title(f'Histogram for {filename}')

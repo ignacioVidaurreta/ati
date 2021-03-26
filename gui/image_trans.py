@@ -18,6 +18,7 @@ from utils import newButton, newAxisButton
 from PIL import Image
 from display import hdisplay
 from utils import compute_histogram, TRANSFORMATION_FOLDER
+import matplotlib.pyplot as plt
 
 
 class ImageTransformTab(QWidget):
@@ -60,7 +61,7 @@ class ImageTransformTab(QWidget):
         self.layout.addWidget(self.gammaInput, 4, 1)
         self.layout.addWidget(self.gammaInfo, 4, 2)
         self.layout.addWidget(self.gamma, 5, 0)
-        
+
         # Just for B&w images
         if len(self.imageShape) != 3:
             self.layout.addWidget(self.equalize, 6, 0)
@@ -163,7 +164,7 @@ class ImageTransformTab(QWidget):
                 "Original Image",
                 f"Power function with \u03B3={self.gammaValue}"
             ])
-        
+
         else:
             self.gammaTransform(img)
 
@@ -174,7 +175,7 @@ class ImageTransformTab(QWidget):
 
         filename = (self.parent.filename.split("/")[-1]).split(".")[0]
         img.save(f'{TRANSFORMATION_FOLDER}/{filename}_power_{str(self.gammaValue)}.png')
-    
+
     def gammaTransform(self, img):
         pixels = img.load()
         for x,y in np.ndindex(img.size):
@@ -223,3 +224,10 @@ class ImageTransformTab(QWidget):
             "Original Image",
             f"Equalized Image"
         ], cmap="gray")
+
+        plt.figure()
+        histogram = compute_histogram(img, self.imageShape)
+        plt.bar(np.arange(len(histogram)), histogram)
+        filename = self.parent.filename.split("/")[-1]
+        plt.title(f'Equalized histogram for {filename}')
+        plt.show()
