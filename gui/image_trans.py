@@ -32,39 +32,48 @@ class ImageTransformTab(QWidget):
         self.image = np.asarray(self.parent.image)
         self.imageShape = self.image.shape
 
-        # Buttons definitions
-        self.negative = newButton("Negative", self.onNegativeClick)
-        self.umbralization = newButton("Umbralization", self.onUmbralizationClick)
-        self.gamma = newButton("Apply Gamma", self.onGammaClick)
-        self.equalize = newButton("Equalize", self.onEqualizeClick)
+        self.negative_title = QLabel("Negative")
+        self.negative_title.setStyleSheet("background-color: #FFD0ED")
+        self.negative = newButton("Apply", self.onNegativeClick)
 
-        # Labels for umbral input
+        self.umbralization_title = QLabel("Umbralization")
+        self.umbralization_title.setStyleSheet("background-color: #FFD0ED")
         self.umbralLabel = QLabel("Umbral")
         self.umbralInput = QLineEdit()
         self.umbralInput.setText('255')
+        self.umbralization = newButton("Apply", self.onUmbralizationClick)
 
-        # Labels for umbral input
+        self.gamma_title = QLabel("Power Function")
+        self.gamma_title.setStyleSheet("background-color: #FFD0ED")
+        self.gamma = newButton("Apply", self.onGammaClick)
         self.gammaLabel = QLabel("Gamma")
         self.gammaInput = QLineEdit()
         self.gammaInfo = QLabel("0 < \u03B3 < 2, \u03B3 != 1")
         self.gammaInput.setText('0.1')
 
+        self.equalize_title = QLabel("Equalization")
+        self.equalize_title.setStyleSheet("background-color: #FFD0ED")
+        self.equalize = newButton("Apply", self.onEqualizeClick)
+        
         # We add widgets to layout for each transformation
+        self.layout.addWidget(self.negative_title, 0, 0)
+        self.layout.addWidget(self.negative, 0, 1)
 
-        self.layout.addWidget(self.negative, 1, 0)
+        self.layout.addWidget(self.umbralization_title, 1, 0)
+        self.layout.addWidget(self.umbralLabel, 1, 1)
+        self.layout.addWidget(self.umbralInput, 1, 2)
+        self.layout.addWidget(self.umbralization, 1, 3)
 
-        self.layout.addWidget(self.umbralLabel, 2, 0)
-        self.layout.addWidget(self.umbralInput, 2, 1)
-        self.layout.addWidget(self.umbralization, 3, 0)
-
-        self.layout.addWidget(self.gammaLabel, 4, 0)
-        self.layout.addWidget(self.gammaInput, 4, 1)
-        self.layout.addWidget(self.gammaInfo, 4, 2)
-        self.layout.addWidget(self.gamma, 5, 0)
+        self.layout.addWidget(self.gamma_title, 2, 0)
+        self.layout.addWidget(self.gammaLabel, 2, 1)
+        self.layout.addWidget(self.gammaInput, 2, 2)
+        self.layout.addWidget(self.gammaInfo, 2, 3)
+        self.layout.addWidget(self.gamma, 2, 4)
 
         # Just for B&w images
         if len(self.imageShape) != 3:
-            self.layout.addWidget(self.equalize, 6, 0)
+            self.layout.addWidget(self.equalize_title, 3, 0)
+            self.layout.addWidget(self.equalize, 3, 1)
 
         self.setLayout(self.layout)
 

@@ -34,19 +34,19 @@ class NoiseTab(QWidget):
 
         # Buttons definitions
         self.gaussian_title = QLabel("Gaussian Noise")
-        self.gaussian_title.setStyleSheet("background-color: #d4ebf2")
+        self.gaussian_title.setStyleSheet("background-color: #d6f9d6")
         self.gaussian_noise = newButton("Apply", self.onGaussianClick)
         self.mu_label, self.mu_input = QLabel("Mu"), QLineEdit()
         self.mu_input.setText('0')
         self.sigma_label, self.sigma_input = QLabel("Sigma"), QLineEdit()
 
         self.rayleigh_title = QLabel("Rayleigh Noise")
-        self.rayleigh_title.setStyleSheet("background-color: #d4ebf2")
+        self.rayleigh_title.setStyleSheet("background-color: #d6f9d6")
         self.psi_label, self.psi_input = QLabel("Psi"), QLineEdit()
         self.rayleigh_btn = newButton("Apply", self.onRayleighClick)
 
         self.exponential_title = QLabel("Exponential Noise")
-        self.exponential_title.setStyleSheet("background-color: #d4ebf2")
+        self.exponential_title.setStyleSheet("background-color: #d6f9d6")
         self.exponential = newButton("Apply", self.onExponentialClick)
         self.lambda_label, self.lambda_input = QLabel("Lambda"), QLineEdit()
 
