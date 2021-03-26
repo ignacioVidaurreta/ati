@@ -149,7 +149,7 @@ class GaussianFilter(Filter):
                 val = val + (weight * pixels[x+x_index, y+y_index])
 
         # TODO: check if taking the ceil is ok
-        return int(math.ceil(val))
+        return val
     
     def gaussian(self, x, y):
         denominator = math.sqrt(2*math.pi*(self.sigma ** 2))
@@ -173,8 +173,7 @@ class EnhancementFilter(Filter):
     
         val = val/(self.L ** 2)
 
-        # TODO: check if taking the ceil is ok
-        return int(math.ceil(val))
+        return val
 
 
 class FilterTab(QWidget):
