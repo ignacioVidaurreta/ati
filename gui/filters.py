@@ -283,14 +283,14 @@ class FilterTab(QWidget):
             filter_g = GaussianFilter(g, self.sigma, L=self.gaussian_L)
             filter_b = GaussianFilter(b, self.sigma, L=self.gaussian_L)
 
-            r = filter_r.apply()
-            g = filter_g.apply()
-            b = filter_b.apply()
+            r = filter_r.apply(normalize=True)
+            g = filter_g.apply(normalize=True)
+            b = filter_b.apply(normalize=True)
 
             img = Image.merge("RGB", (r,g,b))
         else:
             gaussian_filter = GaussianFilter(img, self.sigma, L=self.gaussian_L)
-            img = gaussian_filter.apply()
+            img = gaussian_filter.apply(normalize=True)
         
         self.display_and_save(
             img, 
