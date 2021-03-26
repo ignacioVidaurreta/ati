@@ -166,6 +166,7 @@ class NoiseTab(QWidget):
         plt.figure()
         count, bins, ignored = plt.hist(rng.exponential(1/lambda_param, 1000), 30, density=True)
         plt.plot(bins, lambda_param * np.exp(-bins*lambda_param), linewidth=2, color='r')
+        plt.title(f"Exponential Distribution plot lambda={lambda_param}")
         plt.show()
         filename = (self.parent.filename.split("/")[-1]).split(".")[0]
         img.save(f'{TRANSFORMATION_FOLDER}/{filename}_exponential_lambda{lambda_param}_ptg{self.replace_rate}.png')
