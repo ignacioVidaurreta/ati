@@ -85,7 +85,7 @@ class NoiseTab(QWidget):
         mu = float(self.mu_input.text()) # Should usually be zero
 
         shape = self.image.shape
-        noise = self.generate_noise_mat(rng, rng.normal(sigma, mu, shape).astype(int), False)
+        noise = self.generate_noise_mat(rng, rng.normal(sigma, mu, shape), False)
         img = Image.fromarray(matrix_sum(self.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
@@ -106,11 +106,9 @@ class NoiseTab(QWidget):
         print(f"RAYLEIGH {rng.rayleigh(psi)}")
         shape = self.image.shape
 
-        ray = rng.rayleigh(psi, shape).astype(int)
-        noise = self.generate_noise_mat(rng, np.where(ray == 0, 1, ray), True)
+        noise = self.generate_noise_mat(rng, rng.rayleigh(psi, shape), True)
 
         img = Image.fromarray(matrix_mult(self.image, noise))
-        # img = Image.fromarray(np.multiply(self.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
 
@@ -128,8 +126,7 @@ class NoiseTab(QWidget):
         # Exponential receives Beta which is 1/lambda
         print(f"EXPONENTIAL: {rng.exponential(1/lambda_param)}")
         shape = self.image.shape
-        exp = rng.exponential(1/lambda_param, shape).astype(int)
-        noise = self.generate_noise_mat(rng, np.where(exp == 0, 1, exp) , True)
+        noise = self.generate_noise_mat(rng, rng.exponential(1/lambda_param, shape) , True)
         img = Image.fromarray(matrix_mult(self.image, noise))
         # img = Image.fromarray(np.multiply(self.image, noise))
 
