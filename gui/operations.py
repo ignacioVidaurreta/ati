@@ -45,7 +45,10 @@ class OperationsTab(QWidget):
             if result is not None:
                 sumImage = Image.fromarray(result)
                 sumImage.show()
-                sumImage.save('./data/sum.png')
+                #sumImage.save('./data/sum.png')
+                self.parent.changes.append(self.parent.image)
+                self.parent.image = sumImage
+                self.parent.buttonUndo.setEnabled(True)
                 return
 
         # all errors will be here
@@ -59,7 +62,10 @@ class OperationsTab(QWidget):
             if result is not None:
                 substImage = Image.fromarray(result)
                 substImage.show()
-                substImage.save('./data/subst.png')
+                #substImage.save('./data/subst.png')
+                self.parent.changes.append(self.parent.image)
+                self.parent.image = substImage
+                self.parent.buttonUndo.setEnabled(True)
                 return
         
         # all errors will be here
@@ -74,7 +80,10 @@ class OperationsTab(QWidget):
             if result is not None:
                 mulImage = Image.fromarray(result)
                 mulImage.show()
-                mulImage.save('./data/mul.png')
+                #mulImage.save('./data/mul.png')
+                self.parent.changes.append(self.parent.image)
+                self.parent.image = mulImage
+                self.parent.buttonUndo.setEnabled(True)
                 return
         
         # all errors will be here

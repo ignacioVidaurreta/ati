@@ -57,6 +57,7 @@ class App(QMainWindow):
         self.main_window = MainWindow(self)
         self.setCentralWidget(self.main_window)
 
+        self.changes = []
         self.image = None # we should remove img as global
 
         self.show()
@@ -108,6 +109,17 @@ class MainWindow(QWidget):
         self.buttonRestart.clicked.connect(self.onRestartClick)
         self.tab1.layout.addWidget(self.buttonRestart, 4, 0)
 
+        self.buttonShow = QPushButton("Show Image")
+        self.buttonShow.clicked.connect(self.onShowClick)
+        self.tab1.layout.addWidget(self.buttonShow, 5, 0)
+        self.buttonShow.setEnabled(False)
+
+
+        self.buttonUndo = QPushButton("Undo")
+        self.buttonUndo.clicked.connect(self.onUndoClick)
+        self.tab1.layout.addWidget(self.buttonUndo, 6, 0)
+        self.buttonUndo.setEnabled(False)
+
         self.tab1.setLayout(self.tab1.layout)
 
 
@@ -139,11 +151,13 @@ class MainWindow(QWidget):
 
             if img is not None:
                 self.image = img
+                self.changes = []
                 self.filename = file
                 self.imageFilename = QLabel(f'{file}')
                 self.tab1.layout.addWidget(self.imageFilename, 0, 1)
                 # IMPORTANT: tabs wont appear until image is loaded
                 self.enableTabs()
+                self.buttonShow.setEnabled(True)
                 # TODO: missing original image title
                 img.show()
 
@@ -159,13 +173,13 @@ class MainWindow(QWidget):
             # Actual saving image
             if self.file_type != RAW:
                 # gets filepath using directory and filename
-                save_image(self.image, filepath)
+                save_image(self.image, filepath + ".jpg")
             else:
                 shape = np.asarray(self.image).shape
 
                 save_raw(
                     self.image,
-                    filename,
+                    filename + ".RAW",
                     directory,
                     shape[0],
                     shape[1]
@@ -206,6 +220,17 @@ class MainWindow(QWidget):
         sip.delete(self.tabs)
         self.tabs = None
         self.setBasicLayout()
+
+    def onUndoClick(self):
+        self.image = self.changes.pop()
+        if len(self.changes) < 1:
+            self.buttonUndo.setEnabled(False)
+
+    def onShowClick(self):
+        self.image.show()
+
+
+
 
 
 if __name__ == '__main__':

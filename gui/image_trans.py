@@ -102,8 +102,11 @@ class ImageTransformTab(QWidget):
                 "Negative Transformation of Image"
             ], cmap="gray")
 
-        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_negative.png')
+        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_negative.png')
+        self.parent.changes.append(self.parent.image)
+        self.parent.image = img
+        self.parent.buttonUndo.setEnabled(True)
 
     def negativeTransform(self, img):
         # This method is cool because you receive the pixels by memory
@@ -138,8 +141,11 @@ class ImageTransformTab(QWidget):
                 f"Umbralization with Umbral={self.umbralValue}"
             ], cmap="gray")
 
-        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_umbral_{str(self.umbralValue)}.png')
+        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_umbral_{str(self.umbralValue)}.png')
+        self.parent.changes.append(self.parent.image)
+        self.parent.image = img
+        self.parent.buttonUndo.setEnabled(True)
 
     def umbralizationTransform(self, img):
         pixels = img.load()
@@ -182,8 +188,11 @@ class ImageTransformTab(QWidget):
                 f"Power function with \u03B3={self.gammaValue}"
             ], cmap="gray")
 
-        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_power_{str(self.gammaValue)}.png')
+        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_power_{str(self.gammaValue)}.png')
+        self.parent.changes.append(self.parent.image)
+        self.parent.image = img
+        self.parent.buttonUndo.setEnabled(True)
 
     def gammaTransform(self, img):
         pixels = img.load()
@@ -226,8 +235,11 @@ class ImageTransformTab(QWidget):
             index = pixels[x,y]
             pixels[x,y] = new_colors[index]
 
-        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_equalized.png')
+        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_equalized.png')
+        self.parent.changes.append(self.parent.image)
+        self.parent.image = img
+        self.parent.buttonUndo.setEnabled(True)
 
         hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
             "Original Image",

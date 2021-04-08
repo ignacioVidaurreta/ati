@@ -47,10 +47,13 @@ class SaltPepperTab(QWidget):
     # Convention: on[ButtonName]Click
     def onSaltPepperClick(self):
         print(f"P0: {self.p0_input.text()}; P1: {self.p1_input.text()}")
-        img2 = self.image.copy()
+        
+        img = np.asarray(self.parent.image).copy()
+
         p0 = float(self.p0_input.text())
         p1 = float(self.p1_input.text())
-        RGB = type(img2[0][0]) is tuple
+
+        RGB = type(img[0][0]) is tuple
         cmap = None
         if not RGB:
             cmap = "gray"
@@ -61,22 +64,25 @@ class SaltPepperTab(QWidget):
                 rnd = rng.random()
                 if (rnd < p0):
                     if(RGB):
-                        img2[x,y] = (0,0,0)
+                        img[x,y] = (0,0,0)
                     else:
-                        img2[x,y] = 0
+                        img[x,y] = 0
                 elif (rnd >= p1):
                     if(RGB):
-                        img2[x,y] = (255,255,255)
+                        img[x,y] = (255,255,255)
                     else:
-                        img2[x,y] = 255
+                        img[x,y] = 255
 
-        hdisplay([self.image, img2], rows=1, cols=2, titles=[
+        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
                 "Original Image",
                 "With Salt and Pepper, p0=" + self.p0_input.text() + ", p1=" +
                 self.p1_input.text()
 
             ], cmap=cmap)
-        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img_save = Image.fromarray(img2)
-        img_save.save(f'{TRANSFORMATION_FOLDER}/{filename}_salt_peper_p0{p0}_p1{p1}.png')
+
+        self.parent.changes.append(self.parent.image)
+        self.parent.image = Image.fromarray(img)
+        self.parent.buttonUndo.setEnabled(True)
+        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        #img_save.save(f'{TRANSFORMATION_FOLDER}/{filename}_salt_peper_p0{p0}_p1{p1}.png')
 

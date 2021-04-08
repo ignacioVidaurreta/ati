@@ -264,8 +264,11 @@ class FilterTab(QWidget):
                 f"{legend}"
             ], cmap="gray")
         
-        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_{file_legend}.png')
+        self.parent.changes.append(self.parent.image)
+        self.parent.image = img
+        self.parent.buttonUndo.setEnabled(True)
+        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_{file_legend}.png')
 
 
     def onGaussianClick(self):

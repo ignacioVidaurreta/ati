@@ -117,8 +117,11 @@ class NoiseTab(QWidget):
          linewidth=2, color='r')
         plt.title(f"Gaussian Distribution plot mu={mu}, sigma={sigma}")
         plt.show()
-        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_gaussNoise_mu{mu}_sigma{sigma}_ptg{self.replace_rate}.png')
+        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_gaussNoise_mu{mu}_sigma{sigma}_ptg{self.replace_rate}.png')
+        self.parent.changes.append(self.parent.image)
+        self.parent.image = img
+        self.parent.buttonUndo.setEnabled(True)
 
 
     def onRayleighClick(self):
@@ -143,8 +146,11 @@ class NoiseTab(QWidget):
         plt.plot(bins, (bins/(psi**2))* np.exp((-bins**2)/(2*(psi**2))), linewidth=2, color='r')
         plt.title(f"Rayleigh Distribution plot psi={psi}")
         plt.show()
-        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_rayleigh_psi{psi}_ptg{self.replace_rate}.png')
+        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_rayleigh_psi{psi}_ptg{self.replace_rate}.png')
+        self.parent.changes.append(self.parent.image)
+        self.parent.image = img
+        self.parent.buttonUndo.setEnabled(True)
 
     def onExponentialClick(self):
         rng = np.random.default_rng()
@@ -154,7 +160,6 @@ class NoiseTab(QWidget):
         shape = self.image.shape
         noise = self.generate_noise_mat(rng, rng.exponential(1/lambda_param, shape) , True)
         img = Image.fromarray(matrix_mult(self.image, noise))
-        # img = Image.fromarray(np.multiply(self.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
 
@@ -168,5 +173,8 @@ class NoiseTab(QWidget):
         plt.plot(bins, lambda_param * np.exp(-bins*lambda_param), linewidth=2, color='r')
         plt.title(f"Exponential Distribution plot lambda={lambda_param}")
         plt.show()
-        filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        img.save(f'{TRANSFORMATION_FOLDER}/{filename}_exponential_lambda{lambda_param}_ptg{self.replace_rate}.png')
+        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
+        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_exponential_lambda{lambda_param}_ptg{self.replace_rate}.png')
+        self.parent.changes.append(self.parent.image)
+        self.parent.image = img
+        self.parent.buttonUndo.setEnabled(True)
