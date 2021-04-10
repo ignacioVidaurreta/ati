@@ -49,18 +49,18 @@ class Filter():
                 pass
             else:
                 new_pixels[x,y] = self.compute(original_pixels, x, y)
-        
+
         if normalize:
             max_value = new_pixels.max()
             min_value = new_pixels.min()
-            
-            for x,y in np.ndindex(img.size):                
+
+            for x,y in np.ndindex(img.size):
                 new_pixels[x,y] = int(round(
                     ((new_pixels[x,y] - min_value) * 255)/(max_value-min_value)
                 ))
-            
+
             return Image.fromarray(new_pixels.astype(np.uint8).T)
-        
+
         return Image.fromarray(new_pixels.astype(np.uint8).T)
 
 
@@ -89,7 +89,7 @@ class MedianFilter(Filter):
                 values.append(
                     pixels[x+x_index, y+y_index]
                 )
-        
+
         values.sort()
         return values[self.L + 1]
 
@@ -107,7 +107,7 @@ class WeightedMedianFilter(Filter):
 
         for x_index in range(-1*self.mid, self.mid+1):
             for y_index in range(-1*self.mid, self.mid+1):
-                # we can compute manhattan distance like this 
+                # we can compute manhattan distance like this
                 # because center point is always at (0,0)
                 distance_to_center = self.distance(0, 0, x_index, y_index)
                 # According to distance to center, we append value many times
@@ -122,7 +122,7 @@ class WeightedMedianFilter(Filter):
         # TODO: check if taking the ceil is ok
         # returns avg of median since qty of elements is even
         return math.ceil((values[7]+values[8])/2)
-    
+
     def distance(self, x1, y1, x2, y2):
         return math.sqrt(((x1-x2) ** 2) + ((y1-y2) ** 2))
 
@@ -131,7 +131,7 @@ class GaussianFilter(Filter):
 
     def __init__(self, image, sigma, L=None):
         if L is None:
-            # Recommended sigma to represent 
+            # Recommended sigma to represent
             # gaussian filter properly
             L = math.ceil(2*sigma+1)
 
@@ -149,34 +149,34 @@ class GaussianFilter(Filter):
 
         # TODO: check if taking the ceil is ok
         return val
-    
+
     def gaussian(self, x, y):
         denominator = math.sqrt(2*math.pi*(self.sigma ** 2))
         exponent = -1*((x ** 2) + (y ** 2))/(self.sigma ** 2)
         return (1/denominator) * math.exp(exponent)
-    
+
     def __str__():
         return f'Gaussian, sigma:{self.sigma}, mask:{self.L}'
 
 
 class EnhancementFilter(Filter):
-    
+
     # Must override this method
     def compute(self, pixels, x, y):
         val = 0
-        
+
         for x_index in range(-1*self.mid, self.mid+1):
             for y_index in range(-1*self.mid, self.mid+1):
                 weight = self.L ** 2 -1 if x_index == 0 and y_index == 0 else -1
                 val = val + (weight * pixels[x+x_index, y+y_index])
-    
+
         val = val/(self.L ** 2)
 
         return val
 
 
 class FilterTab(QWidget):
-    
+
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
 
@@ -246,7 +246,7 @@ class FilterTab(QWidget):
         self.layout.addWidget(self.weighted_median_filter, 4, 1)
 
         self.setLayout(self.layout)
-    
+
     def onAutoMaskClick(self):
         self.sigma = int(self.sigma_input.text())
         self.L = 2*self.sigma+1
@@ -263,7 +263,7 @@ class FilterTab(QWidget):
                 "Original Image",
                 f"{legend}"
             ], cmap="gray")
-        
+
         self.parent.changes.append(self.parent.image)
         self.parent.image = img
         self.parent.buttonUndo.setEnabled(True)
@@ -279,7 +279,7 @@ class FilterTab(QWidget):
 
         if len(self.imageShape) == 3:
             r,g,b = img.split()
-            
+
             filter_r = GaussianFilter(r, self.sigma, L=self.gaussian_L)
             filter_g = GaussianFilter(g, self.sigma, L=self.gaussian_L)
             filter_b = GaussianFilter(b, self.sigma, L=self.gaussian_L)
@@ -292,10 +292,10 @@ class FilterTab(QWidget):
         else:
             gaussian_filter = GaussianFilter(img, self.sigma, L=self.gaussian_L)
             img = gaussian_filter.apply(normalize=True)
-        
+
         self.display_and_save(
-            img, 
-            f'Gaussian, \u03C3:{self.sigma}, mask side:{self.gaussian_L}', 
+            img,
+            f'Gaussian, \u03C3:{self.sigma}, mask side:{self.gaussian_L}',
             f'filter_gaussian_{self.sigma}_{self.gaussian_L}')
 
     def onMeanClick(self):
@@ -305,7 +305,7 @@ class FilterTab(QWidget):
 
         if len(self.imageShape) == 3:
             r,g,b = img.split()
-            
+
             filter_r = MeanFilter(r, L=self.mean_L)
             filter_g = MeanFilter(g, L=self.mean_L)
             filter_b = MeanFilter(b, L=self.mean_L)
@@ -318,10 +318,10 @@ class FilterTab(QWidget):
         else:
             mean_filter = MeanFilter(img, L=self.mean_L)
             img = mean_filter.apply()
-        
+
         self.display_and_save(
-            img, 
-            f'Mean Filter, mask side:{self.mean_L}', 
+            img,
+            f'Mean Filter, mask side:{self.mean_L}',
             f'filter_mean_{self.mean_L}')
 
     def onMedianClick(self):
@@ -331,7 +331,7 @@ class FilterTab(QWidget):
 
         if len(self.imageShape) == 3:
             r,g,b = img.split()
-            
+
             filter_r = MedianFilter(r, L=self.median_L)
             filter_g = MedianFilter(g, L=self.median_L)
             filter_b = MedianFilter(b, L=self.median_L)
@@ -344,10 +344,10 @@ class FilterTab(QWidget):
         else:
             median_filter = MedianFilter(img, L=self.median_L)
             img = median_filter.apply()
-        
+
         self.display_and_save(
-            img, 
-            f'Median Filter, mask side:{self.median_L}', 
+            img,
+            f'Median Filter, mask side:{self.median_L}',
             f'filter_median_{self.median_L}')
 
 
@@ -358,7 +358,7 @@ class FilterTab(QWidget):
 
         if len(self.imageShape) == 3:
             r,g,b = img.split()
-            
+
             filter_r = EnhancementFilter(r, L=self.enhancement_L)
             filter_g = EnhancementFilter(g, L=self.enhancement_L)
             filter_b = EnhancementFilter(b, L=self.enhancement_L)
@@ -371,10 +371,10 @@ class FilterTab(QWidget):
         else:
             enhancement_filter = EnhancementFilter(img, L=self.enhancement_L)
             img = enhancement_filter.apply(normalize=True)
-        
+
         self.display_and_save(
-            img, 
-            f'Enhancement Filter, mask side:{self.enhancement_L}', 
+            img,
+            f'Enhancement Filter, mask side:{self.enhancement_L}',
             f'filter_enhancement_{self.enhancement_L}')
 
     def onWeightedMedianClick(self):
@@ -382,7 +382,7 @@ class FilterTab(QWidget):
 
         if len(self.imageShape) == 3:
             r,g,b = img.split()
-            
+
             filter_r = WeightedMedianFilter(r)
             filter_g = WeightedMedianFilter(g)
             filter_b = WeightedMedianFilter(b)
@@ -395,8 +395,8 @@ class FilterTab(QWidget):
         else:
             weighted_median_filter = WeightedMedianFilter(img)
             img = weighted_median_filter.apply()
-        
+
         self.display_and_save(
-            img, 
-            f'Weighted Median Filter, mask side:{3}', 
+            img,
+            f'Weighted Median Filter, mask side:{3}',
             f'filter_weighted_median')
