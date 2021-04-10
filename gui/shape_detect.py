@@ -96,8 +96,7 @@ class ShapeDetectTab(QWidget):
 
 class PrewittFilter(Filter):
     """
-    We are only doing dI/dx for now.
-    TODO: Implement dI/dy & synthesis
+    TODO: implement synthesis to join dx and dy.
     """
     def __init__(self, image, is_dx):
         super().__init__(image, L=3)
