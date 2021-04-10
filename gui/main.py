@@ -30,6 +30,7 @@ from pixel import PixelTab
 from noise import NoiseTab
 from saltpepper import SaltPepperTab
 from filters import FilterTab
+from shape_detect import ShapeDetectTab
 
 from utils import (
     RAW,
@@ -201,6 +202,7 @@ class MainWindow(QWidget):
         self.tab7 = FilterTab(self)
         self.tab8 = NoiseTab(self)
         self.tab9 = SaltPepperTab(self)
+        self.tab10 = ShapeDetectTab(self)
 
         self.tabs.addTab(self.tab2, "Pixel")
         self.tabs.addTab(self.tab3, "Crop")
@@ -209,6 +211,7 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.tab7, "Filter")
         self.tabs.addTab(self.tab8, "Noise")
         self.tabs.addTab(self.tab9, "S and P")
+        self.tabs.addTab(self.tab10, "Shape Detection")
 
 
         if len(np.asarray(self.image).shape) != 3:
