@@ -109,3 +109,26 @@ def compute_histogram(img, imageShape):
     histogram = histogram/total
 
     return histogram
+
+
+# This can be either a matrix or a 3 element tuple
+# (r,g,b) each one with a matrix inside
+def numpy_to_pil_image(numpy_image):
+    if len(numpy_image) == 3:
+        r_pil = Image.fromarray(numpy_image[0].astype(np.uint8))
+        g_pil = Image.fromarray(numpy_image[1].astype(np.uint8))
+        b_pil = Image.fromarray(numpy_image[2].astype(np.uint8))
+        result_pil_image = Image.merge("RGB", (r_pil, g_pil, b_pil))
+    else:
+        result_pil_image = Image.fromarray(numpy_image.astype(np.uint8))
+    return result_pil_image
+
+def numpy_to_pil_image(numpy_image):
+    if len(numpy_image) == 3:
+        r_pil = Image.fromarray(numpy_image[0].astype(np.uint8))
+        g_pil = Image.fromarray(numpy_image[1].astype(np.uint8))
+        b_pil = Image.fromarray(numpy_image[2].astype(np.uint8))
+        result_pil_image = Image.merge("RGB", (r_pil, g_pil, b_pil))
+    else:
+        result_pil_image = Image.fromarray(numpy_image.astype(np.uint8))
+    return result_pil_image
