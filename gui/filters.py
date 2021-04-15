@@ -285,8 +285,8 @@ class FilterTab(QWidget):
         display_before_after(
             self.parent,
             np_img,
-            f'Gaussian, \u03C3:{self.sigma}, mask side:{self.gaussian_L}',
-            f'filter_gaussian_{self.sigma}_{self.gaussian_L}')
+            f'Gaussian, \u03C3:{self.sigma}, mask side:{self.gaussian_L}'
+        )
 
     def onMeanClick(self):
         self.mean_L = int(self.mean_l_input.text())
@@ -313,8 +313,8 @@ class FilterTab(QWidget):
         display_before_after(
             self.parent,
             np_img,
-            f'Mean Filter, mask side:{self.mean_L}',
-            f'filter_mean_{self.mean_L}')
+            f'Mean Filter, mask side:{self.mean_L}'
+        )
 
     def onMedianClick(self):
         self.median_L = int(self.median_l_input.text())
@@ -341,8 +341,8 @@ class FilterTab(QWidget):
         display_before_after(
             self.parent,
             np_img,
-            f'Median Filter, mask side:{self.median_L}',
-            f'filter_median_{self.median_L}')
+            f'Median Filter, mask side:{self.median_L}'
+        )
 
 
     def onEnhancementClick(self):
@@ -370,8 +370,8 @@ class FilterTab(QWidget):
         display_before_after(
             self.parent,
             np_img,
-            f'Enhancement Filter, mask side:{self.enhancement_L}',
-            f'filter_enhancement_{self.enhancement_L}')
+            f'Enhancement Filter, mask side:{self.enhancement_L}'
+        )
 
     def onWeightedMedianClick(self):
         image = self.parent.changes[-1]
@@ -396,5 +396,5 @@ class FilterTab(QWidget):
         display_before_after(
             self.parent,
             np_img,
-            f'Weighted Median Filter, mask side:{3}',
-            f'filter_weighted_median')
+            f'Weighted Median Filter, mask side:{3}'
+        )

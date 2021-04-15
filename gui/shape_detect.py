@@ -10,8 +10,12 @@ from PyQt5.QtWidgets import (
     QLineEdit
 
 )
-from display import hdisplay
-from utils import newButton, compute_histogram, TRANSFORMATION_FOLDER
+from utils import (
+    newButton, 
+    compute_histogram,
+    display_before_after, 
+    TRANSFORMATION_FOLDER
+)
 from filters import Filter
 
 class ShapeDetectTab(QWidget):
@@ -37,61 +41,69 @@ class ShapeDetectTab(QWidget):
 
         self.setLayout(self.layout)
 
-    def display_and_save(self, img, legend):
-        if len(self.imageShape) == 3:
-            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"{legend}"
-            ])
-        else:
-            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"{legend}"
-            ], cmap="gray")
-
-        self.parent.changes.append(self.parent.image)
-        self.parent.image = img
-        self.parent.buttonUndo.setEnabled(True)
-
     def onPrewittClick(self):
-        img = self.parent.image.copy()
+        image = self.parent.changes[-1]
 
         if len(self.imageShape) == 3:
-            r,g,b = img.copy().split()
+
+            r,g,b = image[0], image[1], image[2]
 
             filter_r = PrewittFilter(r, is_dx=True)
             filter_g = PrewittFilter(g, is_dx=True)
             filter_b = PrewittFilter(b, is_dx=True)
 
-            r = filter_r.apply(normalize=True)
-            g = filter_g.apply(normalize=True)
-            b = filter_b.apply(normalize=True)
+            r_result = filter_r.apply(normalize=True)
+            g_result = filter_g.apply(normalize=True)
+            b_result = filter_b.apply(normalize=True)
 
-            img_x = Image.merge("RGB", (r,g,b))
+            np_img_x = (r_result, g_result, b_result)
 
-            self.display_and_save(img_x, f'Prewitt Filter (dI/dx)')
+            display_before_after(
+                self.parent, 
+                np_img_x, 
+                f'Prewitt Filter (dI/dx)',
+                submit=False
+            )
 
-            r,g,b = img.split()
+            r,g,b = image[0], image[1], image[2]
 
             filter_r = PrewittFilter(r, is_dx=False)
             filter_g = PrewittFilter(g, is_dx=False)
             filter_b = PrewittFilter(b, is_dx=False)
 
-            r = filter_r.apply(normalize=True)
-            g = filter_g.apply(normalize=True)
-            b = filter_b.apply(normalize=True)
+            r_result = filter_r.apply(normalize=True)
+            g_result = filter_g.apply(normalize=True)
+            b_result = filter_b.apply(normalize=True)
 
-            img_y = Image.merge("RGB", (r,g,b))
+            np_img_y = (r_result, g_result, b_result)
 
-            self.display_and_save(img_y, f'Prewitt Filter (dI/dy)')
+            display_before_after(
+                self.parent, 
+                np_img_x, 
+                f'Prewitt Filter (dI/dy)',
+                submit=False
+            )
+
         else:
-            prewitt_filter = PrewittFilter(img, is_dx=True)
-            img_x = prewitt_filter.apply(normalize=True)
-            self.display_and_save(img_x, f'Prewitt Filter (dI/dx)')
+            prewitt_filter = PrewittFilter(image, is_dx=True)
+            np_img_x = prewitt_filter.apply(normalize=True)
+            
+            display_before_after(
+                self.parent, 
+                np_img_x, 
+                f'Prewitt Filter (dI/dx)',
+                submit=False
+            )
 
-            prewitt_filter = PrewittFilter(img, is_dx=False)
-            img_y = prewitt_filter.apply(normalize=True)
-            self.display_and_save(img_y, f'Prewitt Filter (dI/dy)')
+            prewitt_filter = PrewittFilter(image, is_dx=False)
+            np_img_y = prewitt_filter.apply(normalize=True)
+
+            display_before_after(
+                self.parent, 
+                np_img_y, 
+                f'Prewitt Filter (dI/dy)',
+                submit=False
+            )
 
 
 class PrewittFilter(Filter):
@@ -103,6 +115,7 @@ class PrewittFilter(Filter):
 
         self.weighted_mask = [4,2,1]
         self.is_dx = is_dx
+
     def compute(self, pixels, x, y):
         value = 0
         for x_index in range(-1 * self.mid, self.mid + 1):

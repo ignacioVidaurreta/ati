@@ -142,7 +142,7 @@ def numpy_to_pil_image(numpy_image):
 # with current image and setting enabled to true
 # IMPORTANT: parent_widget is most likely to be self.parent
 # if you are in any child tab of the main component.
-def display_before_after(parent_widget, np_img, legend, file_legend):
+def display_before_after(parent_widget, np_img, legend, submit=True):
     if len(np_img) == 3:
         img = numpy_to_pil_image((np_img[0],np_img[1], np_img[2]))
         hdisplay([parent_widget.image, img], rows=1, cols=2, titles=[
@@ -155,8 +155,10 @@ def display_before_after(parent_widget, np_img, legend, file_legend):
             "Original Image",
             f"{legend}"
         ], cmap="gray")
-    # Changes now has a numpy array
-    parent_widget.changes.append(np_img)
-    # We save current PIL image for display
-    parent_widget.image = img
-    parent_widget.buttonUndo.setEnabled(True)
+    
+    if submit:
+        # Changes now has a numpy array
+        parent_widget.changes.append(np_img)
+        # We save current PIL image for display
+        parent_widget.image = img
+        parent_widget.buttonUndo.setEnabled(True)

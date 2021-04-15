@@ -223,7 +223,7 @@ class MainWindow(QWidget):
         self.tab10 = ShapeDetectTab(self)
 
         # TODO: commented tabs still need round problem to be solved
-        # 2, 3, 4, 5, 6, 8, 9, 10
+        # 2, 3, 4, 5, 6, 8, 9
 
         # self.tabs.addTab(self.tab2, "Pixel")
         # self.tabs.addTab(self.tab3, "Crop")
@@ -232,7 +232,7 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.tab7, "Filter")
         # self.tabs.addTab(self.tab8, "Noise")
         # self.tabs.addTab(self.tab9, "S and P")
-        # self.tabs.addTab(self.tab10, "Shape Detection")
+        self.tabs.addTab(self.tab10, "Shape Detection")
 
 
         if len(np.asarray(self.image).shape) != 3:
