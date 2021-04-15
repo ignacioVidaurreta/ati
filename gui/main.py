@@ -246,7 +246,8 @@ class MainWindow(QWidget):
         self.setBasicLayout()
 
     def onUndoClick(self):
-        self.image = numpy_to_pil_image(self.changes.pop())
+        self.changes.pop()
+        self.image = numpy_to_pil_image(self.changes[-1])
         # we always have the first image stored here !!
         if len(self.changes) == 1:
             self.buttonUndo.setEnabled(False)

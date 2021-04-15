@@ -29,6 +29,7 @@ class Filter():
     def compute(self, pixels, x, y):
         return pixels[x][y]
 
+
     def apply(self, normalize=False):
         original_pixels = np.copy(self.image)
 
@@ -68,10 +69,8 @@ class MeanFilter(Filter):
         for x_index in range(-1*self.mid, self.mid+1):
             for y_index in range(-1*self.mid, self.mid+1):
                 val = val + pixels[x+x_index, y+y_index]
-        val = val/(self.L ** 2)
 
-        # # TODO: check if taking the ceil is ok
-        return int(math.ceil(val))
+        return val/(self.L ** 2)
 
 
 class MedianFilter(Filter):
@@ -115,9 +114,8 @@ class WeightedMedianFilter(Filter):
         # values has 16 elements
         values.sort()
 
-        # TODO: check if taking the ceil is ok
         # returns avg of median since qty of elements is even
-        return math.ceil((values[7]+values[8])/2)
+        return (float(values[7])+float(values[8]))/2
 
     def distance(self, x1, y1, x2, y2):
         return math.sqrt(((x1-x2) ** 2) + ((y1-y2) ** 2))
@@ -222,23 +220,23 @@ class FilterTab(QWidget):
         self.layout.addWidget(self.gaussian_l_input, 0, 5)
         self.layout.addWidget(self.gaussian_filter, 0, 6)
 
-        # self.layout.addWidget(self.mean, 1, 0)
-        # self.layout.addWidget(self.mean_l, 1, 1)
-        # self.layout.addWidget(self.mean_l_input, 1, 2)
-        # self.layout.addWidget(self.mean_filter, 1, 3)
+        self.layout.addWidget(self.mean, 1, 0)
+        self.layout.addWidget(self.mean_l, 1, 1)
+        self.layout.addWidget(self.mean_l_input, 1, 2)
+        self.layout.addWidget(self.mean_filter, 1, 3)
 
-        # self.layout.addWidget(self.median, 2, 0)
-        # self.layout.addWidget(self.median_l, 2, 1)
-        # self.layout.addWidget(self.median_l_input, 2, 2)
-        # self.layout.addWidget(self.median_filter, 2, 3)
+        self.layout.addWidget(self.median, 2, 0)
+        self.layout.addWidget(self.median_l, 2, 1)
+        self.layout.addWidget(self.median_l_input, 2, 2)
+        self.layout.addWidget(self.median_filter, 2, 3)
 
-        # self.layout.addWidget(self.enhancement, 3, 0)
-        # self.layout.addWidget(self.enhancement_l, 3, 1)
-        # self.layout.addWidget(self.enhancement_l_input, 3, 2)
-        # self.layout.addWidget(self.enhancement_filter, 3, 3)
+        self.layout.addWidget(self.enhancement, 3, 0)
+        self.layout.addWidget(self.enhancement_l, 3, 1)
+        self.layout.addWidget(self.enhancement_l_input, 3, 2)
+        self.layout.addWidget(self.enhancement_filter, 3, 3)
 
-        # self.layout.addWidget(self.weighted_median, 4, 0)
-        # self.layout.addWidget(self.weighted_median_filter, 4, 1)
+        self.layout.addWidget(self.weighted_median, 4, 0)
+        self.layout.addWidget(self.weighted_median_filter, 4, 1)
 
         self.setLayout(self.layout)
 
@@ -311,52 +309,54 @@ class FilterTab(QWidget):
     def onMeanClick(self):
         self.mean_L = int(self.mean_l_input.text())
 
-        img = self.parent.image.copy()
+        image = self.parent.changes[-1]
 
-        if len(self.imageShape) == 3:
-            r,g,b = img.split()
+        if len(self.image.shape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
 
             filter_r = MeanFilter(r, L=self.mean_L)
             filter_g = MeanFilter(g, L=self.mean_L)
             filter_b = MeanFilter(b, L=self.mean_L)
 
-            r = filter_r.apply()
-            g = filter_g.apply()
-            b = filter_b.apply()
+            r_result = filter_r.apply()
+            g_result = filter_g.apply()
+            b_result = filter_b.apply()
 
-            img = Image.merge("RGB", (r,g,b))
+            np_img = (r_result, g_result, b_result)
         else:
-            mean_filter = MeanFilter(img, L=self.mean_L)
-            img = mean_filter.apply()
+            mean_filter = MeanFilter(image, L=self.mean_L)
+            np_img = mean_filter.apply()
 
         self.display_and_save(
-            img,
+            np_img,
             f'Mean Filter, mask side:{self.mean_L}',
             f'filter_mean_{self.mean_L}')
 
     def onMedianClick(self):
         self.median_L = int(self.median_l_input.text())
 
-        img = self.parent.image.copy()
+        image = self.parent.changes[-1]
 
-        if len(self.imageShape) == 3:
-            r,g,b = img.split()
+        if len(self.image.shape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
 
             filter_r = MedianFilter(r, L=self.median_L)
             filter_g = MedianFilter(g, L=self.median_L)
             filter_b = MedianFilter(b, L=self.median_L)
 
-            r = filter_r.apply()
-            g = filter_g.apply()
-            b = filter_b.apply()
+            r_result = filter_r.apply()
+            g_result = filter_g.apply()
+            b_result = filter_b.apply()
 
-            img = Image.merge("RGB", (r,g,b))
+            np_img = (r_result, g_result, b_result)
         else:
-            median_filter = MedianFilter(img, L=self.median_L)
-            img = median_filter.apply()
+            median_filter = MedianFilter(image, L=self.median_L)
+            np_img = median_filter.apply()
 
         self.display_and_save(
-            img,
+            np_img,
             f'Median Filter, mask side:{self.median_L}',
             f'filter_median_{self.median_L}')
 
@@ -364,49 +364,51 @@ class FilterTab(QWidget):
     def onEnhancementClick(self):
         self.enhancement_L = int(self.enhancement_l_input.text())
 
-        img = self.parent.image.copy()
+        image = self.parent.changes[-1]
 
-        if len(self.imageShape) == 3:
-            r,g,b = img.split()
+        if len(self.image.shape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
 
             filter_r = EnhancementFilter(r, L=self.enhancement_L)
             filter_g = EnhancementFilter(g, L=self.enhancement_L)
             filter_b = EnhancementFilter(b, L=self.enhancement_L)
 
-            r = filter_r.apply(normalize=True)
-            g = filter_g.apply(normalize=True)
-            b = filter_b.apply(normalize=True)
+            r_result = filter_r.apply(normalize=True)
+            g_result = filter_g.apply(normalize=True)
+            b_result = filter_b.apply(normalize=True)
 
-            img = Image.merge("RGB", (r,g,b))
+            np_img = (r_result, g_result, b_result)
         else:
-            enhancement_filter = EnhancementFilter(img, L=self.enhancement_L)
-            img = enhancement_filter.apply(normalize=True)
+            enhancement_filter = EnhancementFilter(image, L=self.enhancement_L)
+            np_img = enhancement_filter.apply(normalize=True)
 
         self.display_and_save(
-            img,
+            np_img,
             f'Enhancement Filter, mask side:{self.enhancement_L}',
             f'filter_enhancement_{self.enhancement_L}')
 
     def onWeightedMedianClick(self):
-        img = self.parent.image.copy()
+        image = self.parent.changes[-1]
 
-        if len(self.imageShape) == 3:
-            r,g,b = img.split()
+        if len(self.image.shape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
 
             filter_r = WeightedMedianFilter(r)
             filter_g = WeightedMedianFilter(g)
             filter_b = WeightedMedianFilter(b)
 
-            r = filter_r.apply()
-            g = filter_g.apply()
-            b = filter_b.apply()
+            r_result = filter_r.apply()
+            g_result = filter_g.apply()
+            b_result = filter_b.apply()
 
-            img = Image.merge("RGB", (r,g,b))
+            np_img = (r_result, g_result, b_result)
         else:
-            weighted_median_filter = WeightedMedianFilter(img)
-            img = weighted_median_filter.apply()
+            weighted_median_filter = WeightedMedianFilter(image)
+            np_img = weighted_median_filter.apply()
 
         self.display_and_save(
-            img,
+            np_img,
             f'Weighted Median Filter, mask side:{3}',
             f'filter_weighted_median')
