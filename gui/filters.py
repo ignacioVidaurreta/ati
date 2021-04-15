@@ -15,7 +15,8 @@ from utils import (
     newButton, 
     numpy_to_pil_image,
     compute_histogram, 
-    TRANSFORMATION_FOLDER
+    TRANSFORMATION_FOLDER,
+    display_before_after
 )
 
 # Filter that does not apply anything to the image
@@ -245,26 +246,6 @@ class FilterTab(QWidget):
         self.L = 2*self.sigma+1
         self.gaussian_l_input.setText(str(self.L))
 
-    def display_and_save(self, np_img, legend, file_legend):
-        if len(np_img) == 3:
-            img = numpy_to_pil_image((np_img[0],np_img[1], np_img[2]))
-            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"{legend}"
-            ])
-        else:
-            img = numpy_to_pil_image(np_img)
-            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"{legend}"
-            ], cmap="gray")
-        # Changes now has a numpy array
-        self.parent.changes.append(np_img)
-        # We save current PIL image for display
-        self.parent.image = img
-        self.parent.buttonUndo.setEnabled(True)
-
-
     def onGaussianClick(self):
         self.sigma = int(self.sigma_input.text())
         self.gaussian_L = int(self.gaussian_l_input.text())
@@ -301,7 +282,8 @@ class FilterTab(QWidget):
 
         # IMAGE CHANGE 8
         # check out this method since it does all the updates needed in parent widget
-        self.display_and_save(
+        display_before_after(
+            self.parent,
             np_img,
             f'Gaussian, \u03C3:{self.sigma}, mask side:{self.gaussian_L}',
             f'filter_gaussian_{self.sigma}_{self.gaussian_L}')
@@ -328,7 +310,8 @@ class FilterTab(QWidget):
             mean_filter = MeanFilter(image, L=self.mean_L)
             np_img = mean_filter.apply()
 
-        self.display_and_save(
+        display_before_after(
+            self.parent,
             np_img,
             f'Mean Filter, mask side:{self.mean_L}',
             f'filter_mean_{self.mean_L}')
@@ -355,7 +338,8 @@ class FilterTab(QWidget):
             median_filter = MedianFilter(image, L=self.median_L)
             np_img = median_filter.apply()
 
-        self.display_and_save(
+        display_before_after(
+            self.parent,
             np_img,
             f'Median Filter, mask side:{self.median_L}',
             f'filter_median_{self.median_L}')
@@ -383,7 +367,8 @@ class FilterTab(QWidget):
             enhancement_filter = EnhancementFilter(image, L=self.enhancement_L)
             np_img = enhancement_filter.apply(normalize=True)
 
-        self.display_and_save(
+        display_before_after(
+            self.parent,
             np_img,
             f'Enhancement Filter, mask side:{self.enhancement_L}',
             f'filter_enhancement_{self.enhancement_L}')
@@ -408,7 +393,8 @@ class FilterTab(QWidget):
             weighted_median_filter = WeightedMedianFilter(image)
             np_img = weighted_median_filter.apply()
 
-        self.display_and_save(
+        display_before_after(
+            self.parent,
             np_img,
             f'Weighted Median Filter, mask side:{3}',
             f'filter_weighted_median')
