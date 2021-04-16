@@ -84,8 +84,7 @@ class ShapeDetectTab(QWidget):
         display_before_after(
             self.parent, 
             np_img, 
-            f'Prewitt Filter',
-            submit=False
+            f'Prewitt Filter'
         )
 
 
