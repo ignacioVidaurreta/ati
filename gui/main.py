@@ -224,7 +224,7 @@ class MainWindow(QWidget):
 
         if len(np.asarray(self.image).shape) != 3:
             self.tab6 = HistogramTab(self)
-            # self.tabs.addTab(self.tab6, "Histogram")
+            self.tabs.addTab(self.tab6, "Histogram")
 
     def onRestartClick(self):
         self.layout.removeWidget(self.tabs)
