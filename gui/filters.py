@@ -37,11 +37,10 @@ class Filter():
         h = math.floor(self.L/2)
         self.mid = h
 
-        max_idx_width = self.image.shape[1]-1
-        max_idx_height = self.image.shape[0]-1
+        max_idx_width = self.image.shape[0]-1
+        max_idx_height = self.image.shape[1]-1
 
         new_pixels = np.zeros(shape=self.image.shape)
-
         for x,y in np.ndindex(self.image.shape):
             if x-h < 0 or \
                y-h < 0 or \
