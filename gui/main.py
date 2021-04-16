@@ -168,8 +168,7 @@ class MainWindow(QWidget):
                         np.array(g),
                         np.array(b)))
                 else:
-                    self.changes.append(np.array(self.image))  
-                print(self.changes[0])                  
+                    self.changes.append(np.array(self.image))                   
 
                 self.filename = file
                 self.imageFilename = QLabel(f'{file}')
