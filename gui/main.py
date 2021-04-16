@@ -186,22 +186,10 @@ class MainWindow(QWidget):
 
             directory = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
             filename = self.fileInput.text()
-            filepath = f'{directory}/{filename}'
+            filepath = f'{directory}/{filename}.jpg'
 
-            # Actual saving image
-            if self.file_type != RAW:
-                # gets filepath using directory and filename
-                save_image(self.image, filepath + ".jpg")
-            else:
-                shape = np.asarray(self.image).shape
-
-                save_raw(
-                    self.image,
-                    filename + ".RAW",
-                    directory,
-                    shape[0],
-                    shape[1]
-                )
+            # always saves jpg image, no matter original extension
+            save_image(self.image, filepath)
 
             # displays success message
             self.filepath = QLabel(f'Image saved at {filepath}')
