@@ -95,19 +95,17 @@ def copy_crop_into_img(img, x, y, w, h):
     img = Image.fromarray(arr_to)
     img.show()
 
-def compute_histogram(img, imageShape):
-    pixels = img.load()
-
+def compute_histogram(pixels):
     # We initialize 256 bins in 0, this array will hold
     # relative frequencies
     histogram = np.zeros(256)
 
     # Computes relative frequencies
-    for x,y in np.ndindex(img.size):
+    for x,y in np.ndindex(pixels.shape):
         current = histogram[pixels[x,y]]
         histogram[pixels[x,y]] = current + 1
 
-    total = imageShape[0]*imageShape[1]
+    total = pixels.shape[0]*pixels.shape[1]
     histogram = histogram/total
 
     return histogram

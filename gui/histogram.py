@@ -49,7 +49,7 @@ class HistogramTab(QWidget):
         # Just in case we use a copy of the image
         img = self.parent.image.copy()
 
-        histogram = compute_histogram(img, self.imageShape)
+        histogram = compute_histogram(img)
 
         # Plots histogram
         plt.figure()

@@ -17,7 +17,7 @@ from PyQt5.QtCore import pyqtSlot, QSize, Qt
 from utils import newButton, newAxisButton
 from PIL import Image
 from display import hdisplay
-from utils import compute_histogram, TRANSFORMATION_FOLDER
+from utils import compute_histogram, display_before_after, TRANSFORMATION_FOLDER
 import matplotlib.pyplot as plt
 
 
@@ -70,7 +70,7 @@ class ImageTransformTab(QWidget):
         self.layout.addWidget(self.gammaInfo, 2, 3)
         self.layout.addWidget(self.gamma, 2, 4)
 
-        # Just for B&w images
+        # # Just for B&w images
         if len(self.imageShape) != 3:
             self.layout.addWidget(self.equalize_title, 3, 0)
             self.layout.addWidget(self.equalize, 3, 1)
@@ -79,137 +79,108 @@ class ImageTransformTab(QWidget):
 
     # Convention: on[ButtonName]Click
     def onNegativeClick(self):
-        # We do not want to loose original image
-        img = self.parent.image.copy()
+        image = np.copy(self.parent.changes[-1])
 
-        if len(self.imageShape) == 3:
-            # if image has r,g,b channels, apply the transform
-            # to every channel
-            r,g,b = img.split()
-            self.negativeTransform(r)
-            self.negativeTransform(g)
-            self.negativeTransform(b)
-            # We now need to merge the modified values into an RGB image
-            img = Image.merge("RGB", (r,g,b))
-            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                "Negative Transformation of Image"
-            ])
+        if len(self.image.shape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
+
+            r_result = self.negativeTransform(r)
+            g_result = self.negativeTransform(g)
+            b_result = self.negativeTransform(b)
+            
+            np_img = (r_result, g_result, b_result)
         else:
-            self.negativeTransform(img)
-            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                "Negative Transformation of Image"
-            ], cmap="gray")
+            np_img = self.negativeTransform(image)
 
-        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_negative.png')
-        self.parent.changes.append(self.parent.image)
-        self.parent.image = img
-        self.parent.buttonUndo.setEnabled(True)
+        display_before_after(
+            self.parent,
+            np_img,
+            "Negative Transformation of Image"
+        )
 
-    def negativeTransform(self, img):
-        # This method is cool because you receive the pixels by memory
-        # then, when modifying the pixels you modify the image.
-        pixels = img.load()
-        for x,y in np.ndindex(img.size):
-            pixels[x,y] = 255 - pixels[x,y]
+    def negativeTransform(self, image):
+        for x,y in np.ndindex(image.shape):
+            image[x,y] = 255 - image[x,y]
+        return image
 
     def onUmbralizationClick(self):
         self.umbralValue = int(self.umbralInput.text())
 
-        # We do not want to loose original image
-        img = self.parent.image.copy()
+        image = np.copy(self.parent.changes[-1])
 
-        if len(self.imageShape) == 3:
-            # if image has r,g,b channels, apply the transform
-            # to every channel
-            r,g,b = img.split()
+        if len(self.image.shape) == 3:
+
+            # we umbralize every channel
+            r,g,b = image[0], image[1], image[2]
+            
             self.umbralizationTransform(r)
             self.umbralizationTransform(g)
             self.umbralizationTransform(b)
+            
             # We now need to merge the modified values into an RGB image
-            img = Image.merge("RGB", (r,g,b))
-            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                "Umbralization of Image"
-            ])
+            np_img = (r, g, b)
+
         else:
-            self.umbralizationTransform(img)
-            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"Umbralization with Umbral={self.umbralValue}"
-            ], cmap="gray")
+            self.umbralizationTransform(image)
+            np_img = image
 
-        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_umbral_{str(self.umbralValue)}.png')
-        self.parent.changes.append(self.parent.image)
-        self.parent.image = img
-        self.parent.buttonUndo.setEnabled(True)
+        display_before_after(
+            self.parent,
+            np_img,
+            "Umbralization of Image"
+        )
 
-    def umbralizationTransform(self, img):
-        pixels = img.load()
-        for x,y in np.ndindex(img.size):
-            if pixels[x,y] < self.umbralValue:
-                pixels[x,y] = 0
+
+    def umbralizationTransform(self, image):
+        for x,y in np.ndindex(image.shape):
+            if image[x,y] < self.umbralValue:
+                image[x,y] = 0
             else:
-                pixels[x,y] = 255
+                image[x,y] = 255
 
     def onGammaClick(self):
         self.gammaValue = float(self.gammaInput.text())
 
         # We do not want to loose original image
-        img = self.parent.image.copy()
+        image = np.copy(self.parent.changes[-1])
 
         # We want to apply T(r) = c * r ^ gamma
         # where c = (L-1)^(1-gamma)
         self.c = 255 ** (1-self.gammaValue)
 
-        if len(self.imageShape) == 3:
-            # if image has r,g,b channels, apply the transform
-            # to every channel
-            r,g,b = img.split()
+        if len(self.image.shape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
+            
             self.gammaTransform(r)
             self.gammaTransform(g)
             self.gammaTransform(b)
 
-            img = Image.merge("RGB", (r,g,b))
-
-            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"Power function with \u03B3={self.gammaValue}"
-            ])
-
+            np_img = (r,g,b)
         else:
-            self.gammaTransform(img)
+            self.gammaTransform(image)
+            np_img = image
 
-            hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"Power function with \u03B3={self.gammaValue}"
-            ], cmap="gray")
+        display_before_after(
+            self.parent,
+            np_img,
+            f"Power function with \u03B3={self.gammaValue}"
+        )
 
-        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_power_{str(self.gammaValue)}.png')
-        self.parent.changes.append(self.parent.image)
-        self.parent.image = img
-        self.parent.buttonUndo.setEnabled(True)
-
-    def gammaTransform(self, img):
-        pixels = img.load()
-        for x,y in np.ndindex(img.size):
-            pixel = pixels[x,y]
-            pixels[x,y] = int(
+    def gammaTransform(self, image):
+        for x,y in np.ndindex(image.shape):
+            pixel = image[x,y]
+            image[x,y] = int(
                 math.ceil(
                     self.c*(pixel ** self.gammaValue)
                 )
             )
 
     def onEqualizeClick(self):
-        # We do not want to loose original image
-        # so we make a copy to show equalized image
-        img = self.parent.image.copy()
+        image = np.copy(self.parent.changes[-1])
 
-        histogram = compute_histogram(img, self.imageShape)
+        histogram = compute_histogram(image)
         accumulated_frequencies = np.zeros(256)
 
         for i in range(len(accumulated_frequencies)):
@@ -230,25 +201,12 @@ class ImageTransformTab(QWidget):
 
         new_colors = [int(x) for x in new_colors]
 
-        pixels = img.load()
-        for x,y in np.ndindex(img.size):
-            index = pixels[x,y]
-            pixels[x,y] = new_colors[index]
+        for x,y in np.ndindex(image.shape):
+            index = image[x,y]
+            image[x,y] = new_colors[index]
 
-        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_equalized.png')
-        self.parent.changes.append(self.parent.image)
-        self.parent.image = img
-        self.parent.buttonUndo.setEnabled(True)
-
-        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-            "Original Image",
-            f"Equalized Image"
-        ], cmap="gray")
-
-        plt.figure()
-        histogram = compute_histogram(img, self.imageShape)
-        plt.bar(np.arange(len(histogram)), histogram)
-        filename = self.parent.filename.split("/")[-1]
-        plt.title(f'Equalized histogram for {filename}')
-        plt.show()
+        display_before_after(
+            self.parent,
+            image,
+            "Equalized Image"
+        )

@@ -11,8 +11,7 @@ from PyQt5.QtWidgets import (
 
 )
 from utils import (
-    newButton, 
-    compute_histogram,
+    newButton,
     display_before_after, 
     numpy_to_pil_image,
     TRANSFORMATION_FOLDER

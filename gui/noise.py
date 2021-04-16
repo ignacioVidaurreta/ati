@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
 
 )
 from display import hdisplay
-from utils import newButton, compute_histogram, TRANSFORMATION_FOLDER
+from utils import newButton, TRANSFORMATION_FOLDER
 from PIL import Image
 import numpy as np
 from matrix_util import matrix_mult, matrix_sum

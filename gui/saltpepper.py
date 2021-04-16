@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 
 )
 from display import hdisplay
-from utils import newButton, compute_histogram
+from utils import newButton
 from PIL import Image
 import numpy as np
 

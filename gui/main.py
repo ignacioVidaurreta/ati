@@ -210,12 +210,12 @@ class MainWindow(QWidget):
         self.tab10 = ShapeDetectTab(self)
 
         # TODO: commented tabs still need round problem to be solved
-        # 2, 3, 4, 5, 6, 8, 9
+        # 2, 3, 4, 6, 8, 9
 
         # self.tabs.addTab(self.tab2, "Pixel")
         # self.tabs.addTab(self.tab3, "Crop")
         # self.tabs.addTab(self.tab4, "Operations")
-        # self.tabs.addTab(self.tab5, "Transform")
+        self.tabs.addTab(self.tab5, "Transform")
         self.tabs.addTab(self.tab7, "Filter")
         # self.tabs.addTab(self.tab8, "Noise")
         # self.tabs.addTab(self.tab9, "S and P")
