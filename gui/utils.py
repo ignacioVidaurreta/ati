@@ -111,6 +111,18 @@ def compute_histogram(pixels):
     return histogram
 
 
+def compute_accumulated_frequencies(histogram):
+
+    accumulated_frequencies = np.zeros(256)
+
+    for i in range(len(accumulated_frequencies)):
+        if i == 0:
+            accumulated_frequencies[i] = histogram[i]
+        else:
+            accumulated_frequencies[i] = histogram[i] + accumulated_frequencies[i-1]
+    
+    return accumulated_frequencies
+
 # This can be either a matrix or a 3 element tuple
 # (r,g,b) each one with a matrix inside
 def numpy_to_pil_image(numpy_image):

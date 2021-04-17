@@ -17,7 +17,12 @@ from PyQt5.QtCore import pyqtSlot, QSize, Qt
 from utils import newButton, newAxisButton
 from PIL import Image
 from display import hdisplay
-from utils import compute_histogram, display_before_after, TRANSFORMATION_FOLDER
+from utils import (
+    compute_accumulated_frequencies,
+    compute_histogram,
+    display_before_after,
+    TRANSFORMATION_FOLDER
+) 
 import matplotlib.pyplot as plt
 
 
@@ -41,9 +46,10 @@ class ImageTransformTab(QWidget):
         self.umbralLabel = QLabel("Umbral")
         self.umbralInput = QLineEdit()
         self.umbralInput.setText('255')
-        self.globalUmbral = newButton("Global", self.onGlobalUmbralClick)
-        self.otsuUmbral = newButton("Otsu", self.onOtsuUmbralClick)
         self.umbralization = newButton("Apply", self.onUmbralizationClick)
+        self.globalUmbral = newButton("Global", self.onGlobalUmbralClick)
+        if len(self.imageShape) < 3:
+            self.otsuUmbral = newButton("Otsu", self.onOtsuUmbralClick)
 
         self.gamma_title = QLabel("Power Function")
         self.gamma_title.setStyleSheet("background-color: #FFD0ED")
@@ -64,9 +70,9 @@ class ImageTransformTab(QWidget):
         self.layout.addWidget(self.umbralization_title, 1, 0)
         self.layout.addWidget(self.umbralLabel, 1, 1)
         self.layout.addWidget(self.umbralInput, 1, 2)
-        self.layout.addWidget(self.globalUmbral, 1, 3)
-        self.layout.addWidget(self.otsuUmbral, 1, 4)
-        self.layout.addWidget(self.umbralization, 1, 5)
+        self.layout.addWidget(self.umbralization, 1, 3)
+        self.layout.addWidget(self.globalUmbral, 1, 4)
+        self.layout.addWidget(self.otsuUmbral, 1, 5)
 
         self.layout.addWidget(self.gamma_title, 2, 0)
         self.layout.addWidget(self.gammaLabel, 2, 1)
@@ -184,13 +190,7 @@ class ImageTransformTab(QWidget):
         image = np.copy(self.parent.changes[-1])
 
         histogram = compute_histogram(image)
-        accumulated_frequencies = np.zeros(256)
-
-        for i in range(len(accumulated_frequencies)):
-            if i == 0:
-                accumulated_frequencies[i] = histogram[i]
-            else:
-                accumulated_frequencies[i] = histogram[i] + accumulated_frequencies[i-1]
+        accumulated_frequencies = compute_accumulated_frequencies(histogram)
 
         s_min = accumulated_frequencies[0]
         new_colors = np.zeros(256)
@@ -290,4 +290,46 @@ class ImageTransformTab(QWidget):
 
 
     def onOtsuUmbralClick(self):
-        pass
+        image = np.copy(self.parent.changes[-1])
+
+        # step 1
+        # compute_histogram does not alter image
+        histogram = compute_histogram(image)
+
+        # step 2, cummulative frequencies for each t
+        p1_t = compute_accumulated_frequencies(histogram)
+
+        # if we think about varying t, we will have C1 and C2
+        # C1 with pixels lower than t, C2 bigger or equal than t
+        # p1_t represents the probability that a pixel p belongs to C1
+
+        # step 3, computes expected value
+        m_t = np.zeros(256) # m_t[0] = 0
+        for i in range(len(m_t)-1):
+            m_t[i+1] = i*histogram[i+1]
+
+        # step 4, computes global mean
+        m_g = np.sum(m_t)
+
+        # step 5, compute std mean among classes
+        std_sq_t = np.zeros(256)
+        for i in range(len(m_t)):
+            std_sq_t[i] = (m_g*p1_t[i]-m_t[i])/(p1_t[i]*(1-p1_t[i]))
+        
+        # TODO: uncomment this, check if its better
+        #std_sq_t = ((m_g*p1_t-m_t) ** 2)/(p1_t*(1-p1_t))
+        
+        # search for all max values
+        max_value = np.max(std_sq_t)
+        result = np.where(std_sq_t == max_value)
+        
+        # if more than one result, takes avg
+        umbral = math.floor(np.mean(result))
+
+        self.umbralizationTransform(image, umbral)
+
+        display_before_after(
+            self.parent,
+            image,
+            f"Otsu Umbral with t:{umbral}"
+        )
