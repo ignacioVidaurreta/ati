@@ -34,19 +34,32 @@ class ShapeDetectTab(QWidget):
 
         # Prewitt Widgets
         self.prewitt = QLabel("Prewitt Method")
-        self.prewitt.setStyleSheet("background-color: #d4ebf2")
+        self.prewitt.setStyleSheet("background-color: #ccccff")
         self.prewitt_filter = newButton("Apply", self.onPrewittClick)
 
         # Laplacian Widgets
         self.laplacian = QLabel("Laplacian Method")
-        self.laplacian.setStyleSheet("background-color: #d4ebf2")
+        self.laplacian.setStyleSheet("background-color: #ccccff")
         self.laplacian_filter = newButton("Apply", self.onLaplacianClick)
+
+        # Slope Widgets
+        self.slope = QLabel("Laplacian with Slope")
+        self.slope.setStyleSheet("background-color: #ccccff")
+        self.umbral_label, self.umbral_input = QLabel("Umbral"), QLineEdit()
+        self.umbral_input.setText('10')
+        self.slope_evaluation = newButton("Apply", self.onSlopeClick)
 
         # We add widgets to layout
         self.layout.addWidget(self.prewitt, 0, 0)
         self.layout.addWidget(self.prewitt_filter, 0, 1)
+        
         self.layout.addWidget(self.laplacian, 1, 0)
         self.layout.addWidget(self.laplacian_filter, 1, 1)
+
+        self.layout.addWidget(self.slope, 2, 0)
+        self.layout.addWidget(self.umbral_label, 2, 1)
+        self.layout.addWidget(self.umbral_input, 2, 2)
+        self.layout.addWidget(self.slope_evaluation, 2, 3)
 
         self.setLayout(self.layout)
 
@@ -104,4 +117,34 @@ class ShapeDetectTab(QWidget):
             self.parent, 
             np_img, 
             f'Laplacian Method'
+        )
+
+    def onSlopeClick(self):
+        zero_crosses = ZeroCrosses()
+
+        image = self.parent.changes[-1]
+
+        if len(self.imageShape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
+
+            filter_r = LaplacianFilter(r)
+            filter_g = LaplacianFilter(g)
+            filter_b = LaplacianFilter(b)
+
+            # we wont normalize since we need to
+            # find zeros crosses.    
+            r_result = zero_crosses.apply(filter_r.apply())
+            g_result = zero_crosses.apply(filter_g.apply())
+            b_result = zero_crosses.apply(filter_b.apply())
+
+            np_img = (r_result, g_result, b_result)
+        else:
+            laplacian_filter = LaplacianFilter(image)
+            np_img = zero_crosses.apply(laplacian_filter.apply())
+
+        display_before_after(
+            self.parent, 
+            np_img, 
+            f'Laplacian with Slope Evaluation'
         )
