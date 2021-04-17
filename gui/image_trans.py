@@ -41,6 +41,8 @@ class ImageTransformTab(QWidget):
         self.umbralLabel = QLabel("Umbral")
         self.umbralInput = QLineEdit()
         self.umbralInput.setText('255')
+        self.globalUmbral = newButton("Global", self.onGlobalUmbralClick)
+        self.otsuUmbral = newButton("Otsu", self.onOtsuUmbralClick)
         self.umbralization = newButton("Apply", self.onUmbralizationClick)
 
         self.gamma_title = QLabel("Power Function")
@@ -62,7 +64,9 @@ class ImageTransformTab(QWidget):
         self.layout.addWidget(self.umbralization_title, 1, 0)
         self.layout.addWidget(self.umbralLabel, 1, 1)
         self.layout.addWidget(self.umbralInput, 1, 2)
-        self.layout.addWidget(self.umbralization, 1, 3)
+        self.layout.addWidget(self.globalUmbral, 1, 3)
+        self.layout.addWidget(self.otsuUmbral, 1, 4)
+        self.layout.addWidget(self.umbralization, 1, 5)
 
         self.layout.addWidget(self.gamma_title, 2, 0)
         self.layout.addWidget(self.gammaLabel, 2, 1)
@@ -114,15 +118,15 @@ class ImageTransformTab(QWidget):
             # we umbralize every channel
             r,g,b = image[0], image[1], image[2]
             
-            self.umbralizationTransform(r)
-            self.umbralizationTransform(g)
-            self.umbralizationTransform(b)
+            self.umbralizationTransform(r, self.umbralValue)
+            self.umbralizationTransform(g, self.umbralValue)
+            self.umbralizationTransform(b, self.umbralValue)
             
             # We now need to merge the modified values into an RGB image
             np_img = (r, g, b)
 
         else:
-            self.umbralizationTransform(image)
+            self.umbralizationTransform(image, self.umbralValue)
             np_img = image
 
         display_before_after(
@@ -131,10 +135,9 @@ class ImageTransformTab(QWidget):
             "Umbralization of Image"
         )
 
-
-    def umbralizationTransform(self, image):
+    def umbralizationTransform(self, image, umbral):
         for x,y in np.ndindex(image.shape):
-            if image[x,y] < self.umbralValue:
+            if image[x,y] < umbral:
                 image[x,y] = 0
             else:
                 image[x,y] = 255
@@ -210,3 +213,81 @@ class ImageTransformTab(QWidget):
             image,
             "Equalized Image"
         )
+    
+    def globalUmbralAlgorithm(self, original):
+        # step 1
+        current_t = 100 # this was randomly selected
+        current = None
+
+        iterations = 0
+
+        while True:
+            current = np.copy(original)
+
+            iterations += 1
+
+            # step 2
+            self.umbralizationTransform(current, current_t)
+
+            # step 3, 4
+            # n stands for quantity, m for mean
+            n_g0 = 0
+            n_g255 = 0
+            m_g0 = 0
+            m_g255 = 0
+            
+            for x,y in np.ndindex(original.shape):
+                if current[x,y] == 0:
+                    m_g0 += original[x,y]
+                    n_g0 += 1
+                else:
+                    m_g255 += original[x,y]
+                    n_g255 += 1
+            
+            m_g0 *= (1/n_g0)
+            m_g255 *= (1/n_g255)
+
+            # step 5
+            new_t = math.floor(0.5*(m_g0 + m_g255))
+
+            # step 6
+            if abs(current_t-new_t) < 1: break
+
+            current_t = new_t
+        
+        return current, current_t, iterations
+    
+    def onGlobalUmbralClick(self):
+        # this image is NOT modified
+        image = self.parent.changes[-1]
+
+        if len(self.image.shape) == 3:
+
+            # we umbralize every channel
+            r,g,b = image[0], image[1], image[2]
+            
+            current_r, t_r, it_r = self.globalUmbralAlgorithm(r)
+            current_g, t_g, it_g = self.globalUmbralAlgorithm(g)
+            current_b, t_b, it_b = self.globalUmbralAlgorithm(b)
+            
+            # We now need to merge the modified values into an RGB image
+            np_img = (current_r, current_g, current_b)
+
+            display_before_after(
+                self.parent,
+                np_img,
+                f"t:{t_r},{t_g},{t_b}, iter:{it_r},{it_g},{it_b}"
+            )
+
+        else:
+            current, current_t, iterations = self.globalUmbralAlgorithm(image)
+
+            display_before_after(
+                self.parent,
+                current,
+                f"Global Umbral t:{current_t}, iter:{iterations}"
+            )
+
+
+    def onOtsuUmbralClick(self):
+        pass
