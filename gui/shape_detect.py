@@ -16,7 +16,11 @@ from utils import (
     TRANSFORMATION_FOLDER
 )
 from display import hdisplay
-from filters import PrewittFilter
+from filters import (
+    PrewittFilter,
+    LaplacianFilter,
+    ZeroCrosses
+)
 
 class ShapeDetectTab(QWidget):
 
@@ -73,4 +77,31 @@ class ShapeDetectTab(QWidget):
         )
 
     def onLaplacianClick(self):
-        pass
+        zero_crosses = ZeroCrosses()
+
+        image = self.parent.changes[-1]
+
+        if len(self.imageShape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
+
+            filter_r = LaplacianFilter(r)
+            filter_g = LaplacianFilter(g)
+            filter_b = LaplacianFilter(b)
+
+            # we wont normalize since we need to
+            # find zeros crosses.    
+            r_result = zero_crosses.apply(filter_r.apply())
+            g_result = zero_crosses.apply(filter_g.apply())
+            b_result = zero_crosses.apply(filter_b.apply())
+
+            np_img = (r_result, g_result, b_result)
+        else:
+            laplacian_filter = LaplacianFilter(image)
+            np_img = zero_crosses.apply(laplacian_filter.apply())
+
+        display_before_after(
+            self.parent, 
+            np_img, 
+            f'Laplacian Method'
+        )

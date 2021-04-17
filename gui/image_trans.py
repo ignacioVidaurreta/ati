@@ -72,7 +72,8 @@ class ImageTransformTab(QWidget):
         self.layout.addWidget(self.umbralInput, 1, 2)
         self.layout.addWidget(self.umbralization, 1, 3)
         self.layout.addWidget(self.globalUmbral, 1, 4)
-        self.layout.addWidget(self.otsuUmbral, 1, 5)
+        if len(self.imageShape) < 3:
+            self.layout.addWidget(self.otsuUmbral, 1, 5)
 
         self.layout.addWidget(self.gamma_title, 2, 0)
         self.layout.addWidget(self.gammaLabel, 2, 1)
