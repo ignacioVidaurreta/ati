@@ -29,7 +29,7 @@ from operations import OperationsTab
 from pixel import PixelTab
 from noise import NoiseTab
 from saltpepper import SaltPepperTab
-from filters import FilterTab
+from image_filter import FilterTab
 from shape_detect import ShapeDetectTab
 
 from utils import (

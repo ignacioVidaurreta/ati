@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import (
     QGridLayout,
     QLabel,
     QLineEdit
-
 )
 from utils import (
     newButton,
@@ -17,7 +16,7 @@ from utils import (
     TRANSFORMATION_FOLDER
 )
 from display import hdisplay
-from filters import Filter
+from filters import PrewittFilter
 
 class ShapeDetectTab(QWidget):
 
@@ -30,15 +29,20 @@ class ShapeDetectTab(QWidget):
         self.imageShape = np.asarray(self.parent.image).shape
 
         # Prewitt Widgets
-        self.prewitt = QLabel("PREWITT DETECTION")
+        self.prewitt = QLabel("Prewitt Method")
         self.prewitt.setStyleSheet("background-color: #d4ebf2")
-
         self.prewitt_filter = newButton("Apply", self.onPrewittClick)
 
+        # Laplacian Widgets
+        self.laplacian = QLabel("Laplacian Method")
+        self.laplacian.setStyleSheet("background-color: #d4ebf2")
+        self.laplacian_filter = newButton("Apply", self.onLaplacianClick)
 
         # We add widgets to layout
         self.layout.addWidget(self.prewitt, 0, 0)
         self.layout.addWidget(self.prewitt_filter, 0, 1)
+        self.layout.addWidget(self.laplacian, 1, 0)
+        self.layout.addWidget(self.laplacian_filter, 1, 1)
 
         self.setLayout(self.layout)
 
@@ -68,18 +72,5 @@ class ShapeDetectTab(QWidget):
             f'Prewitt Filter'
         )
 
-
-class PrewittFilter(Filter):
-       
-    def __init__(self, image):
-        super().__init__(image, L=3)
-
-    def compute(self, pixels, x, y):
-        x_value = 0
-        y_value = 0
-        for x_index in range(-1 * self.mid, self.mid + 1):
-            for y_index in range(-1 * self.mid, self.mid + 1):
-                x_value += pixels[x + x_index, y + y_index] * y_index
-                y_value += pixels[x + x_index, y + y_index] * x_index
-
-        return math.sqrt(x_value ** 2 + y_value ** 2)
+    def onLaplacianClick(self):
+        pass
