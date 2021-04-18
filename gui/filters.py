@@ -12,9 +12,9 @@ from PyQt5.QtWidgets import (
 )
 from display import hdisplay
 from utils import (
-    newButton, 
+    newButton,
     numpy_to_pil_image,
-    compute_histogram, 
+    compute_histogram,
     TRANSFORMATION_FOLDER,
     display_before_after
 )
@@ -169,7 +169,7 @@ class EnhancementFilter(Filter):
 
 
 class PrewittFilter(Filter):
-       
+
     def __init__(self, image):
         super().__init__(image, L=3)
 
@@ -183,9 +183,24 @@ class PrewittFilter(Filter):
 
         return math.sqrt(x_value ** 2 + y_value ** 2)
 
+class SobelFilter(Filter):
+    def __init__(self, image):
+        super().__init__(image, L=3)
 
+    def compute(self, pixels, x, y):
+        x_value = 0
+        y_value = 0
+        for x_index in range(-1 * self.mid, self.mid + 1):
+            for y_index in range(-1 * self.mid, self.mid + 1):
+                x_mult = 2 * y_index if x == 0 else y_index
+                y_mult = 2 * x_index if y == 0 else x_index
+
+                x_value += pixels[x + x_index, y + y_index] * x_mult
+                y_value += pixels[x + x_index, y + y_index] * y_mult
+
+        return math.sqrt(x_value ** 2 + y_value ** 2)
 class LaplacianFilter(Filter):
-       
+
     def __init__(self, image):
         super().__init__(image, L=3)
         self.mask = [
@@ -241,7 +256,7 @@ class ZeroCrosses:
         vertical = vertical.T
 
         return self.union_synthesis(horizontal, vertical)
-    
+
     def union_synthesis(self, horizontal, vertical):
         result = np.zeros(horizontal.shape)
         for x,y in np.ndindex(horizontal.shape):
