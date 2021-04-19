@@ -293,39 +293,24 @@ class ImageTransformTab(QWidget):
     def onOtsuUmbralClick(self):
         image = np.copy(self.parent.changes[-1])
 
-        # step 1
-        # compute_histogram does not alter image
         histogram = compute_histogram(image)
 
-        # step 2, cummulative frequencies for each t
-        p1_t = compute_accumulated_frequencies(histogram)
+        umbral = -1
+        max_val = -1
 
-        # if we think about varying t, we will have C1 and C2
-        # C1 with pixels lower than t, C2 bigger or equal than t
-        # p1_t represents the probability that a pixel p belongs to C1
+        for t in range(len(histogram)):
+            prob_c1 = np.sum(histogram[:t])
+            prob_c2 = np.sum(histogram[t:])
 
-        # step 3, computes expected value
-        m_t = np.zeros(256) # m_t[0] = 0
-        for i in range(len(m_t)-1):
-            m_t[i+1] = i*histogram[i+1]
+            mean_c1 = np.mean(histogram[:t])
+            mean_c2 = np.mean(histogram[t:])
 
-        # step 4, computes global mean
-        m_g = np.sum(m_t)
+            # we want to maxim. this in order to find proper t
+            value = prob_c1 * prob_c2 * (mean_c1 - mean_c2) ** 2
 
-        # step 5, compute std mean among classes
-        std_sq_t = np.zeros(256)
-        for i in range(len(m_t)):
-            std_sq_t[i] = (m_g*p1_t[i]-m_t[i])/(p1_t[i]*(1-p1_t[i]))
-        
-        # TODO: uncomment this, check if its better
-        #std_sq_t = ((m_g*p1_t-m_t) ** 2)/(p1_t*(1-p1_t))
-        
-        # search for all max values
-        max_value = np.max(std_sq_t)
-        result = np.where(std_sq_t == max_value)
-        
-        # if more than one result, takes avg
-        umbral = math.floor(np.mean(result))
+            if value > max_val:
+                umbral = t
+                max_val = value
 
         self.umbralizationTransform(image, umbral)
 
