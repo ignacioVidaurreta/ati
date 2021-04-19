@@ -104,8 +104,6 @@ def normalizeOperationOneChannel(A, B, op):
                 minval = aux
             if aux > maxval:
                 maxval = aux
-    print(minval)
-    print(maxval)
     for x in range(A.shape[0]):
         for y in range(A.shape[1]):
             aux = op(A[x][y], B[x][y])

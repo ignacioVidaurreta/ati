@@ -29,7 +29,8 @@ from operations import OperationsTab
 from pixel import PixelTab
 from noise import NoiseTab
 from saltpepper import SaltPepperTab
-from filters import FilterTab
+from image_filter import FilterTab
+from shape_detect import ShapeDetectTab
 
 from utils import (
     RAW,
@@ -41,7 +42,8 @@ from utils import (
     crop_image,
     copy_crop_into_img,
     newButton,
-    newAxisButton
+    newAxisButton,
+    numpy_to_pil_image
 )
 
 class App(QMainWindow):
@@ -57,6 +59,9 @@ class App(QMainWindow):
         self.main_window = MainWindow(self)
         self.setCentralWidget(self.main_window)
 
+        # IMAGE CHANGE 1
+        # This array wil contain changes. If image is B&N each element is a numpy array.
+        # If image is color, each element is a tuple (r,g,b), where each is a numpy array.
         self.changes = []
         self.image = None # we should remove img as global
 
@@ -124,8 +129,6 @@ class MainWindow(QWidget):
 
 
     def uploadImage(self):
-        global img
-
         self.filenameError.hide()
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -142,6 +145,7 @@ class MainWindow(QWidget):
         # This validation prevents the program from abortin when
         # user cancels file operation
         if file:
+            img = None
             self.file_type = get_file_type(file)
 
             if self.file_type == RAW:
@@ -150,8 +154,22 @@ class MainWindow(QWidget):
                 img = read_image(file)
 
             if img is not None:
+                # stores original PIL image
                 self.image = img
+                
+                # IMAGE CHANGE 2
+                # we will store first image in order to
+                # always access current image from changes
                 self.changes = []
+                if self.image.mode == 'RGB':
+                    r,g,b = self.image.split()
+                    self.changes.append((
+                        np.array(r),
+                        np.array(g),
+                        np.array(b)))
+                else:
+                    self.changes.append(np.array(self.image))                   
+
                 self.filename = file
                 self.imageFilename = QLabel(f'{file}')
                 self.tab1.layout.addWidget(self.imageFilename, 0, 1)
@@ -168,22 +186,10 @@ class MainWindow(QWidget):
 
             directory = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
             filename = self.fileInput.text()
-            filepath = f'{directory}/{filename}'
+            filepath = f'{directory}/{filename}.jpg'
 
-            # Actual saving image
-            if self.file_type != RAW:
-                # gets filepath using directory and filename
-                save_image(self.image, filepath + ".jpg")
-            else:
-                shape = np.asarray(self.image).shape
-
-                save_raw(
-                    self.image,
-                    filename + ".RAW",
-                    directory,
-                    shape[0],
-                    shape[1]
-                )
+            # always saves jpg image, no matter original extension
+            save_image(self.image, filepath)
 
             # displays success message
             self.filepath = QLabel(f'Image saved at {filepath}')
@@ -201,14 +207,19 @@ class MainWindow(QWidget):
         self.tab7 = FilterTab(self)
         self.tab8 = NoiseTab(self)
         self.tab9 = SaltPepperTab(self)
+        self.tab10 = ShapeDetectTab(self)
 
-        self.tabs.addTab(self.tab2, "Pixel")
-        self.tabs.addTab(self.tab3, "Crop")
-        self.tabs.addTab(self.tab4, "Operations")
+        # TODO: commented tabs still need round problem to be solved
+        # 2, 3, 4, 6, 8, 9
+
+        # self.tabs.addTab(self.tab2, "Pixel")
+        # self.tabs.addTab(self.tab3, "Crop")
+        # self.tabs.addTab(self.tab4, "Operations")
         self.tabs.addTab(self.tab5, "Transform")
         self.tabs.addTab(self.tab7, "Filter")
-        self.tabs.addTab(self.tab8, "Noise")
-        self.tabs.addTab(self.tab9, "S and P")
+        # self.tabs.addTab(self.tab8, "Noise")
+        # self.tabs.addTab(self.tab9, "S and P")
+        self.tabs.addTab(self.tab10, "Shape Detection")
 
 
         if len(np.asarray(self.image).shape) != 3:
@@ -222,15 +233,14 @@ class MainWindow(QWidget):
         self.setBasicLayout()
 
     def onUndoClick(self):
-        self.image = self.changes.pop()
-        if len(self.changes) < 1:
+        self.changes.pop()
+        self.image = numpy_to_pil_image(self.changes[-1])
+        # we always have the first image stored here !!
+        if len(self.changes) == 1:
             self.buttonUndo.setEnabled(False)
 
     def onShowClick(self):
         self.image.show()
-
-
-
 
 
 if __name__ == '__main__':

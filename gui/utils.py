@@ -16,6 +16,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QIcon, QIntValidator
 from PyQt5.QtCore import pyqtSlot, QSize
 
+from display import hdisplay
+
 METADATA_FILE="data/info.txt"
 TRANSFORMATION_FOLDER = 'transformations'
 
@@ -93,19 +95,80 @@ def copy_crop_into_img(img, x, y, w, h):
     img = Image.fromarray(arr_to)
     img.show()
 
-def compute_histogram(img, imageShape):
-    pixels = img.load()
-
+def compute_histogram(pixels):
     # We initialize 256 bins in 0, this array will hold
     # relative frequencies
     histogram = np.zeros(256)
 
     # Computes relative frequencies
-    for x,y in np.ndindex(img.size):
+    for x,y in np.ndindex(pixels.shape):
         current = histogram[pixels[x,y]]
         histogram[pixels[x,y]] = current + 1
 
-    total = imageShape[0]*imageShape[1]
+    total = pixels.shape[0]*pixels.shape[1]
     histogram = histogram/total
 
     return histogram
+
+
+def compute_accumulated_frequencies(histogram):
+
+    accumulated_frequencies = np.zeros(256)
+
+    for i in range(len(accumulated_frequencies)):
+        if i == 0:
+            accumulated_frequencies[i] = histogram[i]
+        else:
+            accumulated_frequencies[i] = histogram[i] + accumulated_frequencies[i-1]
+    
+    return accumulated_frequencies
+
+# This can be either a matrix or a 3 element tuple
+# (r,g,b) each one with a matrix inside
+def numpy_to_pil_image(numpy_image):
+    if len(numpy_image) == 3:
+        r_pil = Image.fromarray(numpy_image[0].astype(np.uint8))
+        g_pil = Image.fromarray(numpy_image[1].astype(np.uint8))
+        b_pil = Image.fromarray(numpy_image[2].astype(np.uint8))
+        result_pil_image = Image.merge("RGB", (r_pil, g_pil, b_pil))
+    else:
+        result_pil_image = Image.fromarray(numpy_image.astype(np.uint8))
+    return result_pil_image
+
+def numpy_to_pil_image(numpy_image):
+    if len(numpy_image) == 3:
+        r_pil = Image.fromarray(numpy_image[0].astype(np.uint8))
+        g_pil = Image.fromarray(numpy_image[1].astype(np.uint8))
+        b_pil = Image.fromarray(numpy_image[2].astype(np.uint8))
+        result_pil_image = Image.merge("RGB", (r_pil, g_pil, b_pil))
+    else:
+        result_pil_image = Image.fromarray(numpy_image.astype(np.uint8))
+    return result_pil_image
+
+
+# This method will display image (compared to last one) 
+# and do everything necessary to leave proper state. This 
+# includes storing image in changes[], setting parent image
+# with current image and setting enabled to true
+# IMPORTANT: parent_widget is most likely to be self.parent
+# if you are in any child tab of the main component.
+def display_before_after(parent_widget, np_img, legend, submit=True):
+    if len(np_img) == 3:
+        img = numpy_to_pil_image((np_img[0],np_img[1], np_img[2]))
+        hdisplay([parent_widget.image, img], rows=1, cols=2, titles=[
+            "Original Image",
+            f"{legend}"
+        ])
+    else:
+        img = numpy_to_pil_image(np_img)
+        hdisplay([parent_widget.image, img], rows=1, cols=2, titles=[
+            "Original Image",
+            f"{legend}"
+        ], cmap="gray")
+    
+    if submit:
+        # Changes now has a numpy array
+        parent_widget.changes.append(np_img)
+        # We save current PIL image for display
+        parent_widget.image = img
+        parent_widget.buttonUndo.setEnabled(True)

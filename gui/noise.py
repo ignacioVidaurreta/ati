@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
 
 )
 from display import hdisplay
-from utils import newButton, compute_histogram, TRANSFORMATION_FOLDER
+from utils import newButton, TRANSFORMATION_FOLDER
 from PIL import Image
 import numpy as np
 from matrix_util import matrix_mult, matrix_sum
@@ -98,9 +98,9 @@ class NoiseTab(QWidget):
         sigma = float(self.sigma_input.text())
         mu = float(self.mu_input.text()) # Should usually be zero
 
-        shape = self.image.shape
+        shape = self.imageShape
         noise = self.generate_noise_mat(rng, rng.normal(mu, sigma, shape), False)
-        img = Image.fromarray(matrix_sum(self.image, noise))
+        img = Image.fromarray(matrix_sum(self.parent.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
 
@@ -128,11 +128,11 @@ class NoiseTab(QWidget):
         rng = np.random.default_rng()
         psi = float(self.psi_input.text()) # Hay que ponerle un psi grande, tipo 30 para ver el ruido
         print(f"RAYLEIGH {rng.rayleigh(psi)}")
-        shape = self.image.shape
+        shape = self.imageShape
 
         noise = self.generate_noise_mat(rng, rng.rayleigh(psi, shape), True)
 
-        img = Image.fromarray(matrix_mult(self.image, noise))
+        img = Image.fromarray(matrix_mult(self.parent.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
 
@@ -157,9 +157,9 @@ class NoiseTab(QWidget):
         lambda_param = float(self.lambda_input.text())
         # Exponential receives Beta which is 1/lambda
         print(f"EXPONENTIAL: {rng.exponential(1/lambda_param)}")
-        shape = self.image.shape
+        shape = self.imageShape
         noise = self.generate_noise_mat(rng, rng.exponential(1/lambda_param, shape) , True)
-        img = Image.fromarray(matrix_mult(self.image, noise))
+        img = Image.fromarray(matrix_mult(self.parent.image, noise))
 
         cmap = "gray" if len(shape) == 2 else None
 

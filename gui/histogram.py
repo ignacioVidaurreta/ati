@@ -46,10 +46,9 @@ class HistogramTab(QWidget):
 
     # Convention: on[ButtonName]Click
     def onHistogramClick(self):
-        # Just in case we use a copy of the image
-        img = self.parent.image.copy()
+        image = self.parent.changes[-1]
 
-        histogram = compute_histogram(img, self.imageShape)
+        histogram = compute_histogram(image)
 
         # Plots histogram
         plt.figure()
