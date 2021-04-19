@@ -108,44 +108,17 @@ class FilterTab(QWidget):
         self.gaussian_L = int(self.gaussian_l_input.text())
 
         # IMAGE CHANGE 3
-        # we will always load image when about to transform it
-        # to make sure we are using last transformation
+        # makes sure we are using last transformation
         image = self.parent.changes[-1]
-
-        # IMAGE CHANGE 4
-        # self.imageShape is still accessible since it's computed
-        # with self.parent.image (PIL image). No need for update
 
         def process_color(color):
             gaussian = GaussianFilter(color, self.sigma, L=self.gaussian_L)
             return gaussian.apply(normalize=True)
 
-        if len(self.image.shape) == 3:
-            # # IMAGE CHANGE 5
-            # # we will replace split with this access form for rgb
-            # r,g,b = image[0], image[1], image[2]
+        # IMAGE CHANGE 4
+        np_img = tuple(map(process_color, image)) if len(image) == 3 else process_color(image)
 
-            # filter_r = GaussianFilter(r, self.sigma, L=self.gaussian_L)
-            # filter_g = GaussianFilter(g, self.sigma, L=self.gaussian_L)
-            # filter_b = GaussianFilter(b, self.sigma, L=self.gaussian_L)
-
-            # r_result = filter_r.apply(normalize=True)
-            # g_result = filter_g.apply(normalize=True)
-            # b_result = filter_b.apply(normalize=True)
-
-            # # IMAGE CHANGE 6
-            # np_img = (r_result, g_result, b_result)
-            colors = list(image)
-            processed = list(map(process_color, colors))
-            np_img = (processed[0], processed[1], processed[2])
-
-        else:
-            gaussian_filter = GaussianFilter(image, self.sigma, L=self.gaussian_L)
-            result_image = gaussian_filter.apply(normalize=True)
-            # IMAGE CHANGE 7
-            np_img = result_image
-
-        # IMAGE CHANGE 8
+        # IMAGE CHANGE 5
         # check out this method since it does all the updates needed in parent widget
         display_before_after(
             self.parent,
@@ -158,23 +131,12 @@ class FilterTab(QWidget):
 
         image = self.parent.changes[-1]
 
-        if len(self.image.shape) == 3:
+        def process_color(color):
+            mean_filter = MeanFilter(color, L=self.mean_L)
+            return mean_filter.apply()
 
-            r,g,b = image[0], image[1], image[2]
-
-            filter_r = MeanFilter(r, L=self.mean_L)
-            filter_g = MeanFilter(g, L=self.mean_L)
-            filter_b = MeanFilter(b, L=self.mean_L)
-
-            r_result = filter_r.apply()
-            g_result = filter_g.apply()
-            b_result = filter_b.apply()
-
-            np_img = (r_result, g_result, b_result)
-        else:
-            mean_filter = MeanFilter(image, L=self.mean_L)
-            np_img = mean_filter.apply()
-
+        np_img = tuple(map(process_color, image)) if len(image) == 3 else process_color(image)
+    
         display_before_after(
             self.parent,
             np_img,
@@ -186,22 +148,11 @@ class FilterTab(QWidget):
 
         image = self.parent.changes[-1]
 
-        if len(self.image.shape) == 3:
+        def process_color(color):
+            mean_filter = MedianFilter(color, L=self.median_L)
+            return mean_filter.apply()
 
-            r,g,b = image[0], image[1], image[2]
-
-            filter_r = MedianFilter(r, L=self.median_L)
-            filter_g = MedianFilter(g, L=self.median_L)
-            filter_b = MedianFilter(b, L=self.median_L)
-
-            r_result = filter_r.apply()
-            g_result = filter_g.apply()
-            b_result = filter_b.apply()
-
-            np_img = (r_result, g_result, b_result)
-        else:
-            median_filter = MedianFilter(image, L=self.median_L)
-            np_img = median_filter.apply()
+        np_img = tuple(map(process_color, image)) if len(image) == 3 else process_color(image)
 
         display_before_after(
             self.parent,
@@ -215,22 +166,11 @@ class FilterTab(QWidget):
 
         image = self.parent.changes[-1]
 
-        if len(self.image.shape) == 3:
+        def process_color(color):
+            mean_filter = EnhancementFilter(color, L=self.enhancement_L)
+            return mean_filter.apply(normalize=True)
 
-            r,g,b = image[0], image[1], image[2]
-
-            filter_r = EnhancementFilter(r, L=self.enhancement_L)
-            filter_g = EnhancementFilter(g, L=self.enhancement_L)
-            filter_b = EnhancementFilter(b, L=self.enhancement_L)
-
-            r_result = filter_r.apply(normalize=True)
-            g_result = filter_g.apply(normalize=True)
-            b_result = filter_b.apply(normalize=True)
-
-            np_img = (r_result, g_result, b_result)
-        else:
-            enhancement_filter = EnhancementFilter(image, L=self.enhancement_L)
-            np_img = enhancement_filter.apply(normalize=True)
+        np_img = tuple(map(process_color, image)) if len(image) == 3 else process_color(image)
 
         display_before_after(
             self.parent,
@@ -240,23 +180,12 @@ class FilterTab(QWidget):
 
     def onWeightedMedianClick(self):
         image = self.parent.changes[-1]
+        
+        def process_color(color):
+            mean_filter = WeightedMedianFilter(color)
+            return mean_filter.apply()
 
-        if len(self.image.shape) == 3:
-
-            r,g,b = image[0], image[1], image[2]
-
-            filter_r = WeightedMedianFilter(r)
-            filter_g = WeightedMedianFilter(g)
-            filter_b = WeightedMedianFilter(b)
-
-            r_result = filter_r.apply()
-            g_result = filter_g.apply()
-            b_result = filter_b.apply()
-
-            np_img = (r_result, g_result, b_result)
-        else:
-            weighted_median_filter = WeightedMedianFilter(image)
-            np_img = weighted_median_filter.apply()
+        np_img = tuple(map(process_color, image)) if len(image) == 3 else process_color(image)
 
         display_before_after(
             self.parent,
