@@ -2,6 +2,7 @@ from PIL import Image
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+import time
 
 from PyQt5.QtWidgets import (
     QWidget,
@@ -30,9 +31,13 @@ class Filter():
     def compute(self, pixels, x, y):
         return pixels[x][y]
 
+    def f(i):
+        print(i)
 
     def apply(self, normalize=False):
-        original_pixels = np.copy(self.image)
+        start_time = time.time()
+
+        original_pixels = self.image
 
         h = math.floor(self.L/2)
         self.mid = h
@@ -41,7 +46,11 @@ class Filter():
         max_idx_height = self.image.shape[1]-1
 
         new_pixels = np.zeros(shape=self.image.shape)
-        for x,y in np.ndindex(self.image.shape):
+
+        def process_pixel(index):
+            x = index[0]
+            y = index[1]
+
             if x-h < 0 or \
                y-h < 0 or \
                x+h > max_idx_width or \
@@ -50,14 +59,26 @@ class Filter():
                 pass
             else:
                 new_pixels[x][y] = self.compute(original_pixels, x, y)
+            
+            return None
+
+        set(map(process_pixel, np.ndindex(self.image.shape)))
 
         if normalize:
             max_value = new_pixels.max()
             min_value = new_pixels.min()
 
-            for x,y in np.ndindex(self.image.shape):
+            def process_normalize(index):
+                x = index[0]
+                y = index[1]
                 new_pixels[x][y] = ((new_pixels[x][y] - min_value) * 255)/(max_value-min_value)
 
+                return None
+
+            set(map(process_normalize, np.ndindex(self.image.shape)))
+
+        elapsed_time = time.time() - start_time
+        print(f'ELAPSED TIME: {elapsed_time}')
         return new_pixels
 
 

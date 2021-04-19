@@ -115,21 +115,29 @@ class FilterTab(QWidget):
         # IMAGE CHANGE 4
         # self.imageShape is still accessible since it's computed
         # with self.parent.image (PIL image). No need for update
+
+        def process_color(color):
+            gaussian = GaussianFilter(color, self.sigma, L=self.gaussian_L)
+            return gaussian.apply(normalize=True)
+
         if len(self.image.shape) == 3:
-            # IMAGE CHANGE 5
-            # we will replace split with this access form for rgb
-            r,g,b = image[0], image[1], image[2]
+            # # IMAGE CHANGE 5
+            # # we will replace split with this access form for rgb
+            # r,g,b = image[0], image[1], image[2]
 
-            filter_r = GaussianFilter(r, self.sigma, L=self.gaussian_L)
-            filter_g = GaussianFilter(g, self.sigma, L=self.gaussian_L)
-            filter_b = GaussianFilter(b, self.sigma, L=self.gaussian_L)
+            # filter_r = GaussianFilter(r, self.sigma, L=self.gaussian_L)
+            # filter_g = GaussianFilter(g, self.sigma, L=self.gaussian_L)
+            # filter_b = GaussianFilter(b, self.sigma, L=self.gaussian_L)
 
-            r_result = filter_r.apply(normalize=True)
-            g_result = filter_g.apply(normalize=True)
-            b_result = filter_b.apply(normalize=True)
+            # r_result = filter_r.apply(normalize=True)
+            # g_result = filter_g.apply(normalize=True)
+            # b_result = filter_b.apply(normalize=True)
 
-            # IMAGE CHANGE 6
-            np_img = (r_result, g_result, b_result)
+            # # IMAGE CHANGE 6
+            # np_img = (r_result, g_result, b_result)
+            colors = list(image)
+            processed = list(map(process_color, colors))
+            np_img = (processed[0], processed[1], processed[2])
 
         else:
             gaussian_filter = GaussianFilter(image, self.sigma, L=self.gaussian_L)
