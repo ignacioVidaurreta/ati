@@ -31,6 +31,7 @@ from noise import NoiseTab
 from saltpepper import SaltPepperTab
 from image_filter import FilterTab
 from shape_detect import ShapeDetectTab
+from diffusion import DiffusionTab
 
 from utils import (
     RAW,
@@ -208,6 +209,7 @@ class MainWindow(QWidget):
         self.tab8 = NoiseTab(self)
         self.tab9 = SaltPepperTab(self)
         self.tab10 = ShapeDetectTab(self)
+        self.tab11 = DiffusionTab(self)
 
         # TODO: commented tabs still need round problem to be solved
         # 2, 3, 4, 6, 8, 9
@@ -217,9 +219,10 @@ class MainWindow(QWidget):
         # self.tabs.addTab(self.tab4, "Operations")
         self.tabs.addTab(self.tab5, "Transform")
         self.tabs.addTab(self.tab7, "Filter")
-        # self.tabs.addTab(self.tab8, "Noise")
-        # self.tabs.addTab(self.tab9, "S and P")
+        #self.tabs.addTab(self.tab8, "Noise")
+        self.tabs.addTab(self.tab9, "S and P")
         self.tabs.addTab(self.tab10, "Shape Detection")
+        self.tabs.addTab(self.tab11, "Diffusion")
 
 
         if len(np.asarray(self.image).shape) != 3:

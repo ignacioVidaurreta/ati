@@ -10,8 +10,12 @@ from PyQt5.QtWidgets import (
     QLineEdit
 
 )
-from display import hdisplay
-from utils import newButton
+from utils import (
+    newButton,
+    display_before_after,
+    numpy_to_pil_image,
+    TRANSFORMATION_FOLDER
+)
 from PIL import Image
 import numpy as np
 
@@ -24,7 +28,7 @@ class SaltPepperTab(QWidget):
         self.parent = parent
         self.layout = QGridLayout(parent)
 
-        self.image = np.asarray(self.parent.image)
+        self.image = self.parent.changes[-1]
         self.imageShape = self.image.shape
 
         # Buttons definitions
@@ -48,7 +52,7 @@ class SaltPepperTab(QWidget):
     def onSaltPepperClick(self):
         print(f"P0: {self.p0_input.text()}; P1: {self.p1_input.text()}")
         
-        img = np.asarray(self.parent.image).copy()
+        img = self.parent.changes[-1].copy()
 
         p0 = float(self.p0_input.text())
         p1 = float(self.p1_input.text())
@@ -73,16 +77,9 @@ class SaltPepperTab(QWidget):
                     else:
                         img[x,y] = 255
 
-        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                "With Salt and Pepper, p0=" + self.p0_input.text() + ", p1=" +
-                self.p1_input.text()
-
-            ], cmap=cmap)
-
-        self.parent.changes.append(self.parent.image)
-        self.parent.image = Image.fromarray(img)
-        self.parent.buttonUndo.setEnabled(True)
-        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        #img_save.save(f'{TRANSFORMATION_FOLDER}/{filename}_salt_peper_p0{p0}_p1{p1}.png')
+        display_before_after(
+            self.parent,
+            img,
+            f'Salt and Pepper Noise: p0=' + self.p0_input.text() + ', p1=' + self.p1_input.text()
+        )
 
