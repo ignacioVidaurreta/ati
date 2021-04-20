@@ -32,6 +32,7 @@ from saltpepper import SaltPepperTab
 from image_filter import FilterTab
 from shape_detect import ShapeDetectTab
 from diffusion import DiffusionTab
+from bilateral import BilateralTab
 
 from utils import (
     RAW,
@@ -210,6 +211,7 @@ class MainWindow(QWidget):
         self.tab9 = SaltPepperTab(self)
         self.tab10 = ShapeDetectTab(self)
         self.tab11 = DiffusionTab(self)
+        self.tab12 = BilateralTab(self)
 
         # TODO: commented tabs still need round problem to be solved
         # 2, 3, 4, 6, 8, 9
@@ -223,6 +225,7 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.tab9, "S and P")
         self.tabs.addTab(self.tab10, "Shape Detection")
         self.tabs.addTab(self.tab11, "Diffusion")
+        self.tabs.addTab(self.tab12, "Bilateral")
 
 
         if len(np.asarray(self.image).shape) != 3:

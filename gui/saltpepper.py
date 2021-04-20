@@ -28,7 +28,7 @@ class SaltPepperTab(QWidget):
         self.parent = parent
         self.layout = QGridLayout(parent)
 
-        self.image = self.parent.changes[-1]
+        self.image = np.asarray(self.parent.image)
         self.imageShape = self.image.shape
 
         # Buttons definitions
@@ -52,15 +52,13 @@ class SaltPepperTab(QWidget):
     def onSaltPepperClick(self):
         print(f"P0: {self.p0_input.text()}; P1: {self.p1_input.text()}")
         
-        img = self.parent.changes[-1].copy()
+        img = np.copy(self.parent.changes[-1])
 
         p0 = float(self.p0_input.text())
         p1 = float(self.p1_input.text())
 
-        RGB = type(img[0][0]) is tuple
-        cmap = None
-        if not RGB:
-            cmap = "gray"
+        RGB = len(self.image.shape) == 3
+
         rng = np.random.default_rng()
 
         for x in range(self.imageShape[0]):

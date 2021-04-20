@@ -28,6 +28,7 @@ from utils import TRANSFORMATION_FOLDER
 #acts without knowledge of them, and thus smooths the image
 #difuminating contrasting pixels. Meanwhile, the anisotropic
 #will ONLY smooth within the boundaries, not though them
+#the lambda chosen for the discretization is 0.25
 
 class DiffusionTab(QWidget):
 
@@ -51,7 +52,7 @@ class DiffusionTab(QWidget):
         self.parent = parent
         self.layout = QGridLayout(parent)
 
-        self.image = self.parent.changes[-1]
+        self.image = np.asarray(self.parent.image)
         self.imageShape = self.image.shape
 
         self.iso_label= QLabel("Isotropic Diffusion")
@@ -106,15 +107,13 @@ class DiffusionTab(QWidget):
         return imgO
 
     def onIsotropicClick(self):
-        img = self.parent.changes[-1].copy()
-        img2 = self.parent.changes[-1].copy()
+        img = np.copy(self.parent.changes[-1])
+        img2 = np.copy(self.parent.changes[-1])
         t_value = int(self.t_input.text())
 
-        cmap = "gray"
         RGB = False
 
-        if(type(img[0][0]) is tuple or type(img[0][0]) is np.ndarray):
-            cmap = None
+        if(len(self.image.shape) == 3):
             RGB = True
             
         for i in range(t_value):
@@ -139,15 +138,13 @@ class DiffusionTab(QWidget):
         )
 
     def onAnisotropicClick(self):
-        img = self.parent.changes[-1].copy()
-        img2 = self.parent.changes[-1].copy()
+        img = np.copy(self.parent.changes[-1])
+        img2 = np.copy(self.parent.changes[-1])
         t_value = int(self.t_input.text())
 
-        cmap = "gray"
         RGB = False
 
-        if(type(img[0][0]) is tuple or type(img[0][0]) is np.ndarray):
-            cmap = None
+        if(len(self.image.shape) == 3):
             RGB = True
 
         for i in range(t_value):
@@ -168,9 +165,11 @@ class DiffusionTab(QWidget):
         else:
             img = self.normalizeAllChannels(img)
 
-
         display_before_after(
             self.parent,
             img,
             f'Anisotropic Diffusion: t=' + self.t_input.text() + ', sigma=' + self.sigma.text()
         )
+
+
+
