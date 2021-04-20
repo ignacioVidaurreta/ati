@@ -58,7 +58,7 @@ class SaltPepperTab(QWidget):
         p0 = float(self.p0_input.text())
         p1 = float(self.p1_input.text())
 
-        RGB = len(self.image.shape) == 3
+        RGB = len(self.imageShape) == 3
 
         rng = np.random.default_rng()
 
@@ -67,12 +67,12 @@ class SaltPepperTab(QWidget):
                 rnd = rng.random()
                 if (rnd < p0):
                     if(RGB):
-                        img[x,y] = (0,0,0)
+                        img[0][x,y],img[1][x,y],img[2][x,y] = (0,0,0)
                     else:
                         img[x,y] = 0
                 elif (rnd >= p1):
                     if(RGB):
-                        img[x,y] = (255,255,255)
+                        img[0][x,y],img[1][x,y],img[2][x,y] = (255,255,255)
                     else:
                         img[x,y] = 255
 
