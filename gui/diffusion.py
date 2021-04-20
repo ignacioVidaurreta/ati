@@ -21,7 +21,7 @@ from PIL import Image
 import numpy as np
 from matrix_util import *
 
-from utils import TRANSFORMATION_FOLDER
+from utils import TRANSFORMATION_FOLDER, get_shape
 
 #The biggest difference between istropic and anisotropic diffusion
 #is how they interact with boundaries. Isotropic diffusion
@@ -32,7 +32,7 @@ from utils import TRANSFORMATION_FOLDER
 
 class DiffusionTab(QWidget):
 
-    
+
     def lorentzDetector(self, delta, RGB):
         sigma = float(self.sigma.text())
         if(RGB):
@@ -52,8 +52,8 @@ class DiffusionTab(QWidget):
         self.parent = parent
         self.layout = QGridLayout(parent)
 
-        self.image = np.asarray(self.parent.image)
-        self.imageShape = self.image.shape
+        self.image = self.parent.changes[-1]
+        self.imageShape = get_shape(self.image)
 
         self.iso_label= QLabel("Isotropic Diffusion")
         self.anis_label= QLabel("Anisotropic Diffusion")
@@ -115,7 +115,7 @@ class DiffusionTab(QWidget):
 
         if(len(self.image.shape) == 3):
             RGB = True
-            
+
         for i in range(t_value):
             for x in range(1, self.imageShape[0] - 1):
                 for y in range(1, self.imageShape[1] -1):
@@ -155,8 +155,8 @@ class DiffusionTab(QWidget):
                     up = img[x, y + 1] - img[x, y]
                     down = img[x, y - 1] - img[x, y]
                     img2[x,y] = img[x,y] + 0.25*(left*self.lorentzDetector(left, RGB) +
-                    up*self.lorentzDetector(up, RGB) + 
-                    down*self.lorentzDetector(down, RGB) + 
+                    up*self.lorentzDetector(up, RGB) +
+                    down*self.lorentzDetector(down, RGB) +
                     right*self.lorentzDetector(right, RGB))
             img = img2
 

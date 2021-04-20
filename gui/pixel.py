@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QIcon, QIntValidator
 from PyQt5.QtCore import pyqtSlot, QSize
-from utils import newButton, newAxisButton
+from utils import newButton, newAxisButton, get_shape
 
 # With self.parent variable we can access information about the application
 # - parent.image gives us access to image
@@ -28,7 +28,7 @@ class PixelTab(QWidget):
         self.layout = QGridLayout(parent)
 
         self.image = np.asarray(self.parent.image)
-        self.imageShape = self.image.shape
+        self.imageShape = get_shape(self.image)
 
         # Widgets definition
         self.xLabel, self.xInput = newAxisButton('X', self.imageShape[0])

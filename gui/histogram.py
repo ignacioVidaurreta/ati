@@ -13,6 +13,8 @@ from display import hdisplay
 from utils import newButton, compute_histogram
 from PIL import Image
 
+from utils import get_shape
+
 # *** IMPORTANT
 # This tab will be available only for black and white images
 class HistogramTab(QWidget):
@@ -24,7 +26,7 @@ class HistogramTab(QWidget):
         self.layout = QGridLayout(parent)
 
         self.image = np.asarray(self.parent.image)
-        self.imageShape = self.image.shape
+        self.imageShape = get_shape(self.image)
 
         # Buttons definitions
         self.histogram_title = QLabel('')
@@ -40,7 +42,7 @@ class HistogramTab(QWidget):
         self.layout.addWidget(self.histogram_description, 1, 0)
         self.layout.addWidget(self.histogram, 2, 0)
         self.layout.addWidget(self.dummy, 3, 0)
-        
+
 
         self.setLayout(self.layout)
 

@@ -21,8 +21,9 @@ from utils import (
     compute_accumulated_frequencies,
     compute_histogram,
     display_before_after,
-    TRANSFORMATION_FOLDER
-) 
+    TRANSFORMATION_FOLDER,
+    get_shape
+)
 import matplotlib.pyplot as plt
 
 
@@ -35,7 +36,7 @@ class ImageTransformTab(QWidget):
         self.layout = QGridLayout(parent)
 
         self.image = np.asarray(self.parent.image)
-        self.imageShape = self.image.shape
+        self.imageShape = get_shape(self.image)
 
         self.negative_title = QLabel("Negative")
         self.negative_title.setStyleSheet("background-color: #FFD0ED")
@@ -62,7 +63,7 @@ class ImageTransformTab(QWidget):
         self.equalize_title = QLabel("Equalization")
         self.equalize_title.setStyleSheet("background-color: #FFD0ED")
         self.equalize = newButton("Apply", self.onEqualizeClick)
-        
+
         # We add widgets to layout for each transformation
         self.layout.addWidget(self.negative_title, 0, 0)
         self.layout.addWidget(self.negative, 0, 1)
@@ -99,7 +100,7 @@ class ImageTransformTab(QWidget):
             r_result = self.negativeTransform(r)
             g_result = self.negativeTransform(g)
             b_result = self.negativeTransform(b)
-            
+
             np_img = (r_result, g_result, b_result)
         else:
             np_img = self.negativeTransform(image)
@@ -124,11 +125,11 @@ class ImageTransformTab(QWidget):
 
             # we umbralize every channel
             r,g,b = image[0], image[1], image[2]
-            
+
             self.umbralizationTransform(r, self.umbralValue)
             self.umbralizationTransform(g, self.umbralValue)
             self.umbralizationTransform(b, self.umbralValue)
-            
+
             # We now need to merge the modified values into an RGB image
             np_img = (r, g, b)
 
@@ -162,7 +163,7 @@ class ImageTransformTab(QWidget):
         if len(self.image.shape) == 3:
 
             r,g,b = image[0], image[1], image[2]
-            
+
             self.gammaTransform(r)
             self.gammaTransform(g)
             self.gammaTransform(b)
@@ -214,7 +215,7 @@ class ImageTransformTab(QWidget):
             image,
             "Equalized Image"
         )
-    
+
     def globalUmbralAlgorithm(self, original):
         # step 1
         current_t = 100 # this was randomly selected
@@ -236,7 +237,7 @@ class ImageTransformTab(QWidget):
             n_g255 = 0
             m_g0 = 0
             m_g255 = 0
-            
+
             for x,y in np.ndindex(original.shape):
                 if current[x,y] == 0:
                     m_g0 += original[x,y]
@@ -244,7 +245,7 @@ class ImageTransformTab(QWidget):
                 else:
                     m_g255 += original[x,y]
                     n_g255 += 1
-            
+
             m_g0 *= (1/n_g0)
             m_g255 *= (1/n_g255)
 
@@ -255,9 +256,9 @@ class ImageTransformTab(QWidget):
             if abs(current_t-new_t) < 1: break
 
             current_t = new_t
-        
+
         return current, current_t, iterations
-    
+
     def onGlobalUmbralClick(self):
         # this image is NOT modified
         image = self.parent.changes[-1]
@@ -266,11 +267,11 @@ class ImageTransformTab(QWidget):
 
             # we umbralize every channel
             r,g,b = image[0], image[1], image[2]
-            
+
             current_r, t_r, it_r = self.globalUmbralAlgorithm(r)
             current_g, t_g, it_g = self.globalUmbralAlgorithm(g)
             current_b, t_b, it_b = self.globalUmbralAlgorithm(b)
-            
+
             # We now need to merge the modified values into an RGB image
             np_img = (current_r, current_g, current_b)
 

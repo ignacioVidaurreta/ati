@@ -120,7 +120,7 @@ def compute_accumulated_frequencies(histogram):
             accumulated_frequencies[i] = histogram[i]
         else:
             accumulated_frequencies[i] = histogram[i] + accumulated_frequencies[i-1]
-    
+
     return accumulated_frequencies
 
 # This can be either a matrix or a 3 element tuple
@@ -146,8 +146,8 @@ def numpy_to_pil_image(numpy_image):
     return result_pil_image
 
 
-# This method will display image (compared to last one) 
-# and do everything necessary to leave proper state. This 
+# This method will display image (compared to last one)
+# and do everything necessary to leave proper state. This
 # includes storing image in changes[], setting parent image
 # with current image and setting enabled to true
 # IMPORTANT: parent_widget is most likely to be self.parent
@@ -165,10 +165,17 @@ def display_before_after(parent_widget, np_img, legend, submit=True):
             "Original Image",
             f"{legend}"
         ], cmap="gray")
-    
+
     if submit:
         # Changes now has a numpy array
         parent_widget.changes.append(np_img)
         # We save current PIL image for display
         parent_widget.image = img
         parent_widget.buttonUndo.setEnabled(True)
+
+def get_shape(image):
+    if len(image) == 3:
+        shape_tuple = image[0].shape
+        return shape_tuple[0], shape_tuple[1], 3
+
+    return image.shape

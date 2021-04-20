@@ -14,6 +14,7 @@ from utils import (
     newButton,
     display_before_after,
     numpy_to_pil_image,
+    get_shape,
     TRANSFORMATION_FOLDER
 )
 from PIL import Image
@@ -28,8 +29,8 @@ class SaltPepperTab(QWidget):
         self.parent = parent
         self.layout = QGridLayout(parent)
 
-        self.image = np.asarray(self.parent.image)
-        self.imageShape = self.image.shape
+        self.image = self.parent.changes[-1]
+        self.imageShape = get_shape(self.image)
 
         # Buttons definitions
         self.saltpepper_title = QLabel('Salt and Pepper Noise')
@@ -51,7 +52,7 @@ class SaltPepperTab(QWidget):
     # Convention: on[ButtonName]Click
     def onSaltPepperClick(self):
         print(f"P0: {self.p0_input.text()}; P1: {self.p1_input.text()}")
-        
+
         img = np.copy(self.parent.changes[-1])
 
         p0 = float(self.p0_input.text())
