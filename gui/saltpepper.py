@@ -57,12 +57,41 @@ class SaltPepperTab(QWidget):
         p0 = float(self.p0_input.text())
         p1 = float(self.p1_input.text())
 
-        RGB = len(self.image.shape) == 3
-
         rng = np.random.default_rng()
 
-        for x in range(self.imageShape[0]):
-            for y in range(self.imageShape[1]):
+        if(len(self.image.shape) == 3):
+            r, g, b = img[0], img[1], img[2]
+            for x,y in np.ndindex(r.shape):
+                rnd = rng.random()
+                if (rnd < p0):
+                    r[x,y] = 0
+                    g[x,y] = 0
+                    b[x,y] = 0
+                elif (rnd >= p1):
+                    r[x,y] = 255
+                    g[x,y] = 255
+                    b[x,y] = 255            
+            img = np.dstack((r,g,b))
+
+        else:
+            for x in range(np.size(img,0)):
+                for y in range(np.size(img,1)):
+                    rnd = rng.random()
+                    if (rnd < p0):
+                        img[x,y] = 0
+                    elif (rnd >= p1):
+                        img[x,y] = 255 
+
+
+        display_before_after(
+            self.parent,
+            img,
+            f'Salt and Pepper Noise: p0=' + self.p0_input.text() + ', p1=' + self.p1_input.text()
+        )
+
+    def saltpepper(self, img):
+        for x in range(np.size(img,0)):
+            for y in range(np.size(img,1)):
                 rnd = rng.random()
                 if (rnd < p0):
                     if(RGB):
@@ -74,10 +103,3 @@ class SaltPepperTab(QWidget):
                         img[x,y] = (255,255,255)
                     else:
                         img[x,y] = 255
-
-        display_before_after(
-            self.parent,
-            img,
-            f'Salt and Pepper Noise: p0=' + self.p0_input.text() + ', p1=' + self.p1_input.text()
-        )
-

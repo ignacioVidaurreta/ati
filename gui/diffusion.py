@@ -33,13 +33,8 @@ from utils import TRANSFORMATION_FOLDER
 class DiffusionTab(QWidget):
 
     
-    def lorentzDetector(self, delta, RGB):
+    def lorentzDetector(self, delta):
         sigma = float(self.sigma.text())
-        if(RGB):
-            r = 1/(math.pow(delta[0]/sigma,2) + 1)
-            g = 1/(math.pow(delta[1]/sigma,2) + 1)
-            b = 1/(math.pow(delta[2]/sigma,2) + 1)
-            return [r,g,b]
         return 1/(math.pow(delta/sigma,2) + 1)
 
     def leclercDetector(self, delta):
@@ -139,37 +134,44 @@ class DiffusionTab(QWidget):
 
     def onAnisotropicClick(self):
         img = np.copy(self.parent.changes[-1])
-        img2 = np.copy(self.parent.changes[-1])
-        t_value = int(self.t_input.text())
-
-        RGB = False
 
         if(len(self.image.shape) == 3):
             RGB = True
+            r, g, b = img[0], img[1], img[2]
+            rO = self.AnisoChannel(r)
+            rO = self.normalizeChannel(rO)
+            gO = self.AnisoChannel(g)
+            gO = self.normalizeChannel(gO)
+            bO = self.AnisoChannel(b)
+            bO = self.normalizeChannel(bO)
 
-        for i in range(t_value):
-            for x in range(1, self.imageShape[0] - 1):
-                for y in range(1, self.imageShape[1] -1):
-                    right = img[x + 1, y] - img[x, y]
-                    left = img[x - 1, y] - img[x, y]
-                    up = img[x, y + 1] - img[x, y]
-                    down = img[x, y - 1] - img[x, y]
-                    img2[x,y] = img[x,y] + 0.25*(left*self.lorentzDetector(left, RGB) +
-                    up*self.lorentzDetector(up, RGB) + 
-                    down*self.lorentzDetector(down, RGB) + 
-                    right*self.lorentzDetector(right, RGB))
-            img = img2
-
-        if not RGB:
-            img = self.normalizeChannel(img)
+            img = np.dstack((rO,gO,bO))
         else:
-            img = self.normalizeAllChannels(img)
+            img = self.AnisoChannel(img)
+            img = self.normalizeChannel(img)
 
         display_before_after(
             self.parent,
             img,
             f'Anisotropic Diffusion: t=' + self.t_input.text() + ', sigma=' + self.sigma.text()
         )
+
+    def AnisoChannel(self, img):
+        img2 = np.copy(img)
+        t_value = int(self.t_input.text())
+        for i in range(t_value):
+            for x in range(1, np.size(img,0) - 1):
+                for y in range(1, np.size(img,1) -1):
+                    right = img[x + 1, y] - img[x, y]
+                    left = img[x - 1, y] - img[x, y]
+                    up = img[x, y + 1] - img[x, y]
+                    down = img[x, y - 1] - img[x, y]
+                    img2[x,y] = img[x,y] + 0.25*(left*self.lorentzDetector(left) +
+                    up*self.lorentzDetector(up) + 
+                    down*self.lorentzDetector(down) + 
+                    right*self.lorentzDetector(right))
+            img = img2
+        return img
 
 
 
