@@ -29,21 +29,21 @@ class CropTab(QWidget):
 
         self.image = np.asarray(self.parent.image)
         self.img = self.image.copy()
-        self.imageShape = self.image.shape
-        
-        # Buttons 
+        self.imageShape = get_shape(self.image)
+
+        # Buttons
         self.inspectImage = newButton("INSPECT", self.onInspectImageClick)
         self.copyButton = newButton("COPY", self.onCopyClick)
 
         # Results labels
         self.averagePixelLabel = QLabel(self.AVG_PIX_TEXT)
         self.totalPixelsLabel = QLabel(self.TOT_PIX_TEXT)
-        
+
         self.layout.addWidget(self.averagePixelLabel, 0,0)
         self.layout.addWidget(self.totalPixelsLabel, 1,0)
         self.layout.addWidget(self.inspectImage, 2, 0)
         self.layout.addWidget(self.copyButton, 3, 0)
-        
+
         self.setLayout(self.layout)
 
         # Initial variables
@@ -64,7 +64,7 @@ class CropTab(QWidget):
             if cv2.waitKey(20) == 27:
                 break
         cv2.destroyAllWindows()
-    
+
     def onCopyClick(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -72,9 +72,9 @@ class CropTab(QWidget):
         # Discards file_type since we are checking from extension
         file, _ = QFileDialog.getOpenFileName(
             self,
-            "QFileDialog.getOpenFileName()", 
+            "QFileDialog.getOpenFileName()",
             "",
-            "All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", 
+            "All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)",
             options=options
         )
 
@@ -133,7 +133,7 @@ class CropTab(QWidget):
                         pt2 =(x, y),
                         color =(0, 255, 0),
                         thickness=0)
-            
+
             # Second point to make the rectangle
             # The other one is (x0, y0)
             self.x = x

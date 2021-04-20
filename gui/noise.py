@@ -16,6 +16,7 @@ from utils import newButton, TRANSFORMATION_FOLDER
 from PIL import Image
 import numpy as np
 from matrix_util import matrix_mult, matrix_sum
+from utils import get_shape
 
 class NoiseTab(QWidget):
 
@@ -26,7 +27,7 @@ class NoiseTab(QWidget):
         self.layout = QGridLayout(parent)
 
         self.image = np.asarray(self.parent.image)
-        self.imageShape = self.image.shape
+        self.imageShape = get_shape(self.image)
 
         self.noise_ptg_label, self.noise_ptg_input = QLabel("Noise Percentage"), QLineEdit()
         self.noise_ptg_input.setFixedWidth(100)

@@ -21,7 +21,7 @@ from PIL import Image
 import numpy as np
 from matrix_util import *
 
-from utils import TRANSFORMATION_FOLDER
+from utils import TRANSFORMATION_FOLDER, get_shape
 
 #The biggest difference between istropic and anisotropic diffusion
 #is how they interact with boundaries. Isotropic diffusion
@@ -47,8 +47,8 @@ class DiffusionTab(QWidget):
         self.parent = parent
         self.layout = QGridLayout(parent)
 
-        self.image = np.asarray(self.parent.image)
-        self.imageShape = self.image.shape
+        self.image = self.parent.changes[-1]
+        self.imageShape = get_shape(self.image)
 
         self.iso_label= QLabel("Isotropic Diffusion")
         self.anis_label= QLabel("Anisotropic Diffusion")
@@ -110,7 +110,7 @@ class DiffusionTab(QWidget):
 
         if(len(self.image.shape) == 3):
             RGB = True
-            
+
         for i in range(t_value):
             for x in range(1, self.imageShape[0] - 1):
                 for y in range(1, self.imageShape[1] -1):
@@ -136,7 +136,6 @@ class DiffusionTab(QWidget):
         img = np.copy(self.parent.changes[-1])
 
         if(len(self.image.shape) == 3):
-            RGB = True
             r, g, b = img[0], img[1], img[2]
             rO = self.AnisoChannel(r)
             rO = self.normalizeChannel(rO)
@@ -146,6 +145,7 @@ class DiffusionTab(QWidget):
             bO = self.normalizeChannel(bO)
 
             img = np.dstack((rO,gO,bO))
+            
         else:
             img = self.AnisoChannel(img)
             img = self.normalizeChannel(img)

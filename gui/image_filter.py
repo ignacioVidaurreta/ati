@@ -12,11 +12,12 @@ from PyQt5.QtWidgets import (
 )
 from display import hdisplay
 from utils import (
-    newButton, 
+    newButton,
     numpy_to_pil_image,
-    compute_histogram, 
+    compute_histogram,
     TRANSFORMATION_FOLDER,
-    display_before_after
+    display_before_after,
+    get_shape
 )
 from filters import (
     MeanFilter,
@@ -35,7 +36,7 @@ class FilterTab(QWidget):
         self.layout = QGridLayout(parent)
 
         self.image = np.asarray(self.parent.image)
-        self.imageShape = self.image.shape
+        self.imageShape = get_shape(self.image)
 
         # Gaussian Widgets
         self.gaussian = QLabel("GAUSSIAN FILTER")
@@ -136,7 +137,7 @@ class FilterTab(QWidget):
             return mean_filter.apply()
 
         np_img = tuple(map(process_color, image)) if len(image) == 3 else process_color(image)
-    
+
         display_before_after(
             self.parent,
             np_img,
@@ -180,7 +181,7 @@ class FilterTab(QWidget):
 
     def onWeightedMedianClick(self):
         image = self.parent.changes[-1]
-        
+
         def process_color(color):
             mean_filter = WeightedMedianFilter(color)
             return mean_filter.apply()

@@ -24,8 +24,8 @@ class OperationsTab(QWidget):
         self.layout = QGridLayout(parent)
 
         self.image = np.asarray(self.parent.image)
-        self.imageShape = self.image.shape
-        
+        self.imageShape = get_shape(self.image)
+
         # Buttons definitions
         self.sum = newButton("SUM", self.onSumClick)
         self.subst = newButton("SUBST", self.onSubstClick)
@@ -67,7 +67,7 @@ class OperationsTab(QWidget):
                 self.parent.image = substImage
                 self.parent.buttonUndo.setEnabled(True)
                 return
-        
+
         # all errors will be here
         self.operationError = QLabel('The substraction could not be executed')
         self.layout.addWidget(self.operationError, 1, 0)
@@ -85,7 +85,7 @@ class OperationsTab(QWidget):
                 self.parent.image = mulImage
                 self.parent.buttonUndo.setEnabled(True)
                 return
-        
+
         # all errors will be here
         self.operationError = QLabel('The multiplication could not be executed')
         self.layout.addWidget(self.operationError, 1, 0)
@@ -99,9 +99,9 @@ class OperationsTab(QWidget):
         # Discards file_type since we are checking from extension
         file, _ = QFileDialog.getOpenFileName(
             self,
-            "QFileDialog.getOpenFileName()", 
+            "QFileDialog.getOpenFileName()",
             "",
-            "All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)", 
+            "All Files (*);;PGM (*.pgm);;PPM (*.ppm);;RAW (*.raw);;PNG (*.png)",
             options=options
         )
 
@@ -114,8 +114,8 @@ class OperationsTab(QWidget):
                 img = read_raw(file)
             else:
                 img = read_image(file)
-    
+
             if img is not None:
                 return np.asarray(img)
-        
+
         return None
