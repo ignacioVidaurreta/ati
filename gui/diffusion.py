@@ -92,18 +92,9 @@ class DiffusionTab(QWidget):
                     channel[x,y] = round((channel[x,y] - minval)*255 / (maxval-minval))
         return channel
 
-    def normalizeAllChannels(self, img):
-        rI, gI, bI = img[:,:,0], img[:,:,1], img[:,:,2]
-        rO = self.normalizeChannel(rI)
-        gO = self.normalizeChannel(gI)
-        bO = self.normalizeChannel(bI)
-
-        imgO = np.dstack((rO,gO,bO))
-        return imgO
-
     def onIsotropicClick(self):
-        img = np.copy(self.parent.changes[-1])
-        img2 = np.copy(self.parent.changes[-1])
+        img = np.copy(self.parent.changes[-1]).astype(np.float64)
+        img2 = np.copy(self.parent.changes[-1]).astype(np.float64)
         t_value = int(self.t_input.text())
 
         RGB = False
@@ -118,6 +109,7 @@ class DiffusionTab(QWidget):
                     left = img[x - 1, y] - img[x, y]
                     up = img[x, y + 1] - img[x, y]
                     down = img[x, y - 1] - img[x, y]
+                    print(right)
                     img2[x,y] = img[x,y] + (up + down + left + right)*0.25
             img = img2
 
@@ -133,7 +125,7 @@ class DiffusionTab(QWidget):
         )
 
     def onAnisotropicClick(self):
-        img = np.copy(self.parent.changes[-1])
+        img = np.copy(self.parent.changes[-1]).astype(np.float64)
 
         if(len(self.image.shape) == 3):
             r, g, b = img[0], img[1], img[2]
@@ -157,7 +149,8 @@ class DiffusionTab(QWidget):
         )
 
     def AnisoChannel(self, img):
-        img2 = np.copy(img)
+        img2 = np.copy(img).astype(np.float64)
+
         t_value = int(self.t_input.text())
         for i in range(t_value):
             for x in range(1, np.size(img,0) - 1):
