@@ -101,7 +101,7 @@ class BilateralTab(QWidget):
         r = int(self.r_value.text())
         size = int(self.size_input.text())
 
-        img2 = np.copy(img)
+        img2 = np.copy(img).astype(np.float64)
 
         for x in range(size, np.size(img,0) - size):
             for y in range(size, np.size(img,1) - size):
