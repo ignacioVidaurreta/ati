@@ -58,6 +58,7 @@ class ShapeDetectTab(QWidget):
         self.slope = QLabel("Laplacian with Slope")
         self.slope.setStyleSheet("background-color: #ccccff")
         self.umbral_label, self.umbral_input = QLabel("Umbral"), QLineEdit()
+        self.join_label, self.join_input = QLabel("Join"), QLineEdit('union')
         self.umbral_input.setText('10')
         self.slope_evaluation = newButton("Apply", self.onSlopeClick)
 
@@ -77,7 +78,9 @@ class ShapeDetectTab(QWidget):
         self.layout.addWidget(self.slope, 4, 0)
         self.layout.addWidget(self.umbral_label, 4, 1)
         self.layout.addWidget(self.umbral_input, 4, 2)
-        self.layout.addWidget(self.slope_evaluation, 4, 3)
+        self.layout.addWidget(self.join_label, 4, 3)
+        self.layout.addWidget(self.join_input, 4, 4)
+        self.layout.addWidget(self.slope_evaluation, 4, 5)
 
         self.setLayout(self.layout)
 
@@ -218,7 +221,15 @@ class ShapeDetectTab(QWidget):
     def onSlopeClick(self):
         zero_crosses = ZeroCrosses()
 
+        self.umbral = int(self.umbral_input.text())
+        self.join = self.join_input.text()
+
         image = self.parent.changes[-1]
+
+        def process_color(color, zero_crosses):
+            laplacian = LaplacianFilter(image)
+            result = laplacian.apply()
+            return zero_crosses.apply(result, umbral=self.umbral, join=self.join)
 
         if len(self.imageShape) == 3:
 
@@ -236,8 +247,7 @@ class ShapeDetectTab(QWidget):
 
             np_img = (r_result, g_result, b_result)
         else:
-            laplacian_filter = LaplacianFilter(image)
-            np_img = zero_crosses.apply(laplacian_filter.apply())
+            np_img = process_color(image, zero_crosses)
 
         display_before_after(
             self.parent,

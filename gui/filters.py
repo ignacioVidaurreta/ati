@@ -281,53 +281,52 @@ class LaplacianFilter(Filter):
         return value
 
 
-# Will put 0 if there isn't sign change
-# Will put 255 if there IS a sign change
-# If there is a zero, it will compare one more
 class ZeroCrosses:
-
-    def compute(self, row):
-        values = np.zeros(row.shape)
-        for x in range(len(row)-1):
-            # easiest case, both values different than zero
-            if row[x] != 0 and row[x+1] != 0:
-                values[x] = 255 if row[x] != row[x+1] else 0
-            # first value must be different than zero (otherwise do not change it)
-            if row[x] != 0 and row[x+1] == 0:
-                # no more pixels available or value == 0, then leave pixel to 0
-                if x+2 > len(row)-1 or row[x+2] == 0:
-                    pass
-                # comparison x,0,y
-                else:
-                    values[x] = 255 if row[x] != row[x+2] else 0
-        return values
-
-    def apply(self, image):
-        sign_image = np.sign(image)
-        horizontal = np.zeros(image.shape)
-        vertical = np.zeros(image.shape)
-
-        for x in range(image.shape[0]-1):
-            horizontal[x] = self.compute(sign_image[x])
-
-        sign_image = sign_image.T
-        vertical = vertical.T
-        for y in range(image.shape[1]-1):
-            vertical[y] = self.compute(sign_image[y])
-
-        sign_image = sign_image.T
-        vertical = vertical.T
-
-        return self.union_synthesis(horizontal, vertical)
-
-    def union_synthesis(self, horizontal, vertical):
-        result = np.zeros(horizontal.shape)
-        for x,y in np.ndindex(horizontal.shape):
-            result[x][y] = 255 if horizontal[x][y] == 255 or vertical[x][y] == 255 else 0
+    
+    def replace(self, n, m, umbral=None):
+        if umbral:
+            if (abs(n)+abs(m)) <= umbral: return 0
+        if n > 0 and m < 0 or n < 0 and m > 0: 
+            return 255
+        return 0
+    
+    def compute(self, image, umbral=None):
+        result = np.zeros(image.shape)
+        
+        for x in range(image.shape[0]):
+            for y in range(image.shape[1]-1):
+                n = image[x,y]
+                m = image[x, y+1]
+                if (m == 0) and (y+1 < image.shape[1]-1): 
+                    m = image[x, y+2]
+                result[x,y] = self.replace(n,m, umbral)
+        
         return result
 
-    def intersection_synthesis(self, horizontal, vertical):
-        result = np.zeros(horizontal.shape)
-        for x,y in np.ndindex(horizontal.shape):
-            result[x][y] = 255 if horizontal[x][y] == 255 and vertical[x][y] == 255 else 0
+    def apply(self, image, umbral=None, join='union'):
+
+        horizontal = self.compute(image, umbral=umbral)
+        vertical = self.compute(image.T, umbral=umbral).T
+
+        if join == 'union':
+            return self.join_union(vertical, horizontal)
+        
+        return self.join_intersection(vertical, horizontal)
+
+    def join_union(self, vertical, horizontal):
+        result = np.zeros(vertical.shape)
+        
+        for x in range(vertical.shape[0]):
+            for y in range(vertical.shape[1]):
+                result[x,y] = 255 if vertical[x,y] == 255 or horizontal[x,y] == 255 else 0
+        
+        return result
+
+    def join_intersection(self, vertical, horizontal):
+        result = np.zeros(vertical.shape)
+        
+        for x in range(vertical.shape[0]):
+            for y in range(vertical.shape[1]):
+                result[x,y] = 255 if vertical[x,y] == 255 and horizontal[x,y] == 255 else 0
+        
         return result
