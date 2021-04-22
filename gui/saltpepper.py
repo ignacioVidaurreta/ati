@@ -73,7 +73,7 @@ class SaltPepperTab(QWidget):
                     r[x,y] = 255
                     g[x,y] = 255
                     b[x,y] = 255            
-            img = np.dstack((r,g,b))
+            img = (r,g,b)
 
         else:
             for x in range(np.size(img,0)):

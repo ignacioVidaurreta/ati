@@ -85,7 +85,7 @@ class BilateralTab(QWidget):
             rO = self.bilateralBW(r)
             gO = self.bilateralBW(g)
             bO = self.bilateralBW(b)
-            img = np.dstack((rO,gO,bO))
+            img = (rO,gO,bO)
 
         else:
             img = self.bilateralBW(img)

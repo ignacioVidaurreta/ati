@@ -105,7 +105,7 @@ class DiffusionTab(QWidget):
             bO = self.IsoChannel(b)
             bO = self.normalizeChannel(bO)
 
-            img = np.dstack((rO,gO,bO))
+            img = (rO,gO,bO)
 
         else:
             img = self.IsoChannel(img)
@@ -129,7 +129,7 @@ class DiffusionTab(QWidget):
             bO = self.AnisoChannel(b)
             bO = self.normalizeChannel(bO)
 
-            img = np.dstack((rO,gO,bO))
+            img = (rO,gO,bO)
             
         else:
             img = self.AnisoChannel(img)
