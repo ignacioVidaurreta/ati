@@ -262,6 +262,8 @@ class SobelFilter(Filter):
                 y_value += pixels[x + x_index, y + y_index] * y_mult
 
         return math.sqrt(x_value ** 2 + y_value ** 2)
+
+
 class LaplacianFilter(Filter):
 
     def __init__(self, image):
@@ -330,3 +332,38 @@ class ZeroCrosses:
                 result[x,y] = 255 if vertical[x,y] == 255 and horizontal[x,y] == 255 else 0
         
         return result
+
+
+class LOGFilter(Filter):
+
+    def __init__(self, image, sigma, L=None):
+        if L is None:
+            # recommended mask side
+            L = math.ceil(6*sigma+1)
+
+        super().__init__(image, L=L)
+        self.sigma = sigma
+        
+        h = int(math.floor(L/2))
+
+        self.mask = np.zeros((L,L)).astype('float64')
+        for x_index in range(-1 * h, h + 1):
+            for y_index in range(-1 * h, h + 1):
+                self.mask[x_index+h][y_index+h] = self.log(x_index, y_index)
+
+    def compute(self, pixels, x, y):
+        value = 0
+        for x_index in range(-1 * self.mid, self.mid + 1):
+            for y_index in range(-1 * self.mid, self.mid + 1):
+                value += pixels[x + x_index, y + y_index] * self.mask[x_index+1][y_index+1]
+
+        return value
+
+    def log(self, x, y):
+        a = math.sqrt(2*math.pi)*math.pow(self.sigma, 3)
+        b = -1 / a # left term
+        c = (x ** 2 + y ** 2)/(self.sigma ** 2)
+        d = 2 - c # middle term
+        e = c/2
+        f = math.exp(-1 * e) # right term
+        return b * d * f

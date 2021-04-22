@@ -21,7 +21,8 @@ from filters import (
     SobelFilter,
     DirectionalFilter,
     LaplacianFilter,
-    ZeroCrosses
+    ZeroCrosses,
+    LOGFilter
 )
 
 class ShapeDetectTab(QWidget):
@@ -59,8 +60,17 @@ class ShapeDetectTab(QWidget):
         self.slope.setStyleSheet("background-color: #ccccff")
         self.umbral_label, self.umbral_input = QLabel("Umbral"), QLineEdit()
         self.join_label, self.join_input = QLabel("Join"), QLineEdit('union')
-        self.umbral_input.setText('10')
+        self.umbral_input.setText('100')
         self.slope_evaluation = newButton("Apply", self.onSlopeClick)
+
+        # LOG Widgets
+        self.log = QLabel("Laplacian of Gaussian")
+        self.log.setStyleSheet("background-color: #ccccff")
+        self.log_filter = newButton("Apply", self.onLOGClick)
+        self.sigma_label, self.sigma_input = QLabel("Sigma"), QLineEdit('1')
+        self.auto_mask = newButton("Automatic Mask", self.onAutoMaskClick)
+        self.log_mask, self.log_mask_input = QLabel("Mask Side"), QLineEdit()
+        self.log_umbral_label, self.log_umbral_input = QLabel("Umbral"), QLineEdit('0')
 
         # We add widgets to layout
         self.layout.addWidget(self.prewitt, 0, 0)
@@ -81,6 +91,16 @@ class ShapeDetectTab(QWidget):
         self.layout.addWidget(self.join_label, 4, 3)
         self.layout.addWidget(self.join_input, 4, 4)
         self.layout.addWidget(self.slope_evaluation, 4, 5)
+
+        self.layout.addWidget(self.log, 5, 0)
+        self.layout.addWidget(self.log_umbral_label, 5, 1)
+        self.layout.addWidget(self.log_umbral_input, 5, 2)
+        self.layout.addWidget(self.sigma_label, 5, 3)
+        self.layout.addWidget(self.sigma_input, 5, 4)
+        self.layout.addWidget(self.auto_mask, 5, 5)
+        self.layout.addWidget(self.log_mask, 5, 6)
+        self.layout.addWidget(self.log_mask_input, 5, 7)
+        self.layout.addWidget(self.log_filter, 5, 8)
 
         self.setLayout(self.layout)
 
@@ -246,3 +266,39 @@ class ShapeDetectTab(QWidget):
             np_img,
             f'Laplacian with {self.join} and umbral:{self.umbral}'
         )
+    
+    def onLOGClick(self):
+        self.sigma = int(self.sigma_input.text())
+        self.log_L = int(self.log_mask_input.text())
+        self.umbral = int(self.log_umbral_input.text())
+
+        zero_crosses = ZeroCrosses()
+        image = self.parent.changes[-1]
+
+        def process_color(color):
+            log_filter = LOGFilter(color, self.sigma)
+            result = log_filter.apply()
+            return zero_crosses.apply(result, umbral=self.umbral, join='union')
+        
+        if len(self.imageShape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
+
+            np_img = (
+                process_color(r),
+                process_color(g),
+                process_color(b)
+            )
+        else:
+            np_img = process_color(image)
+
+        display_before_after(
+            self.parent,
+            np_img,
+            f'LOG, \u03C3:{self.sigma}, mask side:{self.log_L}'
+        )
+
+    def onAutoMaskClick(self):
+        self.sigma = int(self.sigma_input.text())
+        self.L = 6*self.sigma+1
+        self.log_mask_input.setText(str(self.L))
