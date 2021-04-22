@@ -193,24 +193,22 @@ class ShapeDetectTab(QWidget):
 
         image = self.parent.changes[-1]
 
+        def process_color(color, zero_crosses):
+            laplacian = LaplacianFilter(color)
+            result = laplacian.apply()
+            return zero_crosses.apply(result)
+
         if len(self.imageShape) == 3:
 
             r,g,b = image[0], image[1], image[2]
-
-            filter_r = LaplacianFilter(r)
-            filter_g = LaplacianFilter(g)
-            filter_b = LaplacianFilter(b)
-
-            # we wont normalize since we need to
-            # find zeros crosses.
-            r_result = zero_crosses.apply(filter_r.apply())
-            g_result = zero_crosses.apply(filter_g.apply())
-            b_result = zero_crosses.apply(filter_b.apply())
-
-            np_img = (r_result, g_result, b_result)
+            
+            np_img = (
+                process_color(r, zero_crosses),
+                process_color(g, zero_crosses),
+                process_color(b, zero_crosses)
+            )
         else:
-            laplacian_filter = LaplacianFilter(image)
-            np_img = zero_crosses.apply(laplacian_filter.apply())
+            np_img = process_color(image, zero_crosses)
 
         display_before_after(
             self.parent,
@@ -227,30 +225,24 @@ class ShapeDetectTab(QWidget):
         image = self.parent.changes[-1]
 
         def process_color(color, zero_crosses):
-            laplacian = LaplacianFilter(image)
+            laplacian = LaplacianFilter(color)
             result = laplacian.apply()
             return zero_crosses.apply(result, umbral=self.umbral, join=self.join)
-
+        
         if len(self.imageShape) == 3:
 
             r,g,b = image[0], image[1], image[2]
 
-            filter_r = LaplacianFilter(r)
-            filter_g = LaplacianFilter(g)
-            filter_b = LaplacianFilter(b)
-
-            # we wont normalize since we need to
-            # find zeros crosses.
-            r_result = zero_crosses.apply(filter_r.apply())
-            g_result = zero_crosses.apply(filter_g.apply())
-            b_result = zero_crosses.apply(filter_b.apply())
-
-            np_img = (r_result, g_result, b_result)
+            np_img = (
+                process_color(r, zero_crosses),
+                process_color(g, zero_crosses),
+                process_color(b, zero_crosses)
+            )
         else:
             np_img = process_color(image, zero_crosses)
 
         display_before_after(
             self.parent,
             np_img,
-            f'Laplacian with Slope Evaluation'
+            f'Laplacian with {self.join} and umbral:{self.umbral}'
         )
