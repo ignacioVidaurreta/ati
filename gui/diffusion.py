@@ -90,7 +90,7 @@ class DiffusionTab(QWidget):
                 if(minval == 0 and maxval == 0):
                     channel[x,y] = 0
                 else:
-                    channel[x,y] = round((channel[x,y] - minval)*255 / (maxval-minval))
+                    channel[x,y] = (channel[x,y] - minval)*255 / (maxval-minval)
         return channel
 
     def onIsotropicClick(self):
