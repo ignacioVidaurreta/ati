@@ -99,11 +99,11 @@ def compute_histogram(pixels):
     # We initialize 256 bins in 0, this array will hold
     # relative frequencies
     histogram = np.zeros(256)
-
+    import ipdb; ipdb.set_trace()
     # Computes relative frequencies
     for x,y in np.ndindex(pixels.shape):
-        current = histogram[pixels[x,y]]
-        histogram[pixels[x,y]] = current + 1
+        current = histogram[int(pixels[x,y])]
+        histogram[int(pixels[x,y])] = current + 1
 
     total = pixels.shape[0]*pixels.shape[1]
     histogram = histogram/total
