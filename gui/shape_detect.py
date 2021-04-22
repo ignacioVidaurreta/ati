@@ -22,7 +22,7 @@ from filters import (
     DirectionalFilter,
     LaplacianFilter,
     ZeroCrosses,
-    LOGFilter
+    LOGFilter,
     VER,
     HOR,
     DIAG1,
