@@ -23,6 +23,10 @@ from filters import (
     LaplacianFilter,
     ZeroCrosses,
     LOGFilter
+    VER,
+    HOR,
+    DIAG1,
+    DIAG2
 )
 
 class ShapeDetectTab(QWidget):
@@ -49,6 +53,10 @@ class ShapeDetectTab(QWidget):
         self.directional = QLabel("Directional Method")
         self.directional.setStyleSheet("background-color: #ccccff")
         self.directional_filter = newButton("Apply", self.onDirectionalClick)
+
+        self.exploded_directional = QLabel("Exploded Directional Method")
+        self.exploded_directional.setStyleSheet("background-color: #ccccff")
+        self.exploded_directional_filter = newButton("Apply", self.onExplodedDirectionalClick)
 
         # Laplacian Widgets
         self.laplacian = QLabel("Laplacian Method")
@@ -81,6 +89,9 @@ class ShapeDetectTab(QWidget):
 
         self.layout.addWidget(self.directional, 2, 0)
         self.layout.addWidget(self.directional_filter, 2, 1)
+
+        self.layout.addWidget(self.exploded_directional, 2, 2)
+        self.layout.addWidget(self.exploded_directional_filter, 2, 3)
 
         self.layout.addWidget(self.laplacian, 3, 0)
         self.layout.addWidget(self.laplacian_filter, 3, 1)
@@ -208,6 +219,33 @@ class ShapeDetectTab(QWidget):
             f'Directional Filter'
         )
 
+    def onExplodedDirectionalClick(self):
+        image = self.parent.changes[-1]
+        modes = [VER, HOR, DIAG1, DIAG2]
+        created_images = []
+        for mode in modes:
+            if len(self.imageShape) == 3:
+
+                r,g,b = image[0], image[1], image[2]
+
+                filter_r = DirectionalFilter(r, mode=mode)
+                filter_g = DirectionalFilter(g, mode=mode)
+                filter_b = DirectionalFilter(b, mode=mode)
+
+                r_result = filter_r.apply(normalize=True)
+                g_result = filter_g.apply(normalize=True)
+                b_result = filter_b.apply(normalize=True)
+
+                np_img = (r_result, g_result, b_result)
+            else:
+                directional_filter = DirectionalFilter(image, mode=mode)
+                np_img = directional_filter.apply(normalize=True)
+
+            created_images.append(np_img)
+
+        display_as_stack(created_images, modes)
+        hdisplay(created_images, rows=2, cols=2, titles=modes)
+
     def onLaplacianClick(self):
         zero_crosses = ZeroCrosses()
 
@@ -221,7 +259,7 @@ class ShapeDetectTab(QWidget):
         if len(self.imageShape) == 3:
 
             r,g,b = image[0], image[1], image[2]
-            
+
             np_img = (
                 process_color(r, zero_crosses),
                 process_color(g, zero_crosses),
@@ -248,7 +286,7 @@ class ShapeDetectTab(QWidget):
             laplacian = LaplacianFilter(color)
             result = laplacian.apply()
             return zero_crosses.apply(result, umbral=self.umbral, join=self.join)
-        
+
         if len(self.imageShape) == 3:
 
             r,g,b = image[0], image[1], image[2]
@@ -266,7 +304,7 @@ class ShapeDetectTab(QWidget):
             np_img,
             f'Laplacian with {self.join} and umbral:{self.umbral}'
         )
-    
+
     def onLOGClick(self):
         self.sigma = int(self.sigma_input.text())
         self.log_L = int(self.log_mask_input.text())
@@ -279,7 +317,7 @@ class ShapeDetectTab(QWidget):
             log_filter = LOGFilter(color, self.sigma)
             result = log_filter.apply()
             return zero_crosses.apply(result, umbral=self.umbral, join='union')
-        
+
         if len(self.imageShape) == 3:
 
             r,g,b = image[0], image[1], image[2]

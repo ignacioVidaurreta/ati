@@ -20,6 +20,12 @@ from utils import (
     display_before_after
 )
 
+ALL="all"
+VER="vertical"
+HOR="horizontal"
+DIAG1="45° Diagonal"
+DIAG2="135° Diagonal"
+
 # Filter that does not apply anything to the image
 class Filter():
 
@@ -206,8 +212,9 @@ class PrewittFilter(Filter):
 
 class DirectionalFilter(Filter):
 
-    def __init__(self, image):
+    def __init__(self, image, mode="all"):
         super().__init__(image, L=3)
+        self.mode=mode
         self.vertical = [
             [1, 1, 1],
             [1, -2, 1],
@@ -233,17 +240,34 @@ class DirectionalFilter(Filter):
         ]
 
     def compute(self, pixels, x, y):
-        value_v, value_h = 0, 0
-        value_45, value_135 = 0, 0
-        for x_index in range(-1 * self.mid, self.mid + 1):
-            for y_index in range(-1 * self.mid, self.mid + 1):
-                value_v += pixels[x + x_index, y + y_index] * self.vertical[x_index+1][y_index+1]
-                value_h += pixels[x + x_index, y + y_index] * self.horizontal[x_index+1][y_index+1]
+        if self.mode == ALL:
+            value_v, value_h = 0, 0
+            value_45, value_135 = 0, 0
+            for x_index in range(-1 * self.mid, self.mid + 1):
+                for y_index in range(-1 * self.mid, self.mid + 1):
+                    value_v += pixels[x + x_index, y + y_index] * self.vertical[x_index+1][y_index+1]
+                    value_h += pixels[x + x_index, y + y_index] * self.horizontal[x_index+1][y_index+1]
 
-                value_45 += pixels[x + x_index, y + y_index] * self.diag_45[x_index+1][y_index+1]
-                value_135 += pixels[x + x_index, y + y_index] * self.diag_135[x_index+1][y_index+1]
+                    value_45 += pixels[x + x_index, y + y_index] * self.diag_45[x_index+1][y_index+1]
+                    value_135 += pixels[x + x_index, y + y_index] * self.diag_135[x_index+1][y_index+1]
 
-        return math.sqrt(value_v**2 + value_h**2 + value_45**2 + value_135**2)
+            return math.sqrt(value_v**2 + value_h**2 + value_45**2 + value_135**2)
+        else:
+            value = 0
+            for x_index in range(-1 * self.mid, self.mid + 1):
+                for y_index in range(-1 * self.mid, self.mid + 1):
+                    if self.mode == VER:
+                        value += pixels[x + x_index, y + y_index] * self.vertical[x_index+1][y_index+1]
+                    elif self.mode == HOR:
+                        value += pixels[x + x_index, y + y_index] * self.horizontal[x_index+1][y_index+1]
+                    elif self.mode == DIAG1:
+                        value += pixels[x + x_index, y + y_index] * self.diag_45[x_index+1][y_index+1]
+                    elif self.mode == DIAG2:
+                        value += pixels[x + x_index, y + y_index] * self.diag_135[x_index+1][y_index+1]
+                    else:
+                        raise Exception(f"{self.mode} is not a valid mode for DiagonalFilter")
+
+            return value
 
 
 class SobelFilter(Filter):
