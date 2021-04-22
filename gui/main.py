@@ -158,7 +158,7 @@ class MainWindow(QWidget):
             if img is not None:
                 # stores original PIL image
                 self.image = img
-                
+
                 # IMAGE CHANGE 2
                 # we will store first image in order to
                 # always access current image from changes
@@ -170,7 +170,7 @@ class MainWindow(QWidget):
                         np.array(g),
                         np.array(b)))
                 else:
-                    self.changes.append(np.array(self.image))                   
+                    self.changes.append(np.array(self.image))
 
                 self.filename = file
                 self.imageFilename = QLabel(f'{file}')
@@ -221,7 +221,7 @@ class MainWindow(QWidget):
         # self.tabs.addTab(self.tab4, "Operations")
         self.tabs.addTab(self.tab5, "Transform")
         self.tabs.addTab(self.tab7, "Filter")
-        #self.tabs.addTab(self.tab8, "Noise")
+        self.tabs.addTab(self.tab8, "Noise")
         self.tabs.addTab(self.tab9, "S and P")
         self.tabs.addTab(self.tab10, "Shape Detection")
         self.tabs.addTab(self.tab11, "Diffusion")
