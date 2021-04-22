@@ -14,7 +14,8 @@ from utils import (
     newButton,
     display_before_after,
     numpy_to_pil_image,
-    TRANSFORMATION_FOLDER
+    TRANSFORMATION_FOLDER,
+    get_shape
 )
 from PIL import Image
 
@@ -34,7 +35,7 @@ class BilateralTab(QWidget):
         self.layout = QGridLayout(parent)
 
         self.image = np.asarray(self.parent.image)
-        self.imageShape = self.image.shape
+        self.imageShape = get_shape(self.image)
 
         self.bi_label= QLabel("Bilateral Filter")
         self.bi_label.setStyleSheet("background-color: #F6F6EB")

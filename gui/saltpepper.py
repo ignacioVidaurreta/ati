@@ -15,7 +15,8 @@ from utils import (
     display_before_after,
     numpy_to_pil_image,
     get_shape,
-    TRANSFORMATION_FOLDER
+    TRANSFORMATION_FOLDER,
+    get_shape
 )
 from PIL import Image
 import numpy as np
@@ -29,7 +30,7 @@ class SaltPepperTab(QWidget):
         self.parent = parent
         self.layout = QGridLayout(parent)
 
-        self.image = self.parent.changes[-1]
+        self.image = np.asarray(self.parent.image)
         self.imageShape = get_shape(self.image)
 
         # Buttons definitions

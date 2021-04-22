@@ -14,7 +14,8 @@ from utils import (
     newButton,
     display_before_after,
     numpy_to_pil_image,
-    TRANSFORMATION_FOLDER
+    TRANSFORMATION_FOLDER,
+    get_shape
 )
 from PIL import Image
 
@@ -47,7 +48,7 @@ class DiffusionTab(QWidget):
         self.parent = parent
         self.layout = QGridLayout(parent)
 
-        self.image = self.parent.changes[-1]
+        self.image = np.asarray(self.parent.image)
         self.imageShape = get_shape(self.image)
 
         self.iso_label= QLabel("Isotropic Diffusion")
@@ -94,29 +95,21 @@ class DiffusionTab(QWidget):
 
     def onIsotropicClick(self):
         img = np.copy(self.parent.changes[-1]).astype(np.float64)
-        img2 = np.copy(self.parent.changes[-1]).astype(np.float64)
-        t_value = int(self.t_input.text())
-
-        RGB = False
-
+        
         if(len(self.image.shape) == 3):
-            RGB = True
+            r, g, b = img[0], img[1], img[2]
+            rO = self.IsoChannel(r)
+            rO = self.normalizeChannel(rO)
+            gO = self.IsoChannel(g)
+            gO = self.normalizeChannel(gO)
+            bO = self.IsoChannel(b)
+            bO = self.normalizeChannel(bO)
 
-        for i in range(t_value):
-            for x in range(1, self.imageShape[0] - 1):
-                for y in range(1, self.imageShape[1] -1):
-                    right = img[x + 1, y] - img[x, y]
-                    left = img[x - 1, y] - img[x, y]
-                    up = img[x, y + 1] - img[x, y]
-                    down = img[x, y - 1] - img[x, y]
-                    print(right)
-                    img2[x,y] = img[x,y] + (up + down + left + right)*0.25
-            img = img2
+            img = np.dstack((rO,gO,bO))
 
-        if not RGB:
-            img = self.normalizeChannel(img)
         else:
-            img = self.normalizeAllChannels(img)
+            img = self.IsoChannel(img)
+            img = self.normalizeChannel(img)
 
         display_before_after(
             self.parent,
@@ -165,6 +158,24 @@ class DiffusionTab(QWidget):
                     right*self.lorentzDetector(right))
             img = img2
         return img
+
+    def IsoChannel(self, img):
+        img2 = np.copy(img).astype(np.float64)
+
+        t_value = int(self.t_input.text())
+        for i in range(t_value):
+            for x in range(1, np.size(img,0) - 1):
+                for y in range(1, np.size(img,1) -1):
+                    right = img[x + 1, y] - img[x, y]
+                    left = img[x - 1, y] - img[x, y]
+                    up = img[x, y + 1] - img[x, y]
+                    down = img[x, y - 1] - img[x, y]
+                    img2[x,y] = img[x,y] + 0.25*(left + up + down + left)
+            img = img2
+        return img
+
+
+
 
 
 
