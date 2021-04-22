@@ -19,6 +19,7 @@ from display import hdisplay
 from filters import (
     PrewittFilter,
     SobelFilter,
+    DirectionalFilter,
     LaplacianFilter,
     ZeroCrosses
 )
@@ -43,6 +44,11 @@ class ShapeDetectTab(QWidget):
         self.sobel.setStyleSheet("background-color: #ccccff")
         self.sobel_filter = newButton("Apply", self.onSobelClick)
 
+        # Directional Widgets
+        self.directional = QLabel("Directional Method")
+        self.directional.setStyleSheet("background-color: #ccccff")
+        self.directional_filter = newButton("Apply", self.onDirectionalClick)
+
         # Laplacian Widgets
         self.laplacian = QLabel("Laplacian Method")
         self.laplacian.setStyleSheet("background-color: #ccccff")
@@ -62,13 +68,16 @@ class ShapeDetectTab(QWidget):
         self.layout.addWidget(self.sobel, 1, 0)
         self.layout.addWidget(self.sobel_filter, 1, 1)
 
-        self.layout.addWidget(self.laplacian, 2, 0)
-        self.layout.addWidget(self.laplacian_filter, 2, 1)
+        self.layout.addWidget(self.directional, 2, 0)
+        self.layout.addWidget(self.directional_filter, 2, 1)
 
-        self.layout.addWidget(self.slope, 3, 0)
-        self.layout.addWidget(self.umbral_label, 3, 1)
-        self.layout.addWidget(self.umbral_input, 3, 2)
-        self.layout.addWidget(self.slope_evaluation, 3, 3)
+        self.layout.addWidget(self.laplacian, 3, 0)
+        self.layout.addWidget(self.laplacian_filter, 3, 1)
+
+        self.layout.addWidget(self.slope, 4, 0)
+        self.layout.addWidget(self.umbral_label, 4, 1)
+        self.layout.addWidget(self.umbral_input, 4, 2)
+        self.layout.addWidget(self.slope_evaluation, 4, 3)
 
         self.setLayout(self.layout)
 
@@ -122,6 +131,58 @@ class ShapeDetectTab(QWidget):
             self.parent,
             np_img,
             f'Sobel Filter'
+        )
+
+    def onPrewittClick(self):
+        image = self.parent.changes[-1]
+
+        if len(self.imageShape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
+
+            filter_r = PrewittFilter(r)
+            filter_g = PrewittFilter(g)
+            filter_b = PrewittFilter(b)
+
+            r_result = filter_r.apply(normalize=True)
+            g_result = filter_g.apply(normalize=True)
+            b_result = filter_b.apply(normalize=True)
+
+            np_img = (r_result, g_result, b_result)
+        else:
+            prewitt_filter = PrewittFilter(image)
+            np_img = prewitt_filter.apply(normalize=True)
+
+        display_before_after(
+            self.parent,
+            np_img,
+            f'Prewitt Filter'
+        )
+
+    def onDirectionalClick(self):
+        image = self.parent.changes[-1]
+
+        if len(self.imageShape) == 3:
+
+            r,g,b = image[0], image[1], image[2]
+
+            filter_r = DirectionalFilter(r)
+            filter_g = DirectionalFilter(g)
+            filter_b = DirectionalFilter(b)
+
+            r_result = filter_r.apply(normalize=True)
+            g_result = filter_g.apply(normalize=True)
+            b_result = filter_b.apply(normalize=True)
+
+            np_img = (r_result, g_result, b_result)
+        else:
+            directional_filter = DirectionalFilter(image)
+            np_img = directional_filter.apply(normalize=True)
+
+        display_before_after(
+            self.parent,
+            np_img,
+            f'Directional Filter'
         )
 
     def onLaplacianClick(self):

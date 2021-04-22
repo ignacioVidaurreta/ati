@@ -59,7 +59,7 @@ class Filter():
                 pass
             else:
                 new_pixels[x][y] = self.compute(original_pixels, x, y)
-            
+
             return None
 
         set(map(process_pixel, np.ndindex(self.image.shape)))
@@ -203,6 +203,48 @@ class PrewittFilter(Filter):
                 y_value += pixels[x + x_index, y + y_index] * x_index
 
         return math.sqrt(x_value ** 2 + y_value ** 2)
+
+class DirectionalFilter(Filter):
+
+    def __init__(self, image):
+        super().__init__(image, L=3)
+        self.vertical = [
+            [1, 1, 1],
+            [1, -2, 1],
+            [-1, -1,-1]
+        ]
+
+        self.horizontal = [
+            [-1, 1, 1],
+            [-1, -2, 1],
+            [-1, 1, 1]
+        ]
+
+        self.diag_45 = [
+            [1, 1, 1],
+            [-1, -2, 1],
+            [-1, -1, 1]
+        ]
+
+        self.diag_135 = [
+            [-1, -1, 1],
+            [-1, -2, 1],
+            [1, 1, 1]
+        ]
+
+    def compute(self, pixels, x, y):
+        value_v, value_h = 0, 0
+        value_45, value_135 = 0, 0
+        for x_index in range(-1 * self.mid, self.mid + 1):
+            for y_index in range(-1 * self.mid, self.mid + 1):
+                value_v += pixels[x + x_index, y + y_index] * self.vertical[x_index+1][y_index+1]
+                value_h += pixels[x + x_index, y + y_index] * self.horizontal[x_index+1][y_index+1]
+
+                value_45 += pixels[x + x_index, y + y_index] * self.diag_45[x_index+1][y_index+1]
+                value_135 += pixels[x + x_index, y + y_index] * self.diag_135[x_index+1][y_index+1]
+
+        return math.sqrt(value_v**2 + value_h**2 + value_45**2 + value_135**2)
+
 
 class SobelFilter(Filter):
     def __init__(self, image):
