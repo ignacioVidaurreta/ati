@@ -21,10 +21,10 @@ from utils import (
 )
 
 ALL="all"
-VER="vertical"
-HOR="horizontal"
-DIAG1="45° Diagonal"
-DIAG2="135° Diagonal"
+VER="0°"
+HOR="90°"
+DIAG1="45°"
+DIAG2="135°"
 
 # Filter that does not apply anything to the image
 class Filter():
