@@ -206,7 +206,7 @@ class ImageTransformTab(QWidget):
         new_colors = [int(x) for x in new_colors]
 
         for x,y in np.ndindex(image.shape):
-            index = image[x,y]
+            index = int(image[x,y])
             image[x,y] = new_colors[index]
 
         display_before_after(
