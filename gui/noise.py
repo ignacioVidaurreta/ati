@@ -101,8 +101,22 @@ class NoiseTab(QWidget):
         mu = float(self.mu_input.text()) # Should usually be zero
 
         shape = self.imageShape
-        noise = self.generate_noise_mat(rng, rng.normal(mu, sigma, shape), False)
-        img = matrix_sum(image, noise)
+        if len(image) == 3:
+            r_im = image[0]
+            noise = self.generate_noise_mat(rng, rng.normal(mu, sigma, r_im.shape), False)
+            result1 = matrix_sum(r_im, noise)
+
+            g_im = image[1]
+            noise = self.generate_noise_mat(rng, rng.normal(mu, sigma, g_im.shape), False)
+            result2 = matrix_sum(g_im, noise)
+
+            b_im = image[2]
+            noise = self.generate_noise_mat(rng, rng.normal(mu, sigma, b_im.shape), False)
+            result3 = matrix_sum(b_im, noise)
+            img = (result1, result2, result3)
+        else:
+            noise = self.generate_noise_mat(rng, rng.normal(mu, sigma, shape), False)
+            img = matrix_sum(image, noise)
 
         cmap = "gray" if len(shape) == 2 else None
 
