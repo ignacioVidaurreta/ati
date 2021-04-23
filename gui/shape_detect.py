@@ -243,8 +243,8 @@ class ShapeDetectTab(QWidget):
 
             created_images.append(np_img)
 
-        display_as_stack(created_images, modes)
-        hdisplay(created_images, rows=2, cols=2, titles=modes)
+        cmap = None if self.imageShape == 3 else "gray"
+        hdisplay(created_images, rows=2, cols=2, titles=modes, cmap=cmap)
 
     def onLaplacianClick(self):
         zero_crosses = ZeroCrosses()

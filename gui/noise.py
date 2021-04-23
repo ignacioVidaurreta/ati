@@ -16,7 +16,7 @@ from utils import newButton, TRANSFORMATION_FOLDER
 from PIL import Image
 import numpy as np
 from matrix_util import matrix_mult, matrix_sum
-from utils import get_shape
+from utils import get_shape, display_before_after
 
 class NoiseTab(QWidget):
 
@@ -94,6 +94,7 @@ class NoiseTab(QWidget):
 
     # Convention: on[ButtonName]Click
     def onGaussianClick(self):
+        image = self.parent.changes[-1]
         print(f"SIGMA: {self.sigma_input.text()}; MU: {self.mu_input.text()}")
         rng = np.random.default_rng()
         sigma = float(self.sigma_input.text())
@@ -101,16 +102,16 @@ class NoiseTab(QWidget):
 
         shape = self.imageShape
         noise = self.generate_noise_mat(rng, rng.normal(mu, sigma, shape), False)
-        img = Image.fromarray(matrix_sum(self.parent.image, noise))
+        img = matrix_sum(image, noise)
 
         cmap = "gray" if len(shape) == 2 else None
 
         print(f"CMAP: {cmap}\n LEN: {len(shape)}")
-        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"Image with added noise (σ: {self.sigma_input.text()} µ: {self.mu_input.text()})"
-            ], cmap=cmap)
-
+        display_before_after(
+            self.parent,
+            img,
+            f"Image with added noise (σ: {self.sigma_input.text()} µ: {self.mu_input.text()})"
+        )
         plt.figure()
         count, bins, ignored = plt.hist(rng.normal(mu, sigma, 1000), 30, density=True)
         plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
@@ -118,12 +119,6 @@ class NoiseTab(QWidget):
          linewidth=2, color='r')
         plt.title(f"Gaussian Distribution plot mu={mu}, sigma={sigma}")
         plt.show()
-        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_gaussNoise_mu{mu}_sigma{sigma}_ptg{self.replace_rate}.png')
-        self.parent.changes.append(self.parent.image)
-        self.parent.image = img
-        self.parent.buttonUndo.setEnabled(True)
-
 
     def onRayleighClick(self):
         rng = np.random.default_rng()
