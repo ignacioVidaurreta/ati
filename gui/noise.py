@@ -135,21 +135,33 @@ class NoiseTab(QWidget):
         plt.show()
 
     def onRayleighClick(self):
+        image = self.parent.changes[-1]
         rng = np.random.default_rng()
         psi = float(self.psi_input.text()) # Hay que ponerle un psi grande, tipo 30 para ver el ruido
         print(f"RAYLEIGH {rng.rayleigh(psi)}")
-        shape = self.imageShape
 
-        noise = self.generate_noise_mat(rng, rng.rayleigh(psi, shape), True)
+        if len(image) == 3:
+            r_im = image[0]
+            noise = self.generate_noise_mat(rng, rng.rayleigh(psi, r_im.shape), True)
+            result1 = matrix_mult(r_im, noise)
 
-        img = Image.fromarray(matrix_mult(self.parent.image, noise))
+            g_im = image[1]
+            noise = self.generate_noise_mat(rng, rng.rayleigh(psi, g_im.shape), True)
+            result2 = matrix_mult(g_im, noise)
 
-        cmap = "gray" if len(shape) == 2 else None
+            b_im = image[2]
+            noise = self.generate_noise_mat(rng, rng.rayleigh(psi, b_im.shape), True)
+            result3 = matrix_mult(b_im, noise)
+            img = (result1, result2, result3)
+        else:
+            noise = self.generate_noise_mat(rng, rng.rayleigh(psi, image.shape), True)
+            img = matrix_mult(self.parent.changes[-1], noise)
 
-        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"Image with added noise (ψ: {psi})"
-            ], cmap=cmap)
+        display_before_after(
+            self.parent,
+            img,
+            f"Image with added noise (ψ: {psi})"
+        )
 
         plt.figure()
         count, bins, ignored = plt.hist(rng.rayleigh(psi, 10000), bins=200, density=True)
@@ -158,33 +170,38 @@ class NoiseTab(QWidget):
         plt.show()
         #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
         #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_rayleigh_psi{psi}_ptg{self.replace_rate}.png')
-        self.parent.changes.append(self.parent.image)
-        self.parent.image = img
-        self.parent.buttonUndo.setEnabled(True)
 
     def onExponentialClick(self):
+        image = self.parent.changes[-1]
         rng = np.random.default_rng()
         lambda_param = float(self.lambda_input.text())
         # Exponential receives Beta which is 1/lambda
         print(f"EXPONENTIAL: {rng.exponential(1/lambda_param)}")
-        shape = self.imageShape
-        noise = self.generate_noise_mat(rng, rng.exponential(1/lambda_param, shape) , True)
-        img = Image.fromarray(matrix_mult(self.parent.image, noise))
+        if len(image) == 3:
+            r_im = image[0]
+            noise = self.generate_noise_mat(rng, rng.exponential(1/lambda_param, r_im.shape) , True)
+            result1 = matrix_mult(r_im, noise)
 
-        cmap = "gray" if len(shape) == 2 else None
+            g_im = image[1]
+            noise = self.generate_noise_mat(rng, rng.exponential(1/lambda_param, g_im.shape) , True)
+            result2 = matrix_mult(g_im, noise)
 
-        hdisplay([self.parent.image, img], rows=1, cols=2, titles=[
-                "Original Image",
-                f"Image with added noise (λ: {lambda_param})"
-            ], cmap=cmap)
+            b_im = image[2]
+            noise = self.generate_noise_mat(rng, rng.exponential(1/lambda_param, b_im.shape) , True)
+            result3 = matrix_mult(b_im, noise)
+            img = (result1, result2, result3)
+        else:
+            noise = self.generate_noise_mat(rng, rng.exponential(1/lambda_param, image.shape) , True)
+            img = matrix_mult(image, noise)
+
+        display_before_after(
+            self.parent,
+            img,
+            f"Image with added noise (λ: {lambda_param})"
+        )
 
         plt.figure()
         count, bins, ignored = plt.hist(rng.exponential(1/lambda_param, 1000), 30, density=True)
         plt.plot(bins, lambda_param * np.exp(-bins*lambda_param), linewidth=2, color='r')
         plt.title(f"Exponential Distribution plot lambda={lambda_param}")
         plt.show()
-        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_exponential_lambda{lambda_param}_ptg{self.replace_rate}.png')
-        self.parent.changes.append(self.parent.image)
-        self.parent.image = img
-        self.parent.buttonUndo.setEnabled(True)
