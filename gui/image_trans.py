@@ -49,8 +49,7 @@ class ImageTransformTab(QWidget):
         self.umbralInput.setText('255')
         self.umbralization = newButton("Apply", self.onUmbralizationClick)
         self.globalUmbral = newButton("Global", self.onGlobalUmbralClick)
-        if len(self.imageShape) < 3:
-            self.otsuUmbral = newButton("Otsu", self.onOtsuUmbralClick)
+        self.otsuUmbral = newButton("Otsu", self.onOtsuUmbralClick)
 
         self.gamma_title = QLabel("Power Function")
         self.gamma_title.setStyleSheet("background-color: #FFD0ED")
@@ -73,8 +72,7 @@ class ImageTransformTab(QWidget):
         self.layout.addWidget(self.umbralInput, 1, 2)
         self.layout.addWidget(self.umbralization, 1, 3)
         self.layout.addWidget(self.globalUmbral, 1, 4)
-        if len(self.imageShape) < 3:
-            self.layout.addWidget(self.otsuUmbral, 1, 5)
+        self.layout.addWidget(self.otsuUmbral, 1, 5)
 
         self.layout.addWidget(self.gamma_title, 2, 0)
         self.layout.addWidget(self.gammaLabel, 2, 1)
@@ -149,6 +147,7 @@ class ImageTransformTab(QWidget):
                 image[x,y] = 0
             else:
                 image[x,y] = 255
+        return image
 
     def onGammaClick(self):
         self.gammaValue = float(self.gammaInput.text())
@@ -294,29 +293,50 @@ class ImageTransformTab(QWidget):
     def onOtsuUmbralClick(self):
         image = np.copy(self.parent.changes[-1])
 
-        histogram = compute_histogram(image)
+        def process_color(color):
+            histogram = compute_histogram(color)
+            p1 = compute_accumulated_frequencies(histogram)
 
-        umbral = -1
-        max_val = -1
+            arr = np.arange(256)
+            arr = list(map(lambda x: x*histogram[x], arr))
+            
+            m_t = compute_accumulated_frequencies(arr)
+            m_g = np.sum(arr)
 
-        for t in range(len(histogram)):
-            prob_c1 = np.sum(histogram[:t])
-            prob_c2 = np.sum(histogram[t:])
+            variances = []
+            for i in range(256):
+                if p1[i] == 0 or p1[i] == 1:
+                    variances.append(0)
+                else:
+                    variances.append(
+                        ((m_g*p1[i]-m_t[i]) ** 2)/(p1[i]*(1-p1[i]))
+                    )
 
-            mean_c1 = np.mean(histogram[:t])
-            mean_c2 = np.mean(histogram[t:])
+            variances = np.array(variances)
+            max_variance = np.max(variances)
+            umbral = int(np.mean(np.where(variances == max_variance)))
 
-            # we want to maxim. this in order to find proper t
-            value = prob_c1 * prob_c2 * (mean_c1 - mean_c2) ** 2
+            self.umbralizationTransform(color, umbral)
+            return umbral
+        
+        if len(self.image.shape) == 3:
+            r,g,b = image[0], image[1], image[2]
 
-            if value > max_val:
-                umbral = t
-                max_val = value
+            t_r = process_color(r)
+            t_g = process_color(g)
+            t_b = process_color(b)
 
-        self.umbralizationTransform(image, umbral)
+            display_before_after(
+                self.parent,
+                (r,g,b),
+                f"Otsu umbral with t:{t_r},{t_g},{t_b}"
+            )
 
-        display_before_after(
-            self.parent,
-            image,
-            f"Otsu Umbral with t:{umbral}"
-        )
+        else:
+            umbral = process_color(image)
+
+            display_before_after(
+                self.parent,
+                image,
+                f"Otsu Umbral with t:{umbral}"
+            )
