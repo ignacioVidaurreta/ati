@@ -34,6 +34,7 @@ class NoiseTab(QWidget):
         self.nooise_message = QLabel("Must be between 0 and 100 (%)")
 
         # Buttons definitions
+    
         self.gaussian_title = QLabel("Gaussian Noise")
         self.gaussian_title.setStyleSheet("background-color: #d6f9d6")
         self.gaussian_noise = newButton("Apply", self.onGaussianClick)
@@ -51,6 +52,11 @@ class NoiseTab(QWidget):
         self.exponential = newButton("Apply", self.onExponentialClick)
         self.lambda_label, self.lambda_input = QLabel("Lambda"), QLineEdit()
 
+        self.saltpepper_title = QLabel('Salt and Pepper')
+        self.saltpepper_title.setStyleSheet("background-color: #d6f9d6")
+        self.saltpepper_noise = newButton("Apply", self.onSaltPepperClick)
+        self.p0_label, self.p0_input = QLabel("p0:"), QLineEdit()
+        self.p1_label, self.p1_input = QLabel("p1:"), QLineEdit()
 
         # We add widgets to layout
         self.layout.addWidget(self.noise_ptg_label, 0, 0)
@@ -74,6 +80,12 @@ class NoiseTab(QWidget):
         self.layout.addWidget(self.lambda_input, 3, 2)
         self.layout.addWidget(self.exponential, 3, 3)
 
+        self.layout.addWidget(self.saltpepper_title, 4, 0)
+        self.layout.addWidget(self.p0_label, 4, 1)
+        self.layout.addWidget(self.p0_input, 4, 2)
+        self.layout.addWidget(self.p1_label, 4, 3)
+        self.layout.addWidget(self.p1_input, 4, 4)
+        self.layout.addWidget(self.saltpepper_noise, 4, 5)
 
         self.setLayout(self.layout)
 
@@ -168,8 +180,6 @@ class NoiseTab(QWidget):
         plt.plot(bins, (bins/(psi**2))* np.exp((-bins**2)/(2*(psi**2))), linewidth=2, color='r')
         plt.title(f"Rayleigh Distribution plot psi={psi}")
         plt.show()
-        #filename = (self.parent.filename.split("/")[-1]).split(".")[0]
-        #img.save(f'{TRANSFORMATION_FOLDER}/{filename}_rayleigh_psi{psi}_ptg{self.replace_rate}.png')
 
     def onExponentialClick(self):
         image = self.parent.changes[-1]
@@ -205,3 +215,45 @@ class NoiseTab(QWidget):
         plt.plot(bins, lambda_param * np.exp(-bins*lambda_param), linewidth=2, color='r')
         plt.title(f"Exponential Distribution plot lambda={lambda_param}")
         plt.show()
+
+    # IMPORTANT: does not use noise percentage
+    # TODO: fix it to use noise percentage
+    def onSaltPepperClick(self):
+        print(f"P0: {self.p0_input.text()}; P1: {self.p1_input.text()}")
+
+        img = np.copy(self.parent.changes[-1])
+
+        p0 = float(self.p0_input.text())
+        p1 = float(self.p1_input.text())
+
+        rng = np.random.default_rng()
+
+        if(len(self.image.shape) == 3):
+            r, g, b = img[0], img[1], img[2]
+            for x,y in np.ndindex(r.shape):
+                rnd = rng.random()
+                if (rnd < p0):
+                    r[x,y] = 0
+                    g[x,y] = 0
+                    b[x,y] = 0
+                elif (rnd >= p1):
+                    r[x,y] = 255
+                    g[x,y] = 255
+                    b[x,y] = 255            
+            img = (r,g,b)
+
+        else:
+            for x in range(np.size(img,0)):
+                for y in range(np.size(img,1)):
+                    rnd = rng.random()
+                    if (rnd < p0):
+                        img[x,y] = 0
+                    elif (rnd >= p1):
+                        img[x,y] = 255 
+
+
+        display_before_after(
+            self.parent,
+            img,
+            f'S&P Noise: p0=' + self.p0_input.text() + ', p1=' + self.p1_input.text()
+        )

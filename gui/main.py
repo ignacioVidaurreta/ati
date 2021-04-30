@@ -207,25 +207,24 @@ class MainWindow(QWidget):
         # Tab 6 is the histogram
         self.tab7 = FilterTab(self)
         self.tab8 = NoiseTab(self)
-        self.tab9 = SaltPepperTab(self)
-        self.tab10 = ShapeDetectTab(self)
-        self.tab11 = DiffusionTab(self)
-        self.tab12 = ShapeDetectTab(self) # UnconventionalShapeDetectTab
+        self.tab9 = ShapeDetectTab(self)
+        self.tab10 = DiffusionTab(self)
+        self.tab11 = ShapeDetectTab(self) # UnconventionalShapeDetectTab
 
         # self.tabs.addTab(self.tab2, "Pixel")
         # self.tabs.addTab(self.tab3, "Crop")
         # self.tabs.addTab(self.tab4, "Operations")
+
         if len(np.asarray(self.image).shape) != 3:
             self.tab6 = HistogramTab(self)
             self.tabs.addTab(self.tab6, "Histogram")
         
         self.tabs.addTab(self.tab5, "Transform")
         self.tabs.addTab(self.tab7, "Filter")
-        self.tabs.addTab(self.tab11, "Smooth")
+        self.tabs.addTab(self.tab10, "Smooth")
         self.tabs.addTab(self.tab8, "Noise")
-        self.tabs.addTab(self.tab9, "S and P")
-        self.tabs.addTab(self.tab10, "SD (Traditional)")
-        self.tabs.addTab(self.tab12, "SD (Unconventional)")
+        self.tabs.addTab(self.tab9, "SD (Traditional)")
+        self.tabs.addTab(self.tab11, "SD (Unconventional)")
 
     def onRestartClick(self):
         self.layout.removeWidget(self.tabs)
