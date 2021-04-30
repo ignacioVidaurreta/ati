@@ -32,7 +32,6 @@ from saltpepper import SaltPepperTab
 from image_filter import FilterTab
 from shape_detect import ShapeDetectTab
 from diffusion import DiffusionTab
-from bilateral import BilateralTab
 
 from utils import (
     RAW,
@@ -211,26 +210,22 @@ class MainWindow(QWidget):
         self.tab9 = SaltPepperTab(self)
         self.tab10 = ShapeDetectTab(self)
         self.tab11 = DiffusionTab(self)
-        self.tab12 = BilateralTab(self)
-
-        # TODO: commented tabs still need round problem to be solved
-        # 2, 3, 4, 6, 8, 9
+        self.tab12 = ShapeDetectTab(self) # UnconventionalShapeDetectTab
 
         # self.tabs.addTab(self.tab2, "Pixel")
         # self.tabs.addTab(self.tab3, "Crop")
         # self.tabs.addTab(self.tab4, "Operations")
-        self.tabs.addTab(self.tab5, "Transform")
-        self.tabs.addTab(self.tab7, "Filter")
-        self.tabs.addTab(self.tab8, "Noise")
-        self.tabs.addTab(self.tab9, "S and P")
-        self.tabs.addTab(self.tab10, "Shape Detection")
-        self.tabs.addTab(self.tab11, "Diffusion")
-        self.tabs.addTab(self.tab12, "Bilateral")
-
-
         if len(np.asarray(self.image).shape) != 3:
             self.tab6 = HistogramTab(self)
             self.tabs.addTab(self.tab6, "Histogram")
+        
+        self.tabs.addTab(self.tab5, "Transform")
+        self.tabs.addTab(self.tab7, "Filter")
+        self.tabs.addTab(self.tab11, "Smooth")
+        self.tabs.addTab(self.tab8, "Noise")
+        self.tabs.addTab(self.tab9, "S and P")
+        self.tabs.addTab(self.tab10, "SD (Traditional)")
+        self.tabs.addTab(self.tab12, "SD (Unconventional)")
 
     def onRestartClick(self):
         self.layout.removeWidget(self.tabs)
