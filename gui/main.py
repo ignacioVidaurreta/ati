@@ -28,7 +28,6 @@ from image_trans import ImageTransformTab
 from operations import OperationsTab
 from pixel import PixelTab
 from noise import NoiseTab
-from saltpepper import SaltPepperTab
 from image_filter import FilterTab
 from shape_detect import ShapeDetectTab
 from diffusion import DiffusionTab
@@ -218,7 +217,7 @@ class MainWindow(QWidget):
         if len(np.asarray(self.image).shape) != 3:
             self.tab6 = HistogramTab(self)
             self.tabs.addTab(self.tab6, "Histogram")
-        
+
         self.tabs.addTab(self.tab5, "Transform")
         self.tabs.addTab(self.tab7, "Filter")
         self.tabs.addTab(self.tab10, "Smooth")
