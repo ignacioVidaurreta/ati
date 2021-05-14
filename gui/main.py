@@ -31,6 +31,7 @@ from noise import NoiseTab
 from image_filter import FilterTab
 from shape_detect import ShapeDetectTab
 from diffusion import DiffusionTab
+from hough import HoughTab
 
 from utils import (
     RAW,
@@ -210,6 +211,7 @@ class MainWindow(QWidget):
         self.tab10 = DiffusionTab(self)
         self.tab11 = ShapeDetectTab(self) # UnconventionalShapeDetectTab
 
+        self.tab12 = HoughTab(self)
         # self.tabs.addTab(self.tab2, "Pixel")
         # self.tabs.addTab(self.tab3, "Crop")
         # self.tabs.addTab(self.tab4, "Operations")
@@ -224,6 +226,7 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.tab8, "Noise")
         self.tabs.addTab(self.tab9, "SD (Traditional)")
         self.tabs.addTab(self.tab11, "SD (Unconventional)")
+        self.tabs.addTab(self.tab12, "Hough")
 
     def onRestartClick(self):
         self.layout.removeWidget(self.tabs)
