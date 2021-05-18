@@ -197,8 +197,26 @@ class EnhancementFilter(Filter):
 
 class PrewittFilter(Filter):
 
-    def __init__(self, image):
+    def __init__(self, image, angular=False):
         super().__init__(image, L=3)
+        self.angular = angular
+
+    def _discretize_angle(self, real_angle):
+        PI_8 = math.pi / 8
+
+        if real_angle < 0:
+            real_angle += math.pi
+
+        if abs(real_angle - 2 * PI_8) <= PI_8:
+            discrete_angle = 45
+        elif abs(real_angle - 4 * PI_8) <= PI_8:
+            discrete_angle = 90
+        elif abs(real_angle - 6 * PI_8) <= PI_8:
+            discrete_angle = 135
+        else:
+            discrete_angle = 0
+
+        return discrete_angle
 
     def compute(self, pixels, x, y):
         x_value = 0
@@ -207,6 +225,13 @@ class PrewittFilter(Filter):
             for y_index in range(-1 * self.mid, self.mid + 1):
                 x_value += pixels[x + x_index, y + y_index] * y_index
                 y_value += pixels[x + x_index, y + y_index] * x_index
+
+        if self.angular:
+            # Range is between -PI and PI.
+            # https://www.w3schools.com/python/ref_math_atan2.asp#:~:text=The%20math.,is%20between%20PI%20and%20%2DPI.
+            ret_val = math.atan2(x_value, y_value)
+
+            return self._discretize_angle(ret_val)
 
         return math.sqrt(x_value ** 2 + y_value ** 2)
 
@@ -271,8 +296,26 @@ class DirectionalFilter(Filter):
 
 
 class SobelFilter(Filter):
-    def __init__(self, image):
+    def __init__(self, image, angular=False):
         super().__init__(image, L=3)
+        self.angular = angular
+
+    def _discretize_angle(self, real_angle):
+        PI_8 = math.pi / 8
+
+        if real_angle < 0:
+            real_angle += math.pi
+
+        if abs(real_angle - 2 * PI_8) <= PI_8:
+            discrete_angle = 45
+        elif abs(real_angle - 4 * PI_8) <= PI_8:
+            discrete_angle = 90
+        elif abs(real_angle - 6 * PI_8) <= PI_8:
+            discrete_angle = 135
+        else:
+            discrete_angle = 0
+
+        return discrete_angle
 
     def compute(self, pixels, x, y):
         x_value = 0
@@ -284,6 +327,13 @@ class SobelFilter(Filter):
 
                 x_value += pixels[x + x_index, y + y_index] * x_mult
                 y_value += pixels[x + x_index, y + y_index] * y_mult
+
+        if self.angular:
+            # Range is between -PI and PI.
+            # https://www.w3schools.com/python/ref_math_atan2.asp#:~:text=The%20math.,is%20between%20PI%20and%20%2DPI.
+            ret_val = math.atan2(y_value, x_value)
+
+            return self._discretize_angle(ret_val)
 
         return math.sqrt(x_value ** 2 + y_value ** 2)
 
@@ -308,25 +358,25 @@ class LaplacianFilter(Filter):
 
 
 class ZeroCrosses:
-    
+
     def replace(self, n, m, umbral=None):
         if umbral:
             if (abs(n)+abs(m)) <= umbral: return 0
-        if n > 0 and m < 0 or n < 0 and m > 0: 
+        if n > 0 and m < 0 or n < 0 and m > 0:
             return 255
         return 0
-    
+
     def compute(self, image, umbral=None):
         result = np.zeros(image.shape)
-        
+
         for x in range(image.shape[0]):
             for y in range(image.shape[1]-1):
                 n = image[x,y]
                 m = image[x, y+1]
-                if (m == 0) and (y+1 < image.shape[1]-1): 
+                if (m == 0) and (y+1 < image.shape[1]-1):
                     m = image[x, y+2]
                 result[x,y] = self.replace(n,m, umbral)
-        
+
         return result
 
     def apply(self, image, umbral=None, join='union'):
@@ -336,25 +386,25 @@ class ZeroCrosses:
 
         if join == 'union':
             return self.join_union(vertical, horizontal)
-        
+
         return self.join_intersection(vertical, horizontal)
 
     def join_union(self, vertical, horizontal):
         result = np.zeros(vertical.shape)
-        
+
         for x in range(vertical.shape[0]):
             for y in range(vertical.shape[1]):
                 result[x,y] = 255 if vertical[x,y] == 255 or horizontal[x,y] == 255 else 0
-        
+
         return result
 
     def join_intersection(self, vertical, horizontal):
         result = np.zeros(vertical.shape)
-        
+
         for x in range(vertical.shape[0]):
             for y in range(vertical.shape[1]):
                 result[x,y] = 255 if vertical[x,y] == 255 and horizontal[x,y] == 255 else 0
-        
+
         return result
 
 
@@ -367,7 +417,7 @@ class LOGFilter(Filter):
 
         super().__init__(image, L=L)
         self.sigma = sigma
-        
+
         h = int(math.floor(L/2))
 
         self.mask = np.zeros((L,L)).astype('float64')

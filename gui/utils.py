@@ -18,7 +18,7 @@ from PyQt5.QtCore import pyqtSlot, QSize
 
 from display import hdisplay
 
-METADATA_FILE="data/info.txt"
+METADATA_FILE="../data/info.txt"
 TRANSFORMATION_FOLDER = 'transformations'
 
 

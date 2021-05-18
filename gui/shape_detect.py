@@ -13,7 +13,8 @@ from utils import (
     newButton,
     display_before_after,
     numpy_to_pil_image,
-    TRANSFORMATION_FOLDER
+    TRANSFORMATION_FOLDER,
+    display_before_after,
 )
 from display import hdisplay
 from filters import (
@@ -21,6 +22,7 @@ from filters import (
     SobelFilter,
     DirectionalFilter,
     LaplacianFilter,
+    GaussianFilter,
     ZeroCrosses,
     LOGFilter,
     VER,
@@ -340,3 +342,122 @@ class ShapeDetectTab(QWidget):
         self.sigma = int(self.sigma_input.text())
         self.L = 6*self.sigma+1
         self.log_mask_input.setText(str(self.L))
+
+
+class ModernShapeDetectTab(QWidget):
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+
+        self.parent = parent
+        self.layout = QGridLayout(parent)
+
+        self.image = self.parent.changes[-1]
+        self.imageShape = np.asarray(self.parent.image).shape
+
+        # Canny Widgets
+        self.canny = QLabel("Canny Method")
+        self.canny.setStyleSheet("background-color: #ccccff")
+        self.canny_filter = newButton("Apply", self.onCannyClick)
+
+        # We add widgets to layout
+        self.layout.addWidget(self.canny, 0, 0)
+        self.layout.addWidget(self.canny_filter, 0, 1)
+
+        self.setLayout(self.layout)
+
+    def _get_gradients(self, angle):
+        if angle == 90:
+            gradient = [(0, 1), (0, -1)]
+        elif angle == 45:
+            gradient = [(1, 1), (-1, -1)]
+        elif angle == 135:
+            gradient = [(-1, 1), (1, -1)]
+        else:  # angle == 0
+            gradient = [(-1, 0), (1, 0)]
+
+        return gradient
+
+    # Shape returns ( len(y) , len(x) )
+    def _in_bounds(self, x, y, dx, dy):
+        return (self.imageShape[1] > x + dx >= 0) \
+               and (self.imageShape[0] > y + dy >= 0)
+
+    def _supress_non_maxima(self):
+        for x_index, y_index in np.ndindex(self.image.shape):
+            ang = self.angle_matrix[x_index, y_index]
+            mod = self.border_magnitude[x_index, y_index]
+            # mod = self.border_magnitude[x_index][y_index]
+            gradients = self._get_gradients(ang)
+
+            flag = True
+            for delta_x, delta_y in gradients:
+                if self._in_bounds(x_index, y_index, delta_x, delta_y):
+                    displaced_mod = self.border_magnitude[x_index + delta_x, y_index + delta_y]
+                    if displaced_mod >= mod:
+                        flag = False
+                    if displaced_mod == mod:
+                        self.border_magnitude[x_index + delta_x, y_index + delta_y] = 0
+                        self.angle_matrix[x_index, y_index] = self.angle_matrix[x_index + delta_x, y_index + delta_y]
+
+            self.border_magnitude[x_index, y_index] = round(mod) if flag else 0
+    
+            return self.border_magnitude
+
+    def _hysteresis_treshold(self, t1, t2):
+        deltas = [(i, j) for i in range(-1, 1 + 1) for j in range(-1, 1 + 1) if i != 0 or j != 0]
+        for x, y in np.ndindex(self.imageShape):
+            if self.border_magnitude[x, y] <= t1:
+                self.border_magnitude[x, y] = 0
+            elif self.border_magnitude[x, y] >= t2:
+                self.border_magnitude[x, y] = 255
+            else:
+                self.border_magnitude[x, y] = 0
+                for delta_x, delta_y in deltas:
+                    if self._in_bounds(x, y, delta_x, delta_y) and self.border_magnitude[x+delta_x][y + delta_y] >= t2:
+                        self.border_magnitude[x, y] = 255
+
+        self.image = self.border_magnitude
+
+    def onCannyClick(self):
+        self.image = self.parent.changes[-1]
+
+        if len(self.imageShape) == 3:
+
+            r, g, b = self.image[0], self.image[1], self.image[2]
+
+            filter_r = SobelFilter(r)
+            filter_g = SobelFilter(g)
+            filter_b = SobelFilter(b)
+
+            r_result = filter_r.apply(normalize=True)
+            g_result = filter_g.apply(normalize=True)
+            b_result = filter_b.apply(normalize=True)
+
+            np_img = (r_result, g_result, b_result)
+        else:
+            gauss = GaussianFilter(self.image, 2)
+            self.image = gauss.apply(normalize=True)
+
+            sobel_filter = SobelFilter(self.image)
+            self.border_magnitude = sobel_filter.apply(normalize=False)
+
+            angular_filter = SobelFilter(self.image, angular=True)
+            self.angle_matrix = angular_filter.apply(normalize=False)
+
+            self.border_magnitude = self._supress_non_maxima()
+
+            display_before_after(
+                self.parent,
+                self.border_magnitude,
+                f"NonMaxima Method"
+            )
+
+            t1 = 70
+            t2 = 150
+            self._hysteresis_treshold(t1, t2)
+
+            display_before_after(
+                self.parent,
+                self.image,
+                f"Canny Method"
+            )
