@@ -110,7 +110,7 @@ class NoiseTab(QWidget):
         print(f"SIGMA: {self.sigma_input.text()}; MU: {self.mu_input.text()}")
         rng = np.random.default_rng()
         sigma = float(self.sigma_input.text())
-        mu = float(self.mu_input.text()) # Should usually be zero
+        mu = float(self.mu_input.text())  # Should usually be zero
 
         shape = self.imageShape
         if len(image) == 3:

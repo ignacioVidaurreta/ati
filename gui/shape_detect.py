@@ -7,7 +7,8 @@ from PyQt5.QtWidgets import (
     QWidget,
     QGridLayout,
     QLabel,
-    QLineEdit
+    QLineEdit,
+    QComboBox
 )
 from utils import (
     newButton,
@@ -26,8 +27,11 @@ from filters import (
     VER,
     HOR,
     DIAG1,
-    DIAG2
+    DIAG2,
+    SusanFilter
 )
+
+from PIL import Image
 
 class ShapeDetectTab(QWidget):
 
@@ -340,3 +344,59 @@ class ShapeDetectTab(QWidget):
         self.sigma = int(self.sigma_input.text())
         self.L = 6*self.sigma+1
         self.log_mask_input.setText(str(self.L))
+
+
+class ModernShapeDetectTab(QWidget):
+    def __init__(self, parent):
+        super(QWidget, self).__init__(parent)
+
+        self.parent = parent
+        self.layout = QGridLayout(parent)
+
+        self.imageShape = np.asarray(self.parent.image).shape
+
+        # SUSAN Widgets
+        self.susan = QLabel("Susan Method")
+        self.susan.setStyleSheet("background-color: #ccccff")
+        # self.t_label, self.t_input = QLabel("t value"), QLineEdit()
+        # self.t_input.setText("15")
+        # self.delta_label, self.delta_input = QLabel("Delta"), QLineEdit()
+        # self.delta_input.setText("0.15")
+        self.susan_cb = QComboBox()
+        self.susan_cb.addItems(["Borders", "Corners", "All"])
+        self.susan_filter = newButton("Apply", self.onSusanClick)
+
+        # We add widgets to layout
+        self.layout.addWidget(self.susan, 1, 0)
+        # self.layout.addWidget(self.t_label, 1, 1)
+        # self.layout.addWidget(self.t_input, 1, 2)
+        # self.layout.addWidget(self.delta_label, 1, 3)
+        # self.layout.addWidget(self.delta_input, 1, 4)
+        self.layout.addWidget(self.susan_cb, 1, 1)
+        self.layout.addWidget(self.susan_filter, 1, 2)
+
+        self.setLayout(self.layout)
+
+    def onSusanClick(self):
+        image = self.parent.changes[-1]
+
+        if len(self.imageShape) == 3:
+            print("ERROR: Showing Color image instead of B&W image")
+        else:
+            susan_filter = SusanFilter(image, self.susan_cb.currentText())
+            np_img = susan_filter.apply(normalize=False)
+
+            img = Image.fromarray(np_img).convert("RGB").copy()
+            pixels = img.load()
+            for x, y in np.ndindex(img.size):
+                if np_img[x][y] == -255:
+                    pixels[y, x] = (255, 0, 0)
+                elif np_img[x][y] == -128:
+                    pixels[y, x] = (0, 255, 0)
+
+            # display_before_after(
+            #     self.parent,
+            #     np_img,
+            #     f'Susan Filter'
+            # )
+            img.show()

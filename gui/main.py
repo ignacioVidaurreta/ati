@@ -29,7 +29,7 @@ from operations import OperationsTab
 from pixel import PixelTab
 from noise import NoiseTab
 from image_filter import FilterTab
-from shape_detect import ShapeDetectTab
+from shape_detect import ShapeDetectTab, ModernShapeDetectTab
 from diffusion import DiffusionTab
 from hough import HoughTab
 
@@ -209,7 +209,7 @@ class MainWindow(QWidget):
         self.tab8 = NoiseTab(self)
         self.tab9 = ShapeDetectTab(self)
         self.tab10 = DiffusionTab(self)
-        self.tab11 = ShapeDetectTab(self) # UnconventionalShapeDetectTab
+        self.tab11 = ModernShapeDetectTab(self)  # UnconventionalShapeDetectTab
 
         self.tab12 = HoughTab(self)
         # self.tabs.addTab(self.tab2, "Pixel")
