@@ -366,11 +366,20 @@ class ModernShapeDetectTab(QWidget):
         # Canny Widgets
         self.canny = QLabel("Canny Method")
         self.canny.setStyleSheet("background-color: #ccccff")
+        self.t1_label, self.t1_input = QLabel("t1"), QLineEdit()
+        self.t1_input.setText("70")
+        self.t2_label, self.t2_input = QLabel("t2"), QLineEdit()
+        self.t2_input.setText("150")
+
         self.canny_filter = newButton("Apply", self.onCannyClick)
 
         # We add widgets to layout
         self.layout.addWidget(self.canny, 0, 0)
-        self.layout.addWidget(self.canny_filter, 0, 1)
+        self.layout.addWidget(self.t1_label, 0, 1)
+        self.layout.addWidget(self.t1_input, 0, 2)
+        self.layout.addWidget(self.t2_label, 0, 3)
+        self.layout.addWidget(self.t2_input, 0, 4)
+        self.layout.addWidget(self.canny_filter, 0, 5)
         self.layout.addWidget(self.susan, 1, 0)
         self.layout.addWidget(self.susan_cb, 1, 1)
         self.layout.addWidget(self.susan_filter, 1, 2)
@@ -408,20 +417,21 @@ class ModernShapeDetectTab(QWidget):
             print("ERROR, RGB IMAGE DETECTED")
         else:
 
-            # We apply the Sobel Filter but a custom version.
-            # With the code as it is now, we would need to apply it 2 times, one
+            # We apply the Canny Filter with a custom version of Filter.
+            # With the regular Filter, we would need to apply SobelFilter 2 times, one
             # for the magnitude matrix and one for the angle matrix, so instead
-            # we rewrite it to have a matrix of tuples
+            # we rewrite it to have a matrix of tuples and adapt the code for everything
+            # to handle said scenario
             canny = CannyCustomFilter(self.image)
 
             angle_matrix = canny.apply_sobel()
             canny.supress_non_maxima(angle_matrix)
-            t1 = 70
-            t2 = 150
-            canny.apply_hysteresis_threshold(angle_matrix, t1, t2)
+            t1 = int(self.t1_input.text())
+            t2 = int(self.t2_input.text())
+            canny.apply_hysteresis_threshold(t1, t2)
 
             display_before_after(
                 self.parent,
                 canny.image,
-                f"Canny Method"
+                f"Canny Method - t1: {t1}, t2: {t2}"
             )

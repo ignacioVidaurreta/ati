@@ -51,14 +51,11 @@ class CannyCustomFilter:
         # Range is between -PI and PI.
         # https://www.w3schools.com/python/ref_math_atan2.asp#:~:text=The%20math.,is%20between%20PI%20and%20%2DPI.
         ret_val = math.atan2(y_value, x_value)
-        angle = 90 if x_value == 0 else self._discretize_angle(ret_val)
+        angle = self._discretize_angle(ret_val)
 
         mod = math.sqrt(x_value ** 2 + y_value ** 2)
 
         return mod, angle
-
-    def p(self, i):
-        print(i)
 
     def apply_sobel(self):
         start_time = time.time()
@@ -94,46 +91,52 @@ class CannyCustomFilter:
         set(map(process_pixel, np.ndindex(self.image.shape)))
 
         elapsed_time = time.time() - start_time
-        self.p(f'ELAPSED TIME: {elapsed_time}')
+        print(f'ELAPSED TIME: {elapsed_time}')
         return new_pixels
+
+    def _get_gradient(self, angle):
+        if angle == 45:
+            gradient = [(1, 1), (-1, -1)]
+        elif angle == 90:
+            gradient = [(0, 1), (0, -1)]
+        elif angle == 135:
+            gradient = [(-1, 1), (1, -1)]
+        else:  # angle == 0
+            gradient = [(-1, 0), (1, 0)]
+
+        return gradient
+
+    def _in_bounds(self, x, y, dx, dy):
+        return (self.image.shape[1] > x + dx >= 0) and \
+               (self.image.shape[0] > y + dy >= 0)
 
     def supress_non_maxima(self, angle_matrix):
         for x, y in np.ndindex(self.image.shape):
-            mod, angle = angle_matrix[x][y]
+            mod, angle = angle_matrix[y][x]
 
-            deltas = [(-1, 0), (1, 0)]
-            if angle == 45:
-                deltas = [(1, 1), (-1, -1)]
-            elif angle == 90:
-                deltas = [(0, 1), (0, -1)]
-            elif angle == 135:
-                deltas = [(-1, 1), (1, -1)]
+            gradient = self._get_gradient(angle)
 
             flag = True
-            for delta_x, delta_y in deltas:
-                if ((self.image.shape[1] > x + delta_x >= 0) and
-                        (self.image.shape[0] > y + delta_y >= 0)):
-                    if angle_matrix[x + delta_x][y + delta_y][0] >= mod:
+            for delta_x, delta_y in gradient:
+                if self._in_bounds(x, y, delta_x, delta_y):
+                    displaced_mod = angle_matrix[y + delta_y][x + delta_x][0]
+                    if displaced_mod >= mod:
                         flag = False
-                    if angle_matrix[x + delta_x][y + delta_y][0] == mod:
-                        angle_matrix[x][y] = (0, angle_matrix[x + delta_x][y + delta_y][1])
+                    if displaced_mod == mod:
+                        angle_matrix[y][x] = (0, angle_matrix[y + delta_y][x + delta_x][1])
 
-            if flag:
-                self.image[x, y] = round(mod)
-            else:
-                self.image[x, y] = 0
+            self.image[y, x] = round(mod) if flag else 0
 
-    def apply_hysteresis_threshold(self, angle_matrix, t1, t2):
+    def apply_hysteresis_threshold(self, t1, t2):
         deltas = [(i, j) for i in range(-1, 1 + 1) for j in range(-1, 1 + 1) if i != 0 or j != 0]
         for x, y in np.ndindex(self.image.shape):
-            if self.image[x, y] <= t1:
-                self.image[x, y] = 0
-            elif self.image[x, y] >= t2:
-                self.image[x, y] = 255
+            if self.image[y, x] <= t1:
+                self.image[y, x] = 0
+            elif self.image[y, x] >= t2:
+                self.image[y, x] = 255
             else:
-                self.image[x, y] = 0
+                self.image[y, x] = 0
                 for delta_x, delta_y in deltas:
-                    if ((self.image.shape[1] > x + delta_x >= 0) and
-                            (self.image.shape[0] > y + delta_y >= 0) and
-                            self.image[x + delta_x, y + delta_y] >= t2):
-                        self.image[x, y] = 255
+                    if ((self._in_bounds(x, y, delta_x, delta_y)) and
+                            self.image[y + delta_y, x + delta_x] >= t2):
+                        self.image[y, x] = 255
