@@ -18,6 +18,7 @@ from utils import (
 )
 from display import hdisplay
 from filters import (
+    GaussianFilter,
     PrewittFilter,
     SobelFilter,
     DirectionalFilter,
@@ -31,7 +32,7 @@ from filters import (
     SusanFilter
 )
 
-from PIL import Image
+from canny import CannyCustomFilter
 
 class ShapeDetectTab(QWidget):
 
@@ -358,20 +359,19 @@ class ModernShapeDetectTab(QWidget):
         # SUSAN Widgets
         self.susan = QLabel("Susan Method")
         self.susan.setStyleSheet("background-color: #ccccff")
-        # self.t_label, self.t_input = QLabel("t value"), QLineEdit()
-        # self.t_input.setText("15")
-        # self.delta_label, self.delta_input = QLabel("Delta"), QLineEdit()
-        # self.delta_input.setText("0.15")
         self.susan_cb = QComboBox()
         self.susan_cb.addItems(["Borders", "Corners", "All"])
         self.susan_filter = newButton("Apply", self.onSusanClick)
 
+        # Canny Widgets
+        self.canny = QLabel("Canny Method")
+        self.canny.setStyleSheet("background-color: #ccccff")
+        self.canny_filter = newButton("Apply", self.onCannyClick)
+
         # We add widgets to layout
+        self.layout.addWidget(self.canny, 0, 0)
+        self.layout.addWidget(self.canny_filter, 0, 1)
         self.layout.addWidget(self.susan, 1, 0)
-        # self.layout.addWidget(self.t_label, 1, 1)
-        # self.layout.addWidget(self.t_input, 1, 2)
-        # self.layout.addWidget(self.delta_label, 1, 3)
-        # self.layout.addWidget(self.delta_input, 1, 4)
         self.layout.addWidget(self.susan_cb, 1, 1)
         self.layout.addWidget(self.susan_filter, 1, 2)
 
@@ -400,3 +400,28 @@ class ModernShapeDetectTab(QWidget):
             #     f'Susan Filter'
             # )
             img.show()
+
+    def onCannyClick(self):
+        self.image = self.parent.changes[-1]
+
+        if len(self.imageShape) == 3:
+            print("ERROR, RGB IMAGE DETECTED")
+        else:
+
+            # We apply the Sobel Filter but a custom version.
+            # With the code as it is now, we would need to apply it 2 times, one
+            # for the magnitude matrix and one for the angle matrix, so instead
+            # we rewrite it to have a matrix of tuples
+            canny = CannyCustomFilter(self.image)
+
+            angle_matrix = canny.apply_sobel()
+            canny.supress_non_maxima(angle_matrix)
+            t1 = 70
+            t2 = 150
+            canny.apply_hysteresis_threshold(angle_matrix, t1, t2)
+
+            display_before_after(
+                self.parent,
+                canny.image,
+                f"Canny Method"
+            )
