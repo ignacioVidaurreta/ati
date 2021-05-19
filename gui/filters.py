@@ -445,4 +445,4 @@ class SusanFilter(Filter):
             return -128
 
         return pixels[x, y]  # Do not modify it if its not a border or a corner
-x
+
