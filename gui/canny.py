@@ -107,36 +107,39 @@ class CannyCustomFilter:
         return gradient
 
     def _in_bounds(self, x, y, dx, dy):
-        return (self.image.shape[1] > x + dx >= 0) and \
-               (self.image.shape[0] > y + dy >= 0)
+        return (self.image.shape[0] > x + dx >= 0) and \
+               (self.image.shape[1] > y + dy >= 0)
 
     def supress_non_maxima(self, angle_matrix):
         for x, y in np.ndindex(self.image.shape):
-            mod, angle = angle_matrix[y][x]
+
+            mod, angle = angle_matrix[x][y]
+
 
             gradient = self._get_gradient(angle)
 
             flag = True
-            for delta_x, delta_y in gradient:
+            for delta_y, delta_x in gradient:
                 if self._in_bounds(x, y, delta_x, delta_y):
-                    displaced_mod = angle_matrix[y + delta_y][x + delta_x][0]
+
+                    displaced_mod = angle_matrix[x + delta_x][y + delta_y][0]
                     if displaced_mod >= mod:
                         flag = False
                     if displaced_mod == mod:
-                        angle_matrix[y][x] = (0, angle_matrix[y + delta_y][x + delta_x][1])
+                        angle_matrix[x][y] = (0, angle_matrix[x + delta_x][y + delta_y][1])
 
-            self.image[y, x] = round(mod) if flag else 0
+            self.image[x, y] = round(mod) if flag else 0
 
     def apply_hysteresis_threshold(self, t1, t2):
         deltas = [(i, j) for i in range(-1, 1 + 1) for j in range(-1, 1 + 1) if i != 0 or j != 0]
         for x, y in np.ndindex(self.image.shape):
-            if self.image[y, x] <= t1:
-                self.image[y, x] = 0
-            elif self.image[y, x] >= t2:
-                self.image[y, x] = 255
+            if self.image[x, y] <= t1:
+                self.image[x, y] = 0
+            elif self.image[x, y] >= t2:
+                self.image[x, y] = 255
             else:
-                self.image[y, x] = 0
+                self.image[x, y] = 0
                 for delta_x, delta_y in deltas:
                     if ((self._in_bounds(x, y, delta_x, delta_y)) and
-                            self.image[y + delta_y, x + delta_x] >= t2):
-                        self.image[y, x] = 255
+                            self.image[x + delta_x, y + delta_y] >= t2):
+                        self.image[x, y] = 255
