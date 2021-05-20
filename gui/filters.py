@@ -433,8 +433,6 @@ class SusanFilter(Filter):
                     #     print("HULLO")
                     if diff < self.LIMIT:
                         count += 1
-                else:
-                    print(f"SKIPPED Y:{y_index}, X: {x_index}")
 
         s_value = 1.0 - count/N
         if abs(s_value - 0.75) <= self.DELTA and self.mode in ["Corners", "All"]:
