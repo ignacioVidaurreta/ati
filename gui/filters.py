@@ -399,48 +399,33 @@ class SusanFilter(Filter):
     def __init__(self, image, mode, L=7):
         super().__init__(image, L=L)
         self.DELTA = 0.15
-        self.LIMIT = 14
+        self.LIMIT = 15
         self.mode = mode
+        self.mask = [
+            [0, 0, 1, 1, 1, 0, 0],
+            [0, 1, 1, 1, 1, 1, 0],
+            [1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1],
+            [0, 1, 1, 1, 1, 1, 0],
+            [0, 0, 1, 1, 1, 0, 0],
+        ]
+        self.N = 37
 
     def compute(self, pixels, x, y):
-        """
-        The circular matrix should look like this:
-
-        y=-3 | 0 0 # # # 0 0
-        y=-2 | 0 # # # # # 0
-        y=-1 | # # # # # # #
-        y= 0 | # # # # # # #
-        y= 1 | # # # # # # #
-        y= 2 | 0 # # # # # 0
-        y= 3 | 0 0 # # # 0 0
-
-        Where # marks a value we should take into account. We can then notice
-        the pattern used in the code quite easily.
-        N = 3 * 2 + 5 * 2 + 7 * 3 = 37
-
-        """
-        center_pixel = pixels[x, y]
+        r0 = int(pixels[x, y])
         count = 0
-
-        N = 37.0
         for x_index in range(-1 * self.mid, self.mid + 1):
             for y_index in range(-1 * self.mid, self.mid + 1):
-                if (abs(y_index) == 3 and abs(x_index) <= 1) or \
-                        (abs(y_index) == 2 and abs(x_index) <= 2) or \
-                        abs(y_index) <= 1:
-                    diff = abs(pixels[x + x_index, y + y_index] - center_pixel)
-                    # if diff != 0:
-                    #     print("HULLO")
-                    if diff < self.LIMIT:
-                        count += 1
+                if self.mask[x_index + self.mid][y_index + self.mid] == 1 and \
+                        int(pixels[x + x_index, y + y_index]) - r0 < self.LIMIT:
+                    count += 1
 
-        s_value = 1.0 - count/N
+        s_value = 1.0 - (count/self.N)
         if abs(s_value - 0.75) <= self.DELTA and self.mode in ["Corners", "All"]:
-            # print("CASE 1 REACHED")
-            return -255
-        elif abs(s_value - 0.5) <= self.DELTA and self.mode in ["Borders", "All"]:
-            # print("Case 2 REACHED")
+            print("CORNER")
+            return -128
+        if abs(s_value - 0.5) <= self.DELTA and self.mode in ["Borders", "All"]:
             return -128
 
-        return pixels[x, y]  # Do not modify it if its not a border or a corner
-
+        return pixels[x,y] # Do not modify if its not border or corner
