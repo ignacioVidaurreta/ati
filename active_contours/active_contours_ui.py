@@ -27,7 +27,7 @@ class Ui_MainWindow(object):
         self.currentImage.setGeometry(QtCore.QRect(320, 30, 471, 371))
         self.currentImage.setStyleSheet("border-color: rgb(0, 0, 0);")
         self.currentImage.setText("")
-        self.currentImage.setPixmap(QtGui.QPixmap("default.jpg"))
+        self.currentImage.setPixmap(QtGui.QPixmap("active_contours/default.jpg"))
         self.currentImage.setScaledContents(True)
         self.currentImage.setObjectName("currentImage")
         self.chooseImageButton = QtWidgets.QPushButton(self.centralwidget)
