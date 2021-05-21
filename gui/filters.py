@@ -398,7 +398,7 @@ class LOGFilter(Filter):
 class SusanFilter(Filter):
     def __init__(self, image, mode, L=7):
         super().__init__(image, L=L)
-        self.DELTA = 0.15
+        self.DELTA = 0.25
         self.LIMIT = 15
         self.mode = mode
         self.mask = [
@@ -418,14 +418,13 @@ class SusanFilter(Filter):
         for x_index in range(-1 * self.mid, self.mid + 1):
             for y_index in range(-1 * self.mid, self.mid + 1):
                 if self.mask[x_index + self.mid][y_index + self.mid] == 1 and \
-                        int(pixels[x + x_index, y + y_index]) - r0 < self.LIMIT:
+                        abs(int(pixels[x + x_index, y + y_index]) - r0) < self.LIMIT:
                     count += 1
 
-        s_value = 1.0 - (count/self.N)
+        s_value = 1.0 - float(count/self.N)
         if abs(s_value - 0.75) <= self.DELTA and self.mode in ["Corners", "All"]:
-            print("CORNER")
-            return -128
-        if abs(s_value - 0.5) <= self.DELTA and self.mode in ["Borders", "All"]:
+            return -255
+        elif abs(s_value - 0.5) <= self.DELTA and self.mode in ["Borders", "All"]:
             return -128
 
-        return pixels[x,y] # Do not modify if its not border or corner
+        return pixels[x, y]  # Do not modify if its not border or corner
