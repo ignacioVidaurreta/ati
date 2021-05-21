@@ -164,7 +164,7 @@ class Ui_MainWindow(object):
         timer.start(100)
 
     def onClickRestart(self):
-        self.currentImage.setPixmap(QtGui.QPixmap("default.jpg"))
+        self.currentImage.setPixmap(QtGui.QPixmap("active_contours/default.jpg"))
         self.setUpDefaults()
 
     def onClickChooseImage(self):
