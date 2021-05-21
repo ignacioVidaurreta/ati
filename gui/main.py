@@ -224,8 +224,8 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.tab7, "Filter")
         self.tabs.addTab(self.tab10, "Smooth")
         self.tabs.addTab(self.tab8, "Noise")
-        self.tabs.addTab(self.tab9, "SD (Traditional)")
-        self.tabs.addTab(self.tab11, "SD (Unconventional)")
+        self.tabs.addTab(self.tab9, "SD (Classic)")
+        self.tabs.addTab(self.tab11, "SD (Modern)")
         self.tabs.addTab(self.tab12, "Hough")
 
     def onRestartClick(self):
