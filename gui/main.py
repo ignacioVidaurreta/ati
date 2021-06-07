@@ -47,6 +47,8 @@ from utils import (
     numpy_to_pil_image
 )
 
+from advanced_borders import AdvancedBordersTab
+
 class App(QMainWindow):
 
     def __init__(self):
@@ -212,6 +214,7 @@ class MainWindow(QWidget):
         self.tab11 = ModernShapeDetectTab(self)  # UnconventionalShapeDetectTab
 
         self.tab12 = HoughTab(self)
+        self.tab13 = AdvancedBordersTab(self)
         # self.tabs.addTab(self.tab2, "Pixel")
         # self.tabs.addTab(self.tab3, "Crop")
         # self.tabs.addTab(self.tab4, "Operations")
@@ -227,6 +230,7 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.tab9, "SD (Classic)")
         self.tabs.addTab(self.tab11, "SD (Modern)")
         self.tabs.addTab(self.tab12, "Hough")
+        self.tabs.addTab(self.tab13, "Advanced Borders")
 
     def onRestartClick(self):
         self.layout.removeWidget(self.tabs)

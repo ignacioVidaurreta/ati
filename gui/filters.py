@@ -198,8 +198,9 @@ class EnhancementFilter(Filter):
 
 class PrewittFilter(Filter):
 
-    def __init__(self, image):
+    def __init__(self, image, mode="all"):
         super().__init__(image, L=3)
+        self.mode = mode
 
     def compute(self, pixels, x, y):
         x_value = 0
@@ -209,7 +210,18 @@ class PrewittFilter(Filter):
                 x_value += pixels[x + x_index, y + y_index] * y_index
                 y_value += pixels[x + x_index, y + y_index] * x_index
 
-        return math.sqrt(x_value ** 2 + y_value ** 2)
+        if self.mode == "all":
+            ans = math.sqrt(x_value ** 2 + y_value ** 2)
+        elif self.mode == "dx":
+            ans = x_value
+        elif self.mode == "dy":
+            ans = y_value
+        else:
+            raise ValueError(f"Error: {self.mode} is not a valid mode")
+
+        return ans
+
+
 
 
 class DirectionalFilter(Filter):
