@@ -51,18 +51,25 @@ class AdvancedBordersTab(QWidget):
             print("ERROR, RGB IMAGE DETECTED")
             return
 
-        prewitt_dx = PrewittFilter(self.image, mode="dx").apply(normalize=True)
-        prewitt_dy = PrewittFilter(self.image, mode="dy").apply(normalize=True)
+        prewitt_dx = PrewittFilter(self.image, mode="dx").apply()
+        prewitt_dy = PrewittFilter(self.image, mode="dy").apply()
 
-        i_xx = GaussianFilter(np.square(prewitt_dx), sigma=2, L=7).apply()
-        i_yy = GaussianFilter(np.square(prewitt_dy), sigma=2, L=7).apply()
+        i_x = GaussianFilter(prewitt_dx, sigma=2, L=7).apply()
+        i_y = GaussianFilter(prewitt_dy, sigma=2, L=7).apply()
 
-        i_xy = GaussianFilter(np.multiply(prewitt_dx, prewitt_dy), sigma=2, L=7).apply()
+        i_xx = np.square(i_x)
+        i_yy = np.square(i_y)
+
+        i_xy = np.multiply(i_x, i_y)
 
         k = 0.04
         R = (i_xx * i_yy - np.square(i_xy)) - k * np.square((i_xx + i_yy))
 
-        max_val = 80
+        max_val = 0.1
+        # Esta umbralización hay un problema, habría que superponerla con la imágen para que
+        # muestre las esquinas. Según Juli con un valor > 0 vale para que sea esquina. Pero 0 no es
+        # un buen valor porque hace las esquinas mnuy gruesas (ver la grabación de la última clase).
+        # Podríamos poner el umbral como parámetro para probar
         umbralized = np.array([list(map(lambda x: 255 if x > max_val else 0, col)) for col in R])
 
         display_before_after(
