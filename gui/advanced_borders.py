@@ -54,13 +54,11 @@ class AdvancedBordersTab(QWidget):
         prewitt_dx = PrewittFilter(self.image, mode="dx").apply()
         prewitt_dy = PrewittFilter(self.image, mode="dy").apply()
 
-        i_x = GaussianFilter(prewitt_dx, sigma=2, L=7).apply()
-        i_y = GaussianFilter(prewitt_dy, sigma=2, L=7).apply()
 
-        i_xx = np.square(i_x)
-        i_yy = np.square(i_y)
+        i_xx = GaussianFilter(np.square(prewitt_dx), sigma=2, L=7).apply()
+        i_yy = GaussianFilter(np.square(prewitt_dy), sigma=2, L=7).apply()
 
-        i_xy = np.multiply(i_x, i_y)
+        i_xy = GaussianFilter(np.multiply(prewitt_dx, prewitt_dy), sigma=2, L=7).apply()
 
         k = 0.04
         R = (i_xx * i_yy - np.square(i_xy)) - k * np.square((i_xx + i_yy))
