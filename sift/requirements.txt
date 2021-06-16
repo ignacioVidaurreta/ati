@@ -1,0 +1,17 @@
+joblib==0.14.0
+matplotlib
+numpy==1.17.3
+opencv-python==4.1.2.30
+opencv-python-headless==4.5.2.54
+Pillow
+PyQt5==5.15.2
+pyqt5-plugins==5.15.2.2.0.1
+PyQt5-sip==12.8.1
+pyqt5-tools==5.15.2.3
+python-resize-image==1.1.19
+pyuic5-tool==0.0.1
+qimage2ndarray==1.8.3
+qt5-applications==5.15.2.2.1
+qt5-tools==5.15.2.1.0.1
+scikit-learn==0.24.1
+scipy==1.6.1
