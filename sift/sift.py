@@ -57,7 +57,7 @@ def run_sift(
         flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS
     )
 
-    Image.fromarray(result).resize((800, 800)).show()
+    Image.fromarray(result).resize((1600, 800)).show()
 
     key_points_image = cv.drawKeypoints(
         img1,
